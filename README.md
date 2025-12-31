@@ -1,122 +1,118 @@
-# md2visio-gui - 一款更易用的 Mermaid 转 Visio 工具
+# md2visio - Mermaid to Visio Converter
 
-![GUI界面截图](https://img-cdn.ccrui.cn/2025/06/23/68582f169e159.png)
+**English | [中文](README_zh.md)**
 
-这是一个基于 .NET 8 和 Windows Forms 的桌面应用程序，它可以将您用 Mermaid.js 语法编写的图表，轻松转换为 Microsoft Visio 的 `.vsdx` 格式文件。
+![GUI Screenshot](https://img-cdn.ccrui.cn/2025/06/23/68582f169e159.png)
 
-与原版相比，本项目最大的特点是提供了一个直观的图形用户界面 (GUI)，让不熟悉命令行的朋友也能愉快地使用。
+A desktop application built with .NET 8 and Windows Forms that converts Mermaid.js diagrams to Microsoft Visio `.vsdx` format files.
 
-> 转换效果：![示例](https://img-cdn.ccrui.cn/2025/06/23/685831c3cd15c.png)
+The key feature of this project is providing an intuitive graphical user interface (GUI), making it accessible to users who are not familiar with command-line tools.
 
-## ✨ 项目缘起与致谢
+> Conversion Example: ![Example](https://img-cdn.ccrui.cn/2025/06/23/685831c3cd15c.png)
 
-本项目是在 [Megre/md2visio](https://github.com/Megre/md2visio) 这个优秀项目的基础上进行二次开发的。
+## ✨ Credits & Acknowledgments
 
-原项目为 Mermaid 到 Visio 的转换提供了强大的核心逻辑，解决了最关键的技术难题。我在它的基础上，主要做了以下工作：
-*   **开发了全新的图形用户界面 (GUI)**，让操作更直观、更简单。
-*   **修复了若干稳定性问题**，例如在特定情况下 Visio 进程闪退的 bug。
-*   **优化了UI布局和用户体验**，让软件用起来更顺手。
-*   **重构了部分代码**，使其更易于维护和扩展。
+This project is a fork of [Megre/md2visio](https://github.com/Megre/md2visio).
 
-在此，特别感谢原作者 **Megre** 的杰出工作和开源贡献！
+The original project provides the powerful core logic for Mermaid to Visio conversion. Based on that foundation, I have:
+*   **Developed a brand-new GUI** for more intuitive and simpler operation
+*   **Fixed several stability issues**, such as Visio process crashes in certain scenarios
+*   **Optimized UI layout and user experience**
+*   **Refactored parts of the codebase** for better maintainability and extensibility
 
-## 🚀 主要功能
+Special thanks to **Megre** for the outstanding work and open-source contribution!
 
-*   **图形化操作**: 告别命令行，所有功能都可以在窗口里点几下鼠标完成。
-*   **拖拽支持**: 直接把 `.md` 文件拖进程序窗口，自动加载。
-*   **实时日志**: 黑底绿字的日志窗口，实时显示转换的每一步，方便排查问题。
-*   **灵活的输出设置**: 可以自由指定输出的文件夹和文件名。
-*   **Visio 显示控制**: 你可以选择在转换时，实时看着 Visio 窗口画图；也可以让它在后台默默完成。
-*   **环境自检**: 不确定自己的电脑环境行不行？点一下“检查Visio”按钮，程序会帮你判断。
+## 🚀 Key Features
 
-## 📊 支持的 Mermaid 图表类型
+*   **Graphical Interface**: No command line needed - all features accessible via mouse clicks
+*   **Drag & Drop Support**: Simply drag `.md` files into the window to load them
+*   **Real-time Logging**: Monitor the conversion process step by step
+*   **Flexible Output Settings**: Customize output folder and filename
+*   **Visio Display Control**: Watch Visio draw in real-time or run silently in the background
+*   **Environment Check**: One-click verification of Visio installation status
 
-这是当前版本对 Mermaid 图表的支持情况。我们会持续努力支持更多类型！
+## 📊 Supported Mermaid Diagram Types
 
-- [x] **graph / flowchart** (流程图)
-  - [x] themes (支持主题)
-- [x] **journey** (用户旅程图)
-  - [x] themes (支持主题)
-- [x] **pie** (饼图)
-  - [x] themes (支持主题)
-- [x] **packet-beta** (数据包图)
-  - [x] themes (支持主题)
-- [x] **xychart-beta** (XY图表)
-- [x] **Configuration** (配置指令)
-  - [x] `frontmatter`
-  - [x] `directive`
-- [ ] **sequenceDiagram** (时序图) - **暂不支持**
-- [ ] **classDiagram** (类图) - **暂不支持**
-- [ ] **stateDiagram / stateDiagram-v2** (状态图) - **暂不支持**
-- [ ] **erDiagram** (实体关系图) - **暂不支持**
-- [ ] **gantt** (甘特图) - **暂不支持**
-- [ ] **quadrantChart** (象限图) - **暂不支持**
-- [ ] **requirementDiagram** (需求图) - **暂不支持**
-- [ ] **gitGraph** (Git图) - **暂不支持**
-- [ ] **C4Context** (C4上下文图) - **暂不支持**
-- [ ] **mindmap** (脑图) - **暂不支持**
-- [ ] **timeline** (时间轴) - **暂不支持**
-- [ ] **zenuml** - **暂不支持**
-- [ ] **sankey-beta** (桑基图) - **暂不支持**
-- [ ] **block-beta** (块状图) - **暂不支持**
-- [ ] **kanban** (看板) - **暂不支持**
-- [ ] **architecture-beta** (架构图) - **暂不支持**
+| Diagram Type | Status | Theme Support |
+|-------------|--------|---------------|
+| **graph / flowchart** | ✅ Supported | ✅ |
+| **sequenceDiagram** | ✅ Supported | ✅ |
+| **journey** | ✅ Supported | ✅ |
+| **pie** | ✅ Supported | ✅ |
+| **packet-beta** | ✅ Supported | ✅ |
+| **xychart-beta** | ✅ Supported | - |
+| **Configuration** (frontmatter/directive) | ✅ Supported | - |
+| classDiagram | ❌ Not yet | - |
+| stateDiagram | ❌ Not yet | - |
+| erDiagram | ❌ Not yet | - |
+| gantt | ❌ Not yet | - |
+| gitGraph | ❌ Not yet | - |
+| mindmap | ❌ Not yet | - |
+| timeline | ❌ Not yet | - |
+| sankey-beta | ❌ Not yet | - |
 
-## 💻 技术栈详解
+## 💻 Tech Stack
 
-本项目深度整合了 .NET 生态与经典的桌面应用技术，以下是其核心技术构成：
+*   **Core Framework**: .NET 8 + C# 12
+*   **User Interface**: Windows Forms (WinForms)
+*   **Key Dependencies**:
+    *   **Microsoft.Office.Interop.Visio**: COM interop for Visio communication
+    *   **YamlDotNet**: YAML configuration file parsing
+*   **Architecture Patterns**:
+    *   Layered Architecture (Library + GUI)
+    *   State Machine Pattern (Mermaid parsing)
+    *   Service Layer Pattern (ConversionService)
+    *   IDisposable Pattern (COM resource management)
 
-*   **核心框架与语言**
-    *   **.NET 8**: 项目基于现代化的 .NET 8 框架构建，享受其带来的高性能、跨平台（潜力）和长期支持。
-    *   **C# 12**: 使用最新版本的 C# 语言，充分利用其在异步编程、模式匹配和类型安全方面的语言新特性。
+## 🛠️ Usage Guide
 
-*   **用户界面 (UI)**
-    *   **Windows Forms (WinForms)**: 采用成熟稳定的 WinForms 框架构建图形用户界面，确保了在 Windows 系统下的良好兼容性和原生体验。所有UI控件均为运行时动态创建，提供了灵活的布局能力。
+### For End Users
 
-*   **核心依赖库**
-    *   **Microsoft.Office.Interop.Visio**: 这是实现与 Visio 通信的**关键技术**。通过 COM (Component Object Model) 互操作，程序能够直接调用本地安装的 Visio 应用程序接口，实现对文档、页面、形状的程序化控制。
-    *   **YamlDotNet**: 用于解析 `default` 目录下的 `.yaml` 配置文件。这些文件定义了各类图表的默认样式（如颜色、字体、布局），使得用户可以方便地自定义图表主题。
+1.  **Download**: Go to [Releases](https://github.com/konbakuyomu/md2visio-gui/releases) and download the latest version
+2.  **Extract**: Unzip to any location
+3.  **Prerequisites**: Ensure **Microsoft Visio** desktop version is installed
+4.  **Run**: Double-click `md2visio.GUI.exe` to launch
 
-*   **架构与设计模式**
-    *   **分层架构**: 项目采用清晰的 **类库 + GUI** 分层设计。核心的解析和绘图逻辑被封装在 `md2visio` 类库中，而 `md2visio.GUI` 则作为用户界面层，实现了业务逻辑与视图的解耦。
-    *   **状态机模式**: 在 `md2visio/mermaid/` 目录下的解析器模块，巧妙地运用了状态机模式来逐行解析复杂的 Mermaid 语法，使其能够准确地识别图表类型和内容。
-    *   **服务层模式**: `ConversionService.cs` 作为服务层，封装了所有与转换相关的业务逻辑，为UI层提供了一个简洁、统一的调用接口。
-    *   **IDisposable 模式**: 为解决 COM 对象的生命周期管理问题，项目中深入应用了 `IDisposable` 接口。通过在服务和配置类中实现此模式，确保了非托管资源（如 Visio 进程）能够被精确、安全地释放，避免了内存泄漏和进程残留。
+### For Developers
 
-*   **部署与分发**
-    *   **.NET 自包含部署 (Self-Contained)**: 项目被配置为自包含发布模式，这意味着它会将所有必需的 .NET 运行时文件与应用程序打包在一起，用户无需在目标电脑上预先安装 .NET 环境。
-    *   **单文件发布 (Single-File)**: 最终的发布成果是一个独立的 `.exe` 文件，极大地简化了分发和使用的流程。
+**Requirements**:
+*   Visual Studio 2022
+*   .NET 8.0 SDK
+*   Microsoft Visio
 
-## 🛠️ 使用指南 (给普通用户)
+**Project Structure**:
+```
+md2visio/          # Core library
+├── mermaid/       # Mermaid parser (state machine)
+├── struc/         # Graph data structures (AST)
+├── vsdx/          # Visio drawing engine
+├── Api/           # Public API interfaces
+└── default/       # Style configuration files
 
-1.  **下载**: 前往本项目的 [Releases](https://github.com/konbakuyomu/md2visio-gui/releases) 页面，下载最新版本的 `md2visio-gui-win-x64.zip` 文件。
-2.  **解压**: 将下载的压缩包解压到你电脑上的任意位置。
-3.  **‼️ 重要前提 ‼️**: 确保你的电脑上已经安装了 **Microsoft Visio** 桌面版。这是程序运行的必要条件。
-4.  **运行**: 双击解压出来的 `md2visio.GUI.exe` 文件，即可启动程序。
+md2visio.GUI/      # Graphical user interface
+└── Services/      # Service layer
 
-## 👨‍💻 二次开发指南 (给开发者)
+md2visio.Tests/    # Unit tests
+```
 
-如果你想对这个项目进行修改或贡献代码，请遵循以下步骤：
+**Build**:
+```bash
+dotnet build md2visio.sln
+```
 
-### **环境要求**
-*   **Visual Studio 2022**: 建议使用最新版本。
-*   **.NET 8.0 SDK**: 确保已安装。
-*   **Microsoft Visio**: 开发和调试时需要。
+**Publish**:
+```bash
+dotnet publish md2visio.GUI -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
+```
 
-### **项目结构**
-本项目主要由两个工程组成：
-*   `md2visio/`: **核心逻辑库**。这是一个 `.NET` 类库项目，包含了所有 Mermaid 语法的解析、数据结构转换和 Visio 绘图的核心代码。
-*   `md2visio.GUI/`: **图形用户界面**。这是一个 `Windows Forms` 项目，它引用了 `md2visio` 核心库，并为其提供了一个用户友好的图形界面。
+## 📝 License
 
-### **如何编译**
-1.  使用 Visual Studio 2022 打开 `md2visio.sln` 解决方案文件。
-2.  将解决方案配置设置为 `Debug` 或 `Release`。
-3.  直接生成解决方案即可。
+MIT License
 
-### **核心代码导览**
-*   **Mermaid 解析器**: 位于 `md2visio/mermaid/` 目录下，采用状态机模式，对不同类型的图表进行逐行解析。
-*   **图形数据结构**: 位于 `md2visio/struc/` 目录下，这是解析器和绘图器之间的桥梁，定义了图表的抽象语法树 (AST)。
-*   **Visio 绘制引擎**: 位于 `md2visio/vsdx/` 目录下，通过 `Microsoft.Office.Interop.Visio` COM 组件与 Visio 应用程序交互，负责在画布上创建形状、连接线和设置样式。
-*   **GUI 服务层**: `md2visio.GUI/Services/ConversionService.cs` 封装了对核心库的调用，并处理了 COM 对象的生命周期管理，是 GUI 与后端逻辑交互的枢纽。
+## 🙏 Acknowledgments
 
-欢迎提交 Pull Request 或在 Issues 中提出你的想法！
+- [Megre/md2visio](https://github.com/Megre/md2visio) - Original project
+
+## ⭐ Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=konbakuyomu/md2visio-gui&type=date&legend=top-left)](https://www.star-history.com/#konbakuyomu/md2visio-gui&type=date&legend=top-left)
