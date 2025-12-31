@@ -15,6 +15,7 @@ namespace md2visio.vsdx
     internal class VDrawerG : VFigureDrawer<Graph>
     {
         LinkedList<GNode> drawnList = new LinkedList<GNode>();
+        HashSet<GNode> drawnSet = new HashSet<GNode>();
 
         public VDrawerG(Graph figure, Application visioApp, ConversionContext context)
             : base(figure, visioApp, context) { }
@@ -53,45 +54,165 @@ namespace md2visio.vsdx
             }
 
             // draw nodes
-            if (nodes2Draw.Count == 0) return;
-
-            DrawLinkedNodes(nodes2Draw, graph.GrowthDirect);
-            Relocate(nodes2Draw.ToList(), graph.GrowthDirect);
-
-            // border
-            if (nodes2Draw.First().Container is GSubgraph)
+            if (nodes2Draw.Count > 0)
             {
-                GSubgraph subgraph = nodes2Draw.First().Container.DownCast<GSubgraph>();
+                DrawLinkedNodes(nodes2Draw, graph.GrowthDirect);
+                Relocate(nodes2Draw.ToList(), graph.GrowthDirect);
+            }
+
+            // border - 直接判断当前graph是否为subgraph
+            if (graph is GSubgraph subgraph)
+            {
                 DrawSubgraphBorder(subgraph);
                 Relocate(subgraph);
             }        
+        }
+
+        List<GNode> SortNodesBFS(LinkedList<GNode> nodes)
+        {
+            var nodeSet = new HashSet<GNode>(nodes);
+            var sorted = new List<GNode>();
+            var visited = new HashSet<GNode>();
+            var queue = new Queue<GNode>();
+
+            foreach (var startNode in nodes)
+            {
+                if (!nodeSet.Contains(startNode) || visited.Contains(startNode)) continue;
+
+                visited.Add(startNode);
+                queue.Enqueue(startNode);
+
+                while (queue.Count > 0)
+                {
+                    var n = queue.Dequeue();
+                    sorted.Add(n);
+
+                    foreach (var child in n.OutputNodes())
+                    {
+                        if (nodeSet.Contains(child) && !visited.Contains(child))
+                        {
+                            visited.Add(child);
+                            queue.Enqueue(child);
+                        }
+                    }
+                }
+            }
+            return sorted;
         }
 
         void DrawLinkedNodes(LinkedList<GNode> nodes, GrowthDirection direct)
         {
             if (nodes.Count == 0) return;
 
-            VBoundary alignBound = Empty.Get<VBoundary>();
-            foreach (GNode node in nodes)
+            var sortedNodes = SortNodesBFS(nodes);
+
+            // 1. 创建所有形状
+            foreach (GNode node in sortedNodes)
             {
                 if (node is GBorderNode) continue;
 
                 Shape shape = CreateShape(node);
-                PauseForViewing(150); // 每个节点创建后暂停
-                
                 SetFillForegnd(shape, "config.themeVariables.primaryColor");
                 SetLineColor(shape, "config.themeVariables.primaryBorderColor");
                 SetTextColor(shape, "config.themeVariables.primaryTextColor");
                 shape.CellsU["LineWeight"].FormulaU = "0.75 pt";
-                PauseForViewing(100); // 样式设置后暂停
-                
-                if (alignBound.IsEmpty()) alignBound = new VShapeBoundary(shape);
+            }
+
+            // 2. 计算子树宽度（后序遍历）
+            var subtreeCrossSizes = new Dictionary<GNode, double>();
+            bool isVertical = direct.H == 0;
+
+            double GetCrossSize(GNode n) => n.VisioShape != null
+                ? (isVertical ? Width(n.VisioShape) : Height(n.VisioShape)) : 0;
+            double GetMainSize(GNode n) => n.VisioShape != null
+                ? (isVertical ? Height(n.VisioShape) : Width(n.VisioShape)) : 0;
+
+            // 反向遍历BFS列表实现后序
+            for (int i = sortedNodes.Count - 1; i >= 0; i--)
+            {
+                var node = sortedNodes[i];
+                if (node.VisioShape == null) continue;
+
+                var children = node.OutputNodes()
+                    .Where(c => sortedNodes.Contains(c) && c.VisioShape != null)
+                    .ToList();
+
+                double selfSize = GetCrossSize(node);
+
+                if (children.Count == 0)
+                {
+                    subtreeCrossSizes[node] = selfSize;
+                }
                 else
                 {
-                    alignBound.Grow(shape, direct, GNode.SPACE);
-                    alignBound = new VShapeBoundary(shape);
+                    double childrenSize = children.Sum(c => subtreeCrossSizes.GetValueOrDefault(c, GetCrossSize(c)))
+                                        + (children.Count - 1) * GNode.SPACE;
+                    subtreeCrossSizes[node] = Math.Max(selfSize, childrenSize);
                 }
+            }
+
+            // 3. 布局（预序遍历）
+            var processed = new HashSet<GNode>();
+            var roots = sortedNodes.Where(n => !n.InputNodes().Any(p => sortedNodes.Contains(p))).ToList();
+            double currentRootCross = 0;
+
+            void PlaceTree(GNode node, double crossCenter, double mainPos)
+            {
+                if (processed.Contains(node) || node.VisioShape == null) return;
+                processed.Add(node);
+
+                // 定位节点
+                double finalX, finalY;
+                if (isVertical)
+                {
+                    finalX = crossCenter;
+                    finalY = mainPos;
+                }
+                else
+                {
+                    finalX = mainPos;
+                    finalY = crossCenter;
+                }
+                MoveTo(node.VisioShape, finalX, finalY);
                 drawnList.AddLast(node);
+                drawnSet.Add(node);
+                PauseForViewing(100);
+
+                // 处理子节点
+                var children = node.OutputNodes()
+                    .Where(c => sortedNodes.Contains(c) && c.VisioShape != null && !processed.Contains(c))
+                    .ToList();
+
+                if (children.Count == 0) return;
+
+                double childrenTotalCross = children.Sum(c => subtreeCrossSizes.GetValueOrDefault(c, GetCrossSize(c)))
+                                          + (children.Count - 1) * GNode.SPACE;
+
+                double startChildCross = crossCenter - childrenTotalCross / 2;
+
+                foreach (var child in children)
+                {
+                    double childCrossW = subtreeCrossSizes.GetValueOrDefault(child, GetCrossSize(child));
+                    double childCenter = startChildCross + childCrossW / 2;
+
+                    double selfMain = GetMainSize(node);
+                    double childMain = GetMainSize(child);
+                    double dist = selfMain / 2 + GNode.SPACE + childMain / 2;
+
+                    // 按生长方向计算下一层位置
+                    double nextMain = mainPos + (isVertical ? direct.V : direct.H) * dist;
+
+                    PlaceTree(child, childCenter, nextMain);
+                    startChildCross += childCrossW + GNode.SPACE;
+                }
+            }
+
+            foreach (var root in roots)
+            {
+                if (root.VisioShape == null) continue;
+                double rootSize = subtreeCrossSizes.GetValueOrDefault(root, GetCrossSize(root));
+                PlaceTree(root, currentRootCross + rootSize / 2, 0);
+                currentRootCross += rootSize + GNode.SPACE;
             }
         }
 
@@ -118,6 +239,7 @@ namespace md2visio.vsdx
         {
             GNode borderNode = DropSubgraphBorder(subGraph);
             drawnList.AddLast(borderNode);
+            drawnSet.Add(borderNode);
 
             return borderNode;
         }
