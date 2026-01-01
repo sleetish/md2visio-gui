@@ -40,159 +40,345 @@ namespace md2visio.vsdx
             DrawNamespaceBorders();
         }
 
-        #region BFS Tree Layout
+        #region Sugiyama Layered Layout
 
+        /// <summary>
+        /// Weighted edge for layout algorithm
+        /// </summary>
+        class WeightedEdge
+        {
+            public string FromClass { get; set; } = "";
+            public string ToClass { get; set; } = "";
+            public ClsRelationType Type { get; set; }
+            public int Weight { get; set; }
+        }
+
+        /// <summary>
+        /// Get relation weight (smaller = stronger hierarchy constraint)
+        /// </summary>
+        static int GetRelationWeight(ClsRelationType type) => type switch
+        {
+            ClsRelationType.Inheritance => 1,
+            ClsRelationType.Realization => 2,
+            ClsRelationType.Composition => 3,
+            ClsRelationType.Aggregation => 4,
+            ClsRelationType.Association => 5,
+            ClsRelationType.Link => 6,
+            ClsRelationType.Dependency => 7,
+            ClsRelationType.DashedLink => 8,
+            _ => 9
+        };
+
+        /// <summary>
+        /// Build weighted directed graph from all relationships
+        /// </summary>
+        Dictionary<string, List<WeightedEdge>> BuildWeightedGraph()
+        {
+            var graph = new Dictionary<string, List<WeightedEdge>>();
+
+            foreach (var rel in figure.Relations)
+            {
+                int weight = GetRelationWeight(rel.Type);
+
+                // Determine direction based on relation type and decoration
+                string parent, child;
+
+                if (rel.Type == ClsRelationType.Association || rel.Type == ClsRelationType.Dependency)
+                {
+                    // Arrow direction: A-->B means A uses/depends on B
+                    // In layout: A (user) should be at higher layer, B (used) at lower layer
+                    // IsDecorationOnFrom=true when symbol starts with < (e.g., <--)
+                    // For -->, IsDecorationOnFrom=false: FromClass is parent, ToClass is child
+                    // For <--, IsDecorationOnFrom=true: ToClass is parent, FromClass is child
+                    parent = rel.IsDecorationOnFrom ? rel.ToClass : rel.FromClass;
+                    child = rel.IsDecorationOnFrom ? rel.FromClass : rel.ToClass;
+                }
+                else
+                {
+                    // Inheritance/Composition/Aggregation: decoration side is "whole/parent"
+                    parent = rel.IsDecorationOnFrom ? rel.FromClass : rel.ToClass;
+                    child = rel.IsDecorationOnFrom ? rel.ToClass : rel.FromClass;
+                }
+
+                var edge = new WeightedEdge
+                {
+                    FromClass = parent,
+                    ToClass = child,
+                    Type = rel.Type,
+                    Weight = weight
+                };
+
+                if (!graph.ContainsKey(parent))
+                    graph[parent] = new List<WeightedEdge>();
+                graph[parent].Add(edge);
+            }
+
+            return graph;
+        }
+
+        /// <summary>
+        /// Assign layers using longest path algorithm (Kahn's algorithm variant)
+        /// </summary>
+        Dictionary<string, int> AssignLayers(Dictionary<string, List<WeightedEdge>> graph)
+        {
+            var nodeLayer = new Dictionary<string, int>();
+            var inDegree = new Dictionary<string, int>();
+            var allNodes = figure.Classes.Keys.ToHashSet();
+
+            // Initialize in-degree for all nodes
+            foreach (var node in allNodes)
+                inDegree[node] = 0;
+
+            // Calculate in-degree (only consider edges with weight <= 7, include Dependency)
+            foreach (var (_, edges) in graph)
+            {
+                foreach (var edge in edges.Where(e => e.Weight <= 7))
+                {
+                    if (allNodes.Contains(edge.ToClass))
+                        inDegree[edge.ToClass]++;
+                }
+            }
+
+            // Kahn's algorithm with longest path
+            var queue = new Queue<string>();
+
+            // Start with nodes having in-degree 0 (root nodes)
+            foreach (var node in allNodes)
+            {
+                if (inDegree[node] == 0)
+                {
+                    queue.Enqueue(node);
+                    nodeLayer[node] = 0;
+                }
+            }
+
+            while (queue.Count > 0)
+            {
+                string current = queue.Dequeue();
+                int currentLayer = nodeLayer[current];
+
+                if (!graph.ContainsKey(current)) continue;
+
+                foreach (var edge in graph[current].Where(e => e.Weight <= 7))
+                {
+                    string child = edge.ToClass;
+                    if (!allNodes.Contains(child)) continue;
+
+                    // Longest path: child layer = max(current layer, parent layer + 1)
+                    int proposedLayer = currentLayer + 1;
+
+                    if (!nodeLayer.ContainsKey(child))
+                        nodeLayer[child] = proposedLayer;
+                    else
+                        nodeLayer[child] = Math.Max(nodeLayer[child], proposedLayer);
+
+                    inDegree[child]--;
+                    if (inDegree[child] == 0)
+                        queue.Enqueue(child);
+                }
+            }
+
+            // Handle nodes not yet assigned (in cycles or isolated)
+            foreach (var node in allNodes)
+            {
+                if (!nodeLayer.ContainsKey(node))
+                {
+                    // Find max layer from incoming edges, or use 0
+                    int maxIncoming = 0;
+                    foreach (var (parent, edges) in graph)
+                    {
+                        if (edges.Any(e => e.ToClass == node) && nodeLayer.ContainsKey(parent))
+                            maxIncoming = Math.Max(maxIncoming, nodeLayer[parent] + 1);
+                    }
+                    nodeLayer[node] = maxIncoming;
+                }
+            }
+
+            return nodeLayer;
+        }
+
+        /// <summary>
+        /// Organize nodes into layers
+        /// </summary>
+        Dictionary<int, List<ClsClass>> OrganizeLayers(Dictionary<string, int> nodeLayer)
+        {
+            var layers = new Dictionary<int, List<ClsClass>>();
+
+            foreach (var (nodeId, layer) in nodeLayer)
+            {
+                if (!figure.Classes.TryGetValue(nodeId, out var cls)) continue;
+                if (cls.VisioShape == null) continue;
+
+                if (!layers.ContainsKey(layer))
+                    layers[layer] = new List<ClsClass>();
+                layers[layer].Add(cls);
+            }
+
+            return layers;
+        }
+
+        /// <summary>
+        /// Optimize layer ordering using barycenter method to minimize edge crossings
+        /// </summary>
+        void OptimizeLayerOrdering(Dictionary<int, List<ClsClass>> layers, Dictionary<string, List<WeightedEdge>> graph)
+        {
+            var sortedLayerKeys = layers.Keys.OrderBy(k => k).ToList();
+            if (sortedLayerKeys.Count <= 1) return;
+
+            // Iterate 3 times for optimization
+            for (int iter = 0; iter < 3; iter++)
+            {
+                // Downward sweep
+                for (int i = 0; i < sortedLayerKeys.Count - 1; i++)
+                {
+                    int currentLayerKey = sortedLayerKeys[i];
+                    int nextLayerKey = sortedLayerKeys[i + 1];
+
+                    if (!layers.ContainsKey(nextLayerKey)) continue;
+
+                    OptimizeLayer(layers[nextLayerKey], layers[currentLayerKey], graph, true);
+                }
+
+                // Upward sweep - use same graph, direction handled by isDownward flag
+                for (int i = sortedLayerKeys.Count - 1; i > 0; i--)
+                {
+                    int currentLayerKey = sortedLayerKeys[i];
+                    int prevLayerKey = sortedLayerKeys[i - 1];
+
+                    if (!layers.ContainsKey(prevLayerKey)) continue;
+
+                    OptimizeLayer(layers[prevLayerKey], layers[currentLayerKey], graph, false);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Optimize single layer using barycenter method
+        /// </summary>
+        void OptimizeLayer(List<ClsClass> currentLayer, List<ClsClass> adjacentLayer,
+            Dictionary<string, List<string>> connectionGraph, bool isDownward)
+        {
+            // Build position map for adjacent layer
+            var positions = new Dictionary<string, int>();
+            for (int i = 0; i < adjacentLayer.Count; i++)
+                positions[adjacentLayer[i].ID] = i;
+
+            var barycenters = new List<(ClsClass cls, double barycenter)>();
+
+            foreach (var cls in currentLayer)
+            {
+                var connectedPositions = new List<int>();
+
+                if (isDownward)
+                {
+                    // For downward: check edges from adjacent layer to current
+                    foreach (var adj in adjacentLayer)
+                    {
+                        if (connectionGraph.TryGetValue(adj.ID, out var edges))
+                        {
+                            if (edges.Contains(cls.ID) && positions.ContainsKey(adj.ID))
+                                connectedPositions.Add(positions[adj.ID]);
+                        }
+                    }
+                }
+                else
+                {
+                    // For upward: check edges from current to adjacent
+                    if (connectionGraph.TryGetValue(cls.ID, out var edges))
+                    {
+                        foreach (var target in edges)
+                        {
+                            if (positions.ContainsKey(target))
+                                connectedPositions.Add(positions[target]);
+                        }
+                    }
+                }
+
+                double barycenter = connectedPositions.Any()
+                    ? connectedPositions.Average()
+                    : barycenters.Count;
+
+                barycenters.Add((cls, barycenter));
+            }
+
+            // Sort by barycenter
+            currentLayer.Clear();
+            currentLayer.AddRange(barycenters.OrderBy(x => x.barycenter).Select(x => x.cls));
+        }
+
+        /// <summary>
+        /// Wrapper for string-based graph
+        /// </summary>
+        void OptimizeLayer(List<ClsClass> currentLayer, List<ClsClass> adjacentLayer,
+            Dictionary<string, List<WeightedEdge>> graph, bool isDownward)
+        {
+            // Convert WeightedEdge graph to simple string graph
+            var simpleGraph = new Dictionary<string, List<string>>();
+            foreach (var (parent, edges) in graph)
+            {
+                simpleGraph[parent] = edges.Select(e => e.ToClass).ToList();
+            }
+
+            OptimizeLayer(currentLayer, adjacentLayer, simpleGraph, isDownward);
+        }
+
+        /// <summary>
+        /// Main layout method using Sugiyama algorithm
+        /// </summary>
         void LayoutNodes()
         {
             var classes = figure.Classes.Values.ToList();
             if (classes.Count == 0) return;
 
-            var inheritance = BuildInheritanceGraph();
-            var sortedNodes = SortNodesBFS(classes, inheritance);
+            // Phase 1: Build weighted graph
+            var weightedGraph = BuildWeightedGraph();
 
-            // Calculate subtree widths (Post-order traversal)
-            var subtreeCrossSizes = new Dictionary<string, double>();
+            // Phase 2: Assign layers
+            var nodeLayer = AssignLayers(weightedGraph);
+            var layers = OrganizeLayers(nodeLayer);
 
-            for (int i = sortedNodes.Count - 1; i >= 0; i--)
-            {
-                var node = sortedNodes[i];
-                if (node.VisioShape == null) continue;
+            if (layers.Count == 0) return;
 
-                var childrenIds = inheritance.ContainsKey(node.ID) ? inheritance[node.ID] : new List<string>();
-                var children = childrenIds
-                    .Select(id => figure.Classes.GetValueOrDefault(id))
-                    .Where(c => c != null && c.VisioShape != null)
-                    .ToList();
+            // Phase 3: Optimize layer ordering
+            OptimizeLayerOrdering(layers, weightedGraph);
 
-                double selfW = Width(node.VisioShape);
-
-                if (children.Count == 0)
-                {
-                    subtreeCrossSizes[node.ID] = selfW;
-                }
-                else
-                {
-                    double childrenW = children.Sum(c => subtreeCrossSizes.GetValueOrDefault(c!.ID, Width(c.VisioShape)))
-                                     + (children.Count - 1) * SPACING_H;
-                    subtreeCrossSizes[node.ID] = Math.Max(selfW, childrenW);
-                }
-            }
-
-            // Find roots (nodes not being children)
-            var processed = new HashSet<string>();
-            var allChildren = new HashSet<string>();
-            foreach (var list in inheritance.Values)
-                foreach (var c in list)
-                    allChildren.Add(c);
-
-            var roots = sortedNodes.Where(n => !allChildren.Contains(n.ID)).ToList();
-
-            // Layout (Pre-order traversal)
-            double currentRootX = 1.0;
+            // Phase 4: Calculate and apply positions
             double startY = 10.0;
+            double currentY = startY;
+            var sortedLayerKeys = layers.Keys.OrderBy(k => k).ToList();
 
-            foreach (var root in roots)
+            foreach (var layerKey in sortedLayerKeys)
             {
-                if (root.VisioShape == null) continue;
-                double rootW = subtreeCrossSizes.GetValueOrDefault(root.ID, Width(root.VisioShape));
-                PlaceTree(root, currentRootX + rootW / 2, startY, inheritance, subtreeCrossSizes, processed);
-                currentRootX += rootW + SPACING_H;
-            }
-        }
+                var layerClasses = layers[layerKey];
 
-        List<ClsClass> SortNodesBFS(List<ClsClass> nodes, Dictionary<string, List<string>> inheritance)
-        {
-            var nodeSet = new HashSet<ClsClass>(nodes);
-            var sorted = new List<ClsClass>();
-            var visited = new HashSet<string>();
-            var queue = new Queue<ClsClass>();
+                // Calculate layer height
+                double maxHeight = layerClasses.Max(c => c.VisioShape != null ? Height(c.VisioShape) : CLASS_MIN_HEIGHT);
 
-            foreach (var startNode in nodes)
-            {
-                if (!nodeSet.Contains(startNode) || visited.Contains(startNode.ID)) continue;
+                // Calculate total width
+                double totalWidth = layerClasses.Sum(c => c.VisioShape != null ? Width(c.VisioShape) : CLASS_WIDTH)
+                                  + (layerClasses.Count - 1) * SPACING_H;
 
-                visited.Add(startNode.ID);
-                queue.Enqueue(startNode);
+                // Center the layer horizontally
+                double startX = 1.0;
+                double currentX = startX;
 
-                while (queue.Count > 0)
+                foreach (var cls in layerClasses)
                 {
-                    var n = queue.Dequeue();
-                    sorted.Add(n);
+                    if (cls.VisioShape == null) continue;
 
-                    if (inheritance.TryGetValue(n.ID, out var children))
-                    {
-                        foreach (var childId in children)
-                        {
-                            if (figure.Classes.TryGetValue(childId, out var child) && !visited.Contains(childId))
-                            {
-                                visited.Add(childId);
-                                queue.Enqueue(child);
-                            }
-                        }
-                    }
+                    double w = Width(cls.VisioShape);
+                    double h = Height(cls.VisioShape);
+
+                    // Position: center of shape
+                    MoveTo(cls.VisioShape, currentX + w / 2, currentY - h / 2);
+                    PauseForViewing(80);
+
+                    currentX += w + SPACING_H;
                 }
+
+                // Move to next layer
+                currentY -= maxHeight + SPACING_V;
             }
-            return sorted;
-        }
-
-        void PlaceTree(ClsClass node, double centerX, double topY,
-            Dictionary<string, List<string>> inheritance,
-            Dictionary<string, double> subtreeCrossSizes,
-            HashSet<string> processed)
-        {
-            if (processed.Contains(node.ID) || node.VisioShape == null) return;
-            processed.Add(node.ID);
-
-            double selfH = Height(node.VisioShape);
-
-            // Move node to position
-            MoveTo(node.VisioShape, centerX, topY - selfH / 2);
-            PauseForViewing(100);
-
-            if (!inheritance.TryGetValue(node.ID, out var childrenIds)) return;
-
-            var children = childrenIds
-                .Select(id => figure.Classes.GetValueOrDefault(id))
-                .Where(c => c != null && c.VisioShape != null && !processed.Contains(c!.ID))
-                .ToList();
-
-            if (children.Count == 0) return;
-
-            double childrenTotalW = children.Sum(c => subtreeCrossSizes.GetValueOrDefault(c!.ID, Width(c.VisioShape)))
-                                  + (children.Count - 1) * SPACING_H;
-
-            double startChildX = centerX - childrenTotalW / 2;
-            double nextY = topY - selfH - SPACING_V;
-
-            foreach (var child in children)
-            {
-                double childW = subtreeCrossSizes.GetValueOrDefault(child!.ID, Width(child.VisioShape));
-                double childCenterX = startChildX + childW / 2;
-
-                PlaceTree(child!, childCenterX, nextY, inheritance, subtreeCrossSizes, processed);
-                startChildX += childW + SPACING_H;
-            }
-        }
-
-        Dictionary<string, List<string>> BuildInheritanceGraph()
-        {
-            var graph = new Dictionary<string, List<string>>();
-
-            foreach (var rel in figure.Relations)
-            {
-                // Include all hierarchical relationships for tree layout
-                if (rel.Type == ClsRelationType.Inheritance || rel.Type == ClsRelationType.Realization ||
-                    rel.Type == ClsRelationType.Composition || rel.Type == ClsRelationType.Aggregation)
-                {
-                    string parent = rel.IsDecorationOnFrom ? rel.FromClass : rel.ToClass;
-                    string child = rel.IsDecorationOnFrom ? rel.ToClass : rel.FromClass;
-                    if (!graph.ContainsKey(parent))
-                        graph[parent] = new List<string>();
-                    graph[parent].Add(child);
-                }
-            }
-
-            return graph;
         }
 
         #endregion
