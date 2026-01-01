@@ -121,7 +121,7 @@ namespace md2visio.Api
                 _session = null;
             }
 
-            // Step 7: 收集输出文件
+            // Step 7: 收集输出文件并提供详细反馈
             progress?.Report(new ConversionProgress(100, "转换完成!", ConversionPhase.Completed));
 
             var outputFiles = CollectOutputFiles(request);
@@ -137,8 +137,27 @@ namespace md2visio.Api
             }
             else
             {
+                // 提供详细的错误原因
+                if (factory.FiguresBuilt == 0)
+                {
+                    var supportedTypes = string.Join(", ", TypeMap.BuilderMap.Keys.Distinct().OrderBy(k => k));
+                    if (factory.UnsupportedTypes.Count > 0)
+                    {
+                        var unsupported = string.Join(", ", factory.UnsupportedTypes);
+                        return ConversionResult.Failed(
+                            $"文件中包含不支持的图表类型: {unsupported}\n" +
+                            $"当前支持: {supportedTypes}");
+                    }
+                    else
+                    {
+                        return ConversionResult.Failed(
+                            "文件中未找到有效的 Mermaid 图表。\n" +
+                            "请确保使用 ```mermaid ... ``` 格式包裹图表代码。");
+                    }
+                }
+
                 logger.Warning("转换完成但未找到输出文件。");
-                return ConversionResult.Failed("转换完成但未生成输出文件。");
+                return ConversionResult.Failed("转换完成但未生成输出文件。请检查输出路径和权限设置。");
             }
         }
 

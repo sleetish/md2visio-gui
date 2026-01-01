@@ -17,9 +17,15 @@ namespace md2visio.mermaid.cmn
         {
             string kw = Buffer.Trim();
             if (!IsFigure(kw)) throw new SynException($"unknown graph type {kw}", Ctx);
-            if (!typeMap.ContainsKey(kw)) throw new NotImplementedException($"keyword '{kw}' not implemented");
 
-            return Forward(typeMap[kw]);
+            // Forward to implemented parser or skip unsupported types
+            if (typeMap.ContainsKey(kw))
+            {
+                return Forward(typeMap[kw]);
+            }
+
+            // Skip unsupported diagram type gracefully
+            return Forward<SttUnsupported>();
         }
 
         public static bool IsFigure(string word)

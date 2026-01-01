@@ -13,10 +13,22 @@ namespace md2visio.struc.figure
         SttIterator iter;
         int count = 1;
         bool isFileMode = false;
+        int figuresBuilt = 0;
+        List<string> unsupportedTypes = new();
 
         // 注入的依赖
         private readonly ConversionContext _context;
         private readonly IVisioSession _session;
+
+        /// <summary>
+        /// 构建的图表数量
+        /// </summary>
+        public int FiguresBuilt => figuresBuilt;
+
+        /// <summary>
+        /// 遇到的不支持类型
+        /// </summary>
+        public IReadOnlyList<string> UnsupportedTypes => unsupportedTypes;
 
         public FigureBuilderFactory(SttIterator iter, ConversionContext context, IVisioSession session)
         {
@@ -29,8 +41,20 @@ namespace md2visio.struc.figure
         public void Build(string outputFile)
         {
             this.outputFile = outputFile;
+            // Reset diagnostics for fresh build
+            figuresBuilt = 0;
+            unsupportedTypes.Clear();
+
             InitOutputPath();
             BuildFigures();
+        }
+
+        /// <summary>
+        /// Get supported types string from BuilderMap
+        /// </summary>
+        static string GetSupportedTypesString()
+        {
+            return string.Join(", ", TypeMap.BuilderMap.Keys.Distinct().OrderBy(k => k));
         }
 
         public void BuildFigures()
@@ -52,9 +76,19 @@ namespace md2visio.struc.figure
                 }
             }
 
+            // 检查是否找到任何 mermaid 块
+            if (iter.Context?.StateList == null || iter.Context.StateList.Count == 0)
+            {
+                _context.Log("警告: 文件中未找到任何 mermaid 代码块");
+                _context.Log("提示: 请确保使用 ```mermaid ... ``` 格式包裹图表代码");
+                return;
+            }
+
             while (iter.HasNext())
             {
                 List<SynState> list = iter.Context.StateList;
+                bool foundFigure = false;
+
                 for (int pos = iter.Pos + 1; pos < list.Count; ++pos)
                 {
                     string word = list[pos].Fragment;
@@ -67,13 +101,69 @@ namespace md2visio.struc.figure
 
                     if (SttFigureType.IsFigure(word))
                     {
+                        foundFigure = true;
+
+                        // 检查是否实现
+                        if (!builderDict.ContainsKey(word))
+                        {
+                            _context.Log($"警告: 图表类型 '{word}' 暂未支持，已跳过");
+                            if (!unsupportedTypes.Contains(word))
+                                unsupportedTypes.Add(word);
+
+                            // 跳过不支持的图表：推进迭代器到下一个 SttMermaidStart 或结束
+                            SkipUnsupportedFigure(pos);
+                            break;
+                        }
+
                         if (_context.Debug)
                         {
                             _context.Log($"[DEBUG] BuildFigures: 找到图表类型 '{word}'，开始构建");
                         }
                         BuildFigure(word);
+                        figuresBuilt++;
+                        break;  // BuildFigure 会推进迭代器
                     }
                 }
+
+                // 如果遍历完整个列表都没找到图表类型，退出循环
+                if (!foundFigure)
+                    break;
+            }
+
+            // 汇总信息
+            if (figuresBuilt == 0)
+            {
+                _context.Log("警告: 未构建任何图表");
+                if (unsupportedTypes.Count > 0)
+                {
+                    _context.Log($"发现 {unsupportedTypes.Count} 个不支持的图表类型: {string.Join(", ", unsupportedTypes)}");
+                    _context.Log($"当前支持的类型: {GetSupportedTypesString()}");
+                }
+            }
+            else
+            {
+                _context.Log($"成功构建 {figuresBuilt} 个图表");
+            }
+        }
+
+        /// <summary>
+        /// 跳过不支持的图表类型，推进迭代器到下一个图表边界
+        /// </summary>
+        void SkipUnsupportedFigure(int startPos)
+        {
+            List<SynState> list = iter.Context.StateList;
+
+            // 从当前位置推进迭代器，直到遇到 SttMermaidClose 或超出范围
+            while (iter.HasNext())
+            {
+                var state = iter.Next();
+                if (state.GetType().Name == "SttMermaidClose")
+                    break;
+            }
+
+            if (_context.Debug)
+            {
+                _context.Log($"[DEBUG] SkipUnsupportedFigure: 跳过完成，iter.Pos = {iter.Pos}");
             }
         }
 
@@ -113,12 +203,15 @@ namespace md2visio.struc.figure
             }
 
             string outputFilePath;
-            if (isFileMode)
+            if (isFileMode && count == 1)
             {
+                // First figure in file mode: use exact filename
                 outputFilePath = $"{dir}\\{name}.vsdx";
+                count++;
             }
             else
             {
+                // Multiple figures or directory mode: use numbered filenames
                 outputFilePath = $"{dir}\\{name}{count++}.vsdx";
             }
 

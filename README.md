@@ -2,7 +2,7 @@
 
 **English | [中文](README_zh.md)**
 
-![GUI Screenshot](https://img-cdn.ccrui.cn/2025/06/23/68582f169e159.png)
+![GUI Screenshot](https://img-cdn.ccrui.cn/2026/01/01/6956766674530.png)
 
 A desktop application built with .NET 8 and Windows Forms that converts Mermaid.js diagrams to Microsoft Visio `.vsdx` format files.
 

@@ -2,7 +2,7 @@
 
 **[English](README.md) | 中文**
 
-![GUI界面截图](https://img-cdn.ccrui.cn/2025/06/23/68582f169e159.png)
+![GUI界面截图](https://img-cdn.ccrui.cn/2026/01/01/6956766674530.png)
 
 这是一个基于 .NET 8 和 Windows Forms 的桌面应用程序，它可以将您用 Mermaid.js 语法编写的图表，轻松转换为 Microsoft Visio 的 `.vsdx` 格式文件。
 

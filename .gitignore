@@ -71,3 +71,7 @@ Snipaste_*.png
 
 # Claude logs
 .claude-logs/
+
+# Temporary test files
+test_*.md
+test*.vsdx
