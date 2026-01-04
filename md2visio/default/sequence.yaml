@@ -6,6 +6,9 @@ config:
         diagramMarginY: 20          # 图表上下边距
         participantSpacing: 100     # 参与者间距
         messageSpacing: 25          # 消息间距
+        fragmentPaddingTop: 6.25    # 片段头部额外留白
+        fragmentPaddingBottom: 6.25 # 片段底部额外留白
+        fragmentSectionPadding: 6.25 # 片段分段额外留白
         
         # 参与者样式
         participantWidth: 60        # 参与者框宽度

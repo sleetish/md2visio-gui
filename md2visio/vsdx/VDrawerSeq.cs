@@ -24,6 +24,8 @@ namespace md2visio.vsdx
         private double selfCallWidth = 300;       // 自调用宽度
         private double selfCallHeight = 225;      // 自调用高度
         private double selfCallTextOffset = 120;  // 自调用文本偏移
+        private double fragmentPaddingTop;        // 片段顶部留白
+        private double fragmentPaddingBottom;     // 片段底部留白
 
         // Y坐标参考点
         private double topY = 3750;              // 顶部参与者Y位置
@@ -102,6 +104,12 @@ namespace md2visio.vsdx
             ApplyLayoutValue("config.sequence.selfCallWidth", ref selfCallWidth);
             ApplyLayoutValue("config.sequence.selfCallHeight", ref selfCallHeight);
             ApplyLayoutValue("config.sequence.selfCallTextOffset", ref selfCallTextOffset);
+
+            double defaultFragmentPadding = messageSpacing / 4;
+            fragmentPaddingTop = defaultFragmentPadding;
+            fragmentPaddingBottom = defaultFragmentPadding;
+            ApplyLayoutValue("config.sequence.fragmentPaddingTop", ref fragmentPaddingTop);
+            ApplyLayoutValue("config.sequence.fragmentPaddingBottom", ref fragmentPaddingBottom);
         }
 
         public override void Draw()
@@ -378,8 +386,8 @@ namespace md2visio.vsdx
 
             foreach (var fragment in figure.Fragments)
             {
-                double top = AbsY(fragment.StartY) + messageSpacing / 4;
-                double bottom = AbsY(fragment.EndY) - messageSpacing / 4;
+                double top = AbsY(fragment.StartY) + fragmentPaddingTop;
+                double bottom = AbsY(fragment.EndY) - fragmentPaddingBottom;
 
                 var frameShape = visioPage.DrawRectangle(
                     Inches(minX), Inches(bottom),

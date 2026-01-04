@@ -12,6 +12,7 @@ This document summarizes current sequence diagram layout inputs and draw order f
 - Defaults are loaded through `ConfigDefaults` and `MmdFrontMatter`.
 - `VDrawerSeq.LoadConfiguration()` maps `config.sequence` values to layout fields and converts mm to layout units.
 - `SeqBuilder` decrements `currentY` using `config.sequence.messageSpacing` (converted to layout units).
+- Fragment padding uses `config.sequence.fragmentPaddingTop`, `fragmentPaddingBottom`, and `fragmentSectionPadding` (defaults derived from message spacing).
 
 ## Vertical layout
 - `CalculateVerticalLayout()` sets `diagramStartY` using `topY`, `participantHeight`, and `messageSpacing / 2`.
@@ -19,7 +20,7 @@ This document summarizes current sequence diagram layout inputs and draw order f
 - Fragment label heights and section labels are not considered in height estimation.
 
 ## Fragment drawing
-- `DrawFragments()` adds frame padding using `messageSpacing / 4`.
+- `DrawFragments()` adds frame padding using `fragmentPaddingTop` and `fragmentPaddingBottom`.
 - Fragment header label uses `labelWidth = 600` and a dynamic label height (minimum 250 layout units).
 - Section labels reuse `labelHeight` and are anchored at `sectionY`.
 

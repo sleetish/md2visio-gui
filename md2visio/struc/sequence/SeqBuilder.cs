@@ -16,6 +16,9 @@ namespace md2visio.struc.sequence
         private const double LayoutScale = 15.0;
         private const double DefaultMessageSpacing = 375;
         private double messageSpacing = DefaultMessageSpacing;
+        private double fragmentHeaderPadding;
+        private double fragmentSectionPadding;
+        private double fragmentEndPadding;
 
         public SeqBuilder(SttIterator iter, ConversionContext context, IVisioSession session)
             : base(iter, context, session)
@@ -277,12 +280,14 @@ namespace md2visio.struc.sequence
             };
             sequence.Fragments.Add(fragment);
             fragmentStack.Push(fragment);
+            currentY -= fragmentHeaderPadding;
         }
 
         private void BuildFragmentElse()
         {
             if (fragmentStack.Count > 0)
             {
+                currentY -= fragmentSectionPadding;
                 var fragment = fragmentStack.Peek();
                 string text = CollectFragmentLabel();
                 fragment.Sections.Add(new SeqFragmentSection
@@ -297,6 +302,7 @@ namespace md2visio.struc.sequence
         {
             if (fragmentStack.Count > 0)
             {
+                currentY -= fragmentEndPadding;
                 var fragment = fragmentStack.Pop();
                 fragment.EndY = currentY;
             }
@@ -367,6 +373,21 @@ namespace md2visio.struc.sequence
             {
                 messageSpacing = DefaultMessageSpacing;
             }
+
+            double defaultPadding = messageSpacing / 4;
+            fragmentHeaderPadding = ResolvePadding("config.sequence.fragmentPaddingTop", defaultPadding);
+            fragmentSectionPadding = ResolvePadding("config.sequence.fragmentSectionPadding", defaultPadding);
+            fragmentEndPadding = ResolvePadding("config.sequence.fragmentPaddingBottom", defaultPadding);
+        }
+
+        private double ResolvePadding(string keyPath, double defaultPadding)
+        {
+            if (sequence.Config.GetDouble(keyPath, out double paddingMm))
+            {
+                return paddingMm * LayoutScale;
+            }
+
+            return defaultPadding;
         }
 
         private bool TryParseMessage(string messageText, out string from, out string to, out string arrowType, out string label)
