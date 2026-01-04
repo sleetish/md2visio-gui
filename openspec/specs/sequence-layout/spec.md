@@ -65,3 +65,14 @@ The system SHALL include fragment header/section label heights and frame bounds 
 - **WHEN** fragment end padding moves the fragment bottom below the last message
 - **THEN** the diagram bottom accounts for the fragment frame bound.
 
+### Requirement: Sequence layout validation samples
+The system SHALL provide sample sequence diagrams that exercise long labels and fragment nesting for layout validation.
+
+#### Scenario: Long-label sample available
+- **WHEN** a developer reviews sequence layout validation samples
+- **THEN** they can find a long-label sample covering fragment headers and message labels.
+
+#### Scenario: Multi-fragment sample available
+- **WHEN** a developer inspects validation samples
+- **THEN** they can find a sample that includes multiple fragment types (e.g., alt/loop).
+

@@ -28,6 +28,10 @@ This document summarizes current sequence diagram layout inputs and draw order f
 - `DrawRegularMessage()` attaches message text directly to the line shape, while label height is measured for layout calculations.
 - `DrawSelfCallMessage()` renders a separate text shape offset by `selfCallTextOffset`.
 
+## Validation samples
+- `md2visio/test/sequence.md` covers baseline sequence interactions.
+- `md2visio/test/sequence_fragments_longtext.md` stresses long labels and multi-fragment layouts.
+
 ## References
 - `md2visio/vsdx/VDrawerSeq.cs`
 - `md2visio/struc/sequence/SeqBuilder.cs`
