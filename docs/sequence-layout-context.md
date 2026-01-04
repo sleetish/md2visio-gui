@@ -11,7 +11,7 @@ This document summarizes current sequence diagram layout inputs and draw order f
 - Default values live in `md2visio/default/sequence.yaml` under `config.sequence`.
 - Defaults are loaded through `ConfigDefaults` and `MmdFrontMatter`.
 - `VDrawerSeq.LoadConfiguration()` maps `config.sequence` values to layout fields and converts mm to layout units.
-- `SeqBuilder` decrements `currentY` using `MESSAGE_SPACING` (layout units).
+- `SeqBuilder` decrements `currentY` using `config.sequence.messageSpacing` (converted to layout units).
 
 ## Vertical layout
 - `CalculateVerticalLayout()` sets `diagramStartY` using `topY`, `participantHeight`, and `messageSpacing / 2`.

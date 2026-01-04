@@ -13,7 +13,9 @@ namespace md2visio.struc.sequence
         private readonly Stack<SeqFragment> fragmentStack = new Stack<SeqFragment>();
         private double currentY = 0;
         private int autoNumberCounter = 0;
-        private const double MESSAGE_SPACING = 375;
+        private const double LayoutScale = 15.0;
+        private const double DefaultMessageSpacing = 375;
+        private double messageSpacing = DefaultMessageSpacing;
 
         public SeqBuilder(SttIterator iter, ConversionContext context, IVisioSession session)
             : base(iter, context, session)
@@ -28,6 +30,7 @@ namespace md2visio.struc.sequence
             }
 
             currentY = 0;
+            RefreshMessageSpacing();
 
             while (iter.HasNext())
             {
@@ -87,8 +90,16 @@ namespace md2visio.struc.sequence
                     break;
                 }
                 else if (cur is SeqSttKeyword) { BuildKeyword(); }
-                else if (cur is SttComment) { sequence.Config.LoadUserDirectiveFromComment(cur.Fragment); }
-                else if (cur is SttFrontMatter) { sequence.Config.LoadUserFrontMatter(cur.Fragment); }
+                else if (cur is SttComment)
+                {
+                    sequence.Config.LoadUserDirectiveFromComment(cur.Fragment);
+                    RefreshMessageSpacing();
+                }
+                else if (cur is SttFrontMatter)
+                {
+                    sequence.Config.LoadUserFrontMatter(cur.Fragment);
+                    RefreshMessageSpacing();
+                }
                 else if (cur is SttFinishFlag) { }
                 else
                 {
@@ -335,7 +346,7 @@ namespace md2visio.struc.sequence
                 sequence.GetParticipant(from);
                 sequence.GetParticipant(to);
 
-                currentY -= MESSAGE_SPACING;
+                currentY -= messageSpacing;
             }
             else
             {
@@ -343,6 +354,18 @@ namespace md2visio.struc.sequence
                 {
                     _context.Log($"[DEBUG] SeqBuilder: 消息解析失败: {messageText}");
                 }
+            }
+        }
+
+        private void RefreshMessageSpacing()
+        {
+            if (sequence.Config.GetDouble("config.sequence.messageSpacing", out double spacingMm))
+            {
+                messageSpacing = spacingMm * LayoutScale;
+            }
+            else
+            {
+                messageSpacing = DefaultMessageSpacing;
             }
         }
 
