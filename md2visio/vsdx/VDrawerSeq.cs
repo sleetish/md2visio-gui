@@ -266,8 +266,32 @@ namespace md2visio.vsdx
                     minRelativeY = activation.EndY;
             }
 
+            foreach (var fragment in figure.Fragments)
+            {
+                double labelHeight = fragment.LabelHeight > 0 ? fragment.LabelHeight : DefaultFragmentLabelHeight;
+                double fragmentTop = fragment.StartY + fragmentPaddingTop;
+                double fragmentHeaderBottom = fragmentTop - labelHeight;
+                if (fragmentHeaderBottom < minRelativeY)
+                    minRelativeY = fragmentHeaderBottom;
+
+                double fragmentBottom = fragment.EndY - fragmentPaddingBottom;
+                if (fragmentBottom < minRelativeY)
+                    minRelativeY = fragmentBottom;
+
+                foreach (var section in fragment.Sections)
+                {
+                    if (string.IsNullOrWhiteSpace(section.Text))
+                        continue;
+
+                    double sectionLabelHeight = section.LabelHeight > 0 ? section.LabelHeight : labelHeight;
+                    double sectionLabelBottom = section.Y - sectionLabelHeight;
+                    if (sectionLabelBottom < minRelativeY)
+                        minRelativeY = sectionLabelBottom;
+                }
+            }
+
             // 3. 边缘情况处理：无内容时设置最小高度
-            if (figure.Messages.Count == 0 && figure.Activations.Count == 0)
+            if (figure.Messages.Count == 0 && figure.Activations.Count == 0 && figure.Fragments.Count == 0)
             {
                 minRelativeY = -messageSpacing * 2; // 默认最小高度
             }

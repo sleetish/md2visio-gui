@@ -16,8 +16,8 @@ This document summarizes current sequence diagram layout inputs and draw order f
 
 ## Vertical layout
 - `CalculateVerticalLayout()` sets `diagramStartY` using `topY`, `participantHeight`, and `messageSpacing / 2`.
-- `minRelativeY` is computed from message and activation Y values only.
-- Fragment label heights and section labels are not considered in height estimation.
+- `minRelativeY` is computed from message and activation Y values, plus fragment header/section label bounds.
+- Fragment frame bottom (end Y minus padding) is included in the height estimate.
 
 ## Fragment drawing
 - `DrawFragments()` adds frame padding using `fragmentPaddingTop` and `fragmentPaddingBottom`.
