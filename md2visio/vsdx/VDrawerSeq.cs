@@ -83,8 +83,22 @@ namespace md2visio.vsdx
 
         private void LoadConfiguration()
         {
-            // 使用默认配置参数
-            // TODO: 后续可以从YAML配置中读取参数
+            void ApplyLayoutValue(string keyPath, ref double target)
+            {
+                if (config.GetDouble(keyPath, out double valueMm))
+                {
+                    target = valueMm * LayoutScale;
+                }
+            }
+
+            ApplyLayoutValue("config.sequence.participantSpacing", ref participantSpacing);
+            ApplyLayoutValue("config.sequence.messageSpacing", ref messageSpacing);
+            ApplyLayoutValue("config.sequence.participantWidth", ref participantWidth);
+            ApplyLayoutValue("config.sequence.participantHeight", ref participantHeight);
+            ApplyLayoutValue("config.sequence.activationWidth", ref activationWidth);
+            ApplyLayoutValue("config.sequence.selfCallWidth", ref selfCallWidth);
+            ApplyLayoutValue("config.sequence.selfCallHeight", ref selfCallHeight);
+            ApplyLayoutValue("config.sequence.selfCallTextOffset", ref selfCallTextOffset);
         }
 
         public override void Draw()
