@@ -11,6 +11,7 @@ namespace md2visio.struc.sequence
         public double Y { get; set; }
         public int? SequenceNumber { get; set; }
         public Shape? MessageShape { get; set; }
+        public double LabelHeight { get; set; }
 
         // 判断是否为自调用
         public bool IsSelfCall => From == To;

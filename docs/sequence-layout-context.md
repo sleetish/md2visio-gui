@@ -20,11 +20,11 @@ This document summarizes current sequence diagram layout inputs and draw order f
 
 ## Fragment drawing
 - `DrawFragments()` adds frame padding using `messageSpacing / 4`.
-- Fragment header label uses `labelWidth = 600` and `labelHeight = 250` (layout units).
+- Fragment header label uses `labelWidth = 600` and a dynamic label height (minimum 250 layout units).
 - Section labels reuse `labelHeight` and are anchored at `sectionY`.
 
 ## Message drawing
-- `DrawRegularMessage()` attaches message text directly to the line shape.
+- `DrawRegularMessage()` attaches message text directly to the line shape, while label height is measured for layout calculations.
 - `DrawSelfCallMessage()` renders a separate text shape offset by `selfCallTextOffset`.
 
 ## References

@@ -3,6 +3,7 @@ using md2visio.struc.sequence;
 using md2visio.vsdx.@base;
 using md2visio.vsdx.tool;
 using Microsoft.Office.Interop.Visio;
+using System.Drawing;
 using System.Globalization;
 
 namespace md2visio.vsdx
@@ -12,6 +13,8 @@ namespace md2visio.vsdx
         // 布局参数 - 这些值是"布局单位"(mm * LayoutScale)
         // 写入 Visio 时统一换算成 mm 并带单位后缀
         private const double LayoutScale = 15.0;
+        private const double TextPaddingMm = 2.0;
+        private const double DefaultFragmentLabelHeight = 250;
 
         private double participantSpacing = 1500; // 参与者间距
         private double messageSpacing = 375;      // 消息间距
@@ -113,6 +116,7 @@ namespace md2visio.vsdx
             {
                 EnsureVisible();
                 PauseForViewing(300);
+                UpdateTextMetrics();
 
                 // 1. 计算布局
                 if (_context.Debug)
@@ -180,6 +184,42 @@ namespace md2visio.vsdx
                 }
                 throw;
             }
+        }
+
+        private void UpdateTextMetrics()
+        {
+            foreach (var message in figure.Messages)
+            {
+                message.LabelHeight = MeasureLabelHeight(message.Label, 0);
+            }
+
+            foreach (var fragment in figure.Fragments)
+            {
+                double typeHeight = MeasureLabelHeight(fragment.Type, DefaultFragmentLabelHeight);
+                double conditionHeight = string.IsNullOrWhiteSpace(fragment.Text)
+                    ? 0
+                    : MeasureLabelHeight(fragment.Text, DefaultFragmentLabelHeight);
+                fragment.LabelHeight = Math.Max(typeHeight, conditionHeight);
+
+                foreach (var section in fragment.Sections)
+                {
+                    section.LabelHeight = string.IsNullOrWhiteSpace(section.Text)
+                        ? 0
+                        : MeasureLabelHeight(section.Text, DefaultFragmentLabelHeight);
+                }
+            }
+        }
+
+        private double MeasureLabelHeight(string text, double minHeight)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return minHeight;
+            }
+
+            SizeF sizeMm = MeasureTextSizeMM(text);
+            double height = (sizeMm.Height + TextPaddingMm) * LayoutScale;
+            return Math.Max(minHeight, height);
         }
 
         private void CalculateLayout()
@@ -352,7 +392,7 @@ namespace md2visio.vsdx
                 VShapeDrawer.SetLineColor(frameShape, frameColor);
 
                 double labelWidth = 600;
-                double labelHeight = 250;
+                double labelHeight = fragment.LabelHeight > 0 ? fragment.LabelHeight : DefaultFragmentLabelHeight;
                 var labelShape = visioPage.DrawRectangle(
                     Inches(minX), Inches(top - labelHeight),
                     Inches(minX + labelWidth), Inches(top));
@@ -386,8 +426,9 @@ namespace md2visio.vsdx
 
                     if (!string.IsNullOrEmpty(section.Text))
                     {
+                        double sectionLabelHeight = section.LabelHeight > 0 ? section.LabelHeight : labelHeight;
                         var sectionLabel = visioPage.DrawRectangle(
-                            Inches(minX + 50), Inches(sectionY - labelHeight),
+                            Inches(minX + 50), Inches(sectionY - sectionLabelHeight),
                             Inches(minX + 800), Inches(sectionY));
                         sectionLabel.Text = $"[{section.Text}]";
                         sectionLabel.CellsU["FillPattern"].FormulaU = "0";
