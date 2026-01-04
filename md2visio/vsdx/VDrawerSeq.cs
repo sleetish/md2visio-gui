@@ -20,6 +20,7 @@ namespace md2visio.vsdx
         private double activationWidth = 120;     // 激活框宽度
         private double selfCallWidth = 300;       // 自调用宽度
         private double selfCallHeight = 225;      // 自调用高度
+        private double selfCallTextOffset = 120;  // 自调用文本偏移
 
         // Y坐标参考点
         private double topY = 3750;              // 顶部参与者Y位置
@@ -564,8 +565,15 @@ namespace md2visio.vsdx
                 line3.CellsU["EndArrow"].FormulaU = "4"; // 标准箭头
             }
 
-            // 设置消息文本（在右侧线段旁边）
-            line2.Text = message.Label;
+            // 设置消息文本（使用独立文本框保持水平显示）
+            if (!string.IsNullOrEmpty(message.Label))
+            {
+                var labelShape = DropText(message.Label, 0, 0);
+                double labelX = rightX + selfCallTextOffset;
+                double labelY = (startY + endY) / 2;
+                PlaceAt(labelShape, labelX, labelY);
+                DebugLogPin($"SelfCallText '{message.From}'", labelShape);
+            }
             DebugLogPin($"SelfCall '{message.From}'", line3);
 
             return line3; // 返回带箭头的那条线
