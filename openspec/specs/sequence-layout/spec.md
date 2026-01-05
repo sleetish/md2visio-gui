@@ -74,7 +74,7 @@ The system SHALL include fragment header/section label heights, frame bounds, an
 - **THEN** the vertical layout extends to include the note bounds.
 
 ### Requirement: Sequence layout validation samples
-The system SHALL provide sample sequence diagrams that exercise long labels and fragment nesting for layout validation.
+The system SHALL provide sample sequence diagrams that exercise long labels, fragment nesting, and note rendering for layout validation.
 
 #### Scenario: Long-label sample available
 - **WHEN** a developer reviews sequence layout validation samples
@@ -83,6 +83,10 @@ The system SHALL provide sample sequence diagrams that exercise long labels and 
 #### Scenario: Multi-fragment sample available
 - **WHEN** a developer inspects validation samples
 - **THEN** they can find a sample that includes multiple fragment types (e.g., alt/loop).
+
+#### Scenario: Note layout sample available
+- **WHEN** a developer inspects validation samples
+- **THEN** they can find a sample that includes notes scoped to participants.
 
 ### Requirement: Sequence notes model available
 The system SHALL provide a sequence note model and a notes collection on the sequence data structure for layout and rendering.

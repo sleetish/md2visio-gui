@@ -83,3 +83,39 @@ sequenceDiagram
     C-->A: 异步返回
     A-->>B: 虚线同步消息
 ```
+
+## 片段与备注测试 - 接收超时处理
+
+```mermaid
+sequenceDiagram
+    participant Device as 外部设备
+    participant USART as USART1_RDR
+    participant DMA as DMA1_CH0
+    participant RX_Buf as data_buffer_USART1_RX
+    participant TMR as TMR0_Ch_A
+    participant ISR as 中断处理
+    participant Parse as usart1_frame_parse_optimized
+    participant Event as 异步事件系统
+
+    Device->>USART: 串口接收数据
+    USART->>DMA: 触发DMA传输(EVT_SRC_USART1_RI)
+    DMA->>RX_Buf: 自动存储数据
+
+    alt 接收超时
+        TMR-->>ISR: TMR0超时中断
+        note over ISR: USART1_RxTimeout_IrqCallback
+        ISR->>DMA: 停止DMA
+        ISR->>ISR: 计算接收长度
+        ISR->>Parse: 调用帧解析
+        Parse->>Parse: 校验帧头(0xAA 0x55)
+        Parse->>Parse: 校验帧尾(0xED)
+        Parse->>Parse: XOR校验
+        Parse->>Event: SAFE_EVENT_EMIT(UART1_RECEIVE)
+    else DMA传输完成
+        DMA-->>ISR: DMA_TC中断
+        note over ISR: USART1_RX_DMA_TC_IrqCallback
+        ISR->>DMA: 重置DMA
+    end
+
+    ISR->>DMA: 重新使能DMA接收
+```
