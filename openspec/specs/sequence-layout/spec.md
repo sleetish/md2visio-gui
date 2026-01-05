@@ -76,3 +76,10 @@ The system SHALL provide sample sequence diagrams that exercise long labels and 
 - **WHEN** a developer inspects validation samples
 - **THEN** they can find a sample that includes multiple fragment types (e.g., alt/loop).
 
+### Requirement: Sequence notes model available
+The system SHALL provide a sequence note model and a notes collection on the sequence data structure for layout and rendering.
+
+#### Scenario: Notes collection exposed
+- **WHEN** a developer inspects the sequence data model
+- **THEN** they can access a notes collection with note position, participants, text, and label metadata.
+

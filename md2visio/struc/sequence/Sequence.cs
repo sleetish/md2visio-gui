@@ -11,6 +11,7 @@ namespace md2visio.struc.sequence
         public List<SeqMessage> Messages { get; set; } = new List<SeqMessage>();
         public List<SeqActivation> Activations { get; set; } = new List<SeqActivation>();
         public List<SeqFragment> Fragments { get; set; } = new List<SeqFragment>();
+        public List<SeqNote> Notes { get; set; } = new List<SeqNote>();
         public bool ShowSequenceNumbers { get; set; } = false;
 
         public Sequence()
