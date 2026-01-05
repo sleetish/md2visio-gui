@@ -3,6 +3,7 @@ using md2visio.mermaid.cmn;
 using md2visio.mermaid.sequence;
 using md2visio.struc.figure;
 using md2visio.vsdx.@base;
+using System.Text.RegularExpressions;
 
 namespace md2visio.struc.sequence
 {
@@ -137,6 +138,7 @@ namespace md2visio.struc.sequence
                     break;
 
                 case "note":
+                    BuildNote();
                     break;
 
                 case "autonumber":
@@ -306,6 +308,55 @@ namespace md2visio.struc.sequence
                 var fragment = fragmentStack.Pop();
                 fragment.EndY = currentY;
             }
+        }
+
+        private void BuildNote()
+        {
+            string noteLine = CollectFragmentLabel();
+            if (string.IsNullOrWhiteSpace(noteLine))
+            {
+                return;
+            }
+
+            var match = Regex.Match(noteLine, @"^(left of|right of|over)\s+([^:]+?)\s*:\s*(.*)$", RegexOptions.IgnoreCase);
+            if (!match.Success)
+            {
+                return;
+            }
+
+            string positionText = match.Groups[1].Value.Trim().ToLowerInvariant();
+            string participantsText = match.Groups[2].Value.Trim();
+            string text = match.Groups[3].Value.Trim();
+
+            var participantIds = participantsText
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(participant => participant.Trim())
+                .Where(participant => participant.Length > 0)
+                .ToList();
+
+            if (participantIds.Count == 0)
+            {
+                return;
+            }
+
+            SeqNotePosition position = SeqNotePosition.Over;
+            if (positionText == "left of") position = SeqNotePosition.LeftOf;
+            else if (positionText == "right of") position = SeqNotePosition.RightOf;
+
+            foreach (string participantId in participantIds)
+            {
+                sequence.GetParticipant(participantId);
+            }
+
+            sequence.Notes.Add(new SeqNote
+            {
+                Position = position,
+                ParticipantIds = participantIds,
+                Text = text,
+                Y = currentY
+            });
+
+            currentY -= messageSpacing;
         }
 
         private string CollectFragmentLabel()
