@@ -410,11 +410,99 @@ namespace md2visio.vsdx
         {
             if (figure.Fragments.Count == 0) return;
 
-            double minX = figure.Participants.Min(p => p.X) - participantWidth / 2 - 100;
-            double maxX = figure.Participants.Max(p => p.X) + participantWidth / 2 + 100;
+            double fallbackMinX = figure.Participants.Min(p => p.X) - participantWidth / 2 - 100;
+            double fallbackMaxX = figure.Participants.Max(p => p.X) + participantWidth / 2 + 100;
 
             foreach (var fragment in figure.Fragments)
             {
+                double minX = double.MaxValue;
+                double maxX = double.MinValue;
+                bool hasBounds = false;
+
+                void AddBounds(double left, double right)
+                {
+                    if (left > right)
+                    {
+                        (left, right) = (right, left);
+                    }
+                    if (!hasBounds)
+                    {
+                        minX = left;
+                        maxX = right;
+                        hasBounds = true;
+                        return;
+                    }
+                    if (left < minX) minX = left;
+                    if (right > maxX) maxX = right;
+                }
+
+                foreach (var message in figure.Messages)
+                {
+                    if (message.Y > fragment.StartY || message.Y < fragment.EndY)
+                    {
+                        continue;
+                    }
+
+                    var fromParticipant = figure.Participants.FirstOrDefault(p => p.ID == message.From);
+                    if (fromParticipant != null)
+                    {
+                        double left = fromParticipant.X - participantWidth / 2;
+                        double right = fromParticipant.X + participantWidth / 2;
+                        if (message.IsSelfCall)
+                        {
+                            right = Math.Max(right, fromParticipant.X + selfCallWidth);
+                        }
+                        AddBounds(left, right);
+                    }
+
+                    var toParticipant = figure.Participants.FirstOrDefault(p => p.ID == message.To);
+                    if (toParticipant != null)
+                    {
+                        AddBounds(toParticipant.X - participantWidth / 2, toParticipant.X + participantWidth / 2);
+                    }
+                }
+
+                foreach (var activation in figure.Activations)
+                {
+                    if (activation.StartY < fragment.EndY || activation.EndY > fragment.StartY)
+                    {
+                        continue;
+                    }
+
+                    var participant = figure.Participants.FirstOrDefault(p => p.ID == activation.ParticipantId);
+                    if (participant == null)
+                    {
+                        continue;
+                    }
+
+                    double activationCenterX = participant.X + (activation.NestingLevel * (activationWidth + 2));
+                    AddBounds(activationCenterX - activationWidth / 2, activationCenterX + activationWidth / 2);
+                }
+
+                foreach (var note in figure.Notes)
+                {
+                    if (note.Y > fragment.StartY || note.Y < fragment.EndY)
+                    {
+                        continue;
+                    }
+
+                    if (TryGetNoteBounds(note, out double left, out double right))
+                    {
+                        AddBounds(left, right);
+                    }
+                }
+
+                if (!hasBounds)
+                {
+                    minX = fallbackMinX;
+                    maxX = fallbackMaxX;
+                }
+                else
+                {
+                    minX -= 100;
+                    maxX += 100;
+                }
+
                 double top = AbsY(fragment.StartY) + fragmentPaddingTop;
                 double bottom = AbsY(fragment.EndY) - fragmentPaddingBottom;
 
@@ -474,6 +562,56 @@ namespace md2visio.vsdx
                 }
 
                 PauseForViewing(100);
+            }
+        }
+
+        private bool TryGetNoteBounds(SeqNote note, out double left, out double right)
+        {
+            left = right = 0;
+            if (note.ParticipantIds.Count == 0)
+            {
+                return false;
+            }
+
+            var participants = note.ParticipantIds
+                .Select(id => figure.Participants.FirstOrDefault(p => p.ID == id))
+                .Where(p => p != null)
+                .ToList();
+
+            if (participants.Count == 0)
+            {
+                return false;
+            }
+
+            double width = participantWidth;
+            if (!string.IsNullOrWhiteSpace(note.Text))
+            {
+                SizeF sizeMm = MeasureTextSizeMM(note.Text);
+                width = Math.Max(width, (sizeMm.Width + TextPaddingMm) * LayoutScale);
+            }
+
+            double minParticipantX = participants.Min(p => p!.X);
+            double maxParticipantX = participants.Max(p => p!.X);
+
+            switch (note.Position)
+            {
+                case SeqNotePosition.LeftOf:
+                    right = minParticipantX - participantWidth / 2;
+                    left = right - width;
+                    return true;
+                case SeqNotePosition.RightOf:
+                    left = maxParticipantX + participantWidth / 2;
+                    right = left + width;
+                    return true;
+                default:
+                    double spanLeft = minParticipantX - participantWidth / 2;
+                    double spanRight = maxParticipantX + participantWidth / 2;
+                    double spanWidth = spanRight - spanLeft;
+                    double noteWidth = Math.Max(width, spanWidth);
+                    double center = (spanLeft + spanRight) / 2;
+                    left = center - noteWidth / 2;
+                    right = center + noteWidth / 2;
+                    return true;
             }
         }
 
