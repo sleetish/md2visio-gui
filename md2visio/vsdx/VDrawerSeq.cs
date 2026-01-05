@@ -216,6 +216,11 @@ namespace md2visio.vsdx
                         : MeasureLabelHeight(section.Text, DefaultFragmentLabelHeight);
                 }
             }
+
+            foreach (var note in figure.Notes)
+            {
+                note.LabelHeight = MeasureLabelHeight(note.Text, 0);
+            }
         }
 
         private double MeasureLabelHeight(string text, double minHeight)
