@@ -165,7 +165,15 @@ namespace md2visio.vsdx
                 DrawFragments();
                 PauseForViewing(300);
 
-                // 6. 绘制消息
+                // 6. 绘制备注
+                if (_context.Debug)
+                {
+                    _context.Log($"[DEBUG] VDrawerSeq: 开始绘制备注");
+                }
+                DrawNotes();
+                PauseForViewing(300);
+
+                // 7. 绘制消息
                 if (_context.Debug)
                 {
                     _context.Log($"[DEBUG] VDrawerSeq: 开始绘制消息");
@@ -562,6 +570,36 @@ namespace md2visio.vsdx
                 }
 
                 PauseForViewing(100);
+            }
+        }
+
+        private void DrawNotes()
+        {
+            if (figure.Notes.Count == 0) return;
+
+            foreach (var note in figure.Notes)
+            {
+                if (!TryGetNoteBounds(note, out double left, out double right))
+                {
+                    continue;
+                }
+
+                double height = note.LabelHeight > 0 ? note.LabelHeight : DefaultFragmentLabelHeight;
+                double centerY = AbsY(note.Y);
+                double top = centerY + height / 2;
+                double bottom = centerY - height / 2;
+
+                var noteShape = visioPage.DrawRectangle(
+                    Inches(left), Inches(bottom),
+                    Inches(right), Inches(top));
+
+                noteShape.Text = note.Text;
+                noteShape.CellsU["FillPattern"].FormulaU = "1";
+                var noteBgColor = (VRGBColor)VRGBColor.Create("#FFF8C5");
+                VShapeDrawer.SetFillForegnd(noteShape, noteBgColor);
+                noteShape.CellsU["LineWeight"].FormulaU = "1 pt";
+                var noteBorderColor = (VRGBColor)VRGBColor.Create("#888888");
+                VShapeDrawer.SetLineColor(noteShape, noteBorderColor);
             }
         }
 
