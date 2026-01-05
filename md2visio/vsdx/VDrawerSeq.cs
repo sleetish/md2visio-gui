@@ -303,8 +303,16 @@ namespace md2visio.vsdx
                 }
             }
 
+            foreach (var note in figure.Notes)
+            {
+                double noteHeight = note.LabelHeight > 0 ? note.LabelHeight : DefaultFragmentLabelHeight;
+                double noteBottom = note.Y - noteHeight / 2;
+                if (noteBottom < minRelativeY)
+                    minRelativeY = noteBottom;
+            }
+
             // 3. 边缘情况处理：无内容时设置最小高度
-            if (figure.Messages.Count == 0 && figure.Activations.Count == 0 && figure.Fragments.Count == 0)
+            if (figure.Messages.Count == 0 && figure.Activations.Count == 0 && figure.Fragments.Count == 0 && figure.Notes.Count == 0)
             {
                 minRelativeY = -messageSpacing * 2; // 默认最小高度
             }

@@ -59,7 +59,7 @@ The system SHALL apply configurable fragment padding for fragment headers, secti
 - **THEN** fragment spacing reflects the configured values.
 
 ### Requirement: Vertical layout includes fragment label bounds
-The system SHALL include fragment header/section label heights and frame bounds when estimating sequence diagram vertical extent.
+The system SHALL include fragment header/section label heights, frame bounds, and note bounds when estimating sequence diagram vertical extent.
 
 #### Scenario: Fragment labels enlarge height
 - **WHEN** fragment header or section labels are taller than default spacing
@@ -68,6 +68,10 @@ The system SHALL include fragment header/section label heights and frame bounds 
 #### Scenario: Fragment end padding extends height
 - **WHEN** fragment end padding moves the fragment bottom below the last message
 - **THEN** the diagram bottom accounts for the fragment frame bound.
+
+#### Scenario: Notes extend height
+- **WHEN** notes appear below the last message
+- **THEN** the vertical layout extends to include the note bounds.
 
 ### Requirement: Sequence layout validation samples
 The system SHALL provide sample sequence diagrams that exercise long labels and fragment nesting for layout validation.
