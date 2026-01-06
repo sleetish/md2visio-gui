@@ -24,7 +24,32 @@ namespace md2visio.GUI.Services
             bool showVisio = false,
             bool silentOverwrite = false)
         {
-            return await Task.Run(() => Convert(inputFile, outputDir, fileName, showVisio, silentOverwrite));
+            return await RunOnStaThread(() => Convert(inputFile, outputDir, fileName, showVisio, silentOverwrite));
+        }
+
+        private Task<ConversionResult> RunOnStaThread(Func<ConversionResult> work)
+        {
+            var tcs = new TaskCompletionSource<ConversionResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    tcs.SetResult(work());
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                }
+            })
+            {
+                IsBackground = true
+            };
+
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+
+            return tcs.Task;
         }
 
         /// <summary>
