@@ -1,15 +1,17 @@
 ﻿using md2visio.vsdx.tool;
 using Microsoft.Office.Interop.Visio;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using Drawing = System.Drawing;
 
 namespace md2visio.vsdx.@base
 {
-    internal abstract class VShapeDrawer
+    internal abstract class VShapeDrawer : IDisposable
     {
         public static string VSSX = GetVSSXPath();
         private Shape? _shadow;
+        private bool _disposed;
 
         private static string GetVSSXPath()
         {
@@ -207,9 +209,49 @@ namespace md2visio.vsdx.@base
             return size;
         }
 
-        public static void RemoveShadow()
+        public void RemoveShadow()
         {
-            // Kept for compatibility; shadow is now instance-scoped.
+            if (_shadow == null) return;
+
+            try
+            {
+                _shadow.Delete();
+            }
+            catch (COMException)
+            {
+            }
+            catch (InvalidComObjectException)
+            {
+            }
+            finally
+            {
+                try
+                {
+                    Marshal.ReleaseComObject(_shadow);
+                }
+                catch (InvalidComObjectException)
+                {
+                }
+                _shadow = null;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+
+            if (disposing)
+            {
+                RemoveShadow();
+            }
+
+            _disposed = true;
         }
 
         public static double FontSize(Shape shape, string unit)

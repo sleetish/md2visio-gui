@@ -24,3 +24,10 @@ The system SHALL scope the text-measurement shadow shape to each drawer instance
 #### Scenario: Shadow shape isolated per drawer
 - **WHEN** text size measurement is performed during drawing
 - **THEN** the shadow shape is created and reused only within the drawer instance.
+
+### Requirement: Shadow COM cleanup is resilient
+The system SHALL release text-measurement shadow COM objects safely, even when COM exceptions occur.
+
+#### Scenario: Shadow cleanup tolerates COM errors
+- **WHEN** shadow cleanup encounters COM or invalid COM object exceptions
+- **THEN** cleanup completes without aborting the conversion flow.
