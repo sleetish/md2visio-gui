@@ -20,6 +20,7 @@ namespace md2visio.mermaid.cmn
             bool withinQuote = false;
             int stackCount = 0;
             bool metStart = false;
+            bool allowNestedStart = pairStart != ">";
             for (int i = 0; i < textBuilder.Length; ++i)
             {
                 char c = textBuilder[i];
@@ -31,8 +32,15 @@ namespace md2visio.mermaid.cmn
                 int len = Math.Min(pairStart.Length, sb.Length);
                 if (sb.ToString(sb.Length - len, len) == pairStart)
                 {
-                    metStart = true;
-                    stackCount++;
+                    if (!metStart)
+                    {
+                        metStart = true;
+                        stackCount++;
+                    }
+                    else if (allowNestedStart)
+                    {
+                        stackCount++;
+                    }
                 }
 
                 // test close tag

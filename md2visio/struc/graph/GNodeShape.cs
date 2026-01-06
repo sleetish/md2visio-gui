@@ -62,6 +62,16 @@ namespace md2visio.struc.graph
             return shape;
         }
 
+        public void UpdateWith(string text)
+        {
+            data.UpdateWith(new MmdJsonObj(text));
+        }
+
+        public void UpdateWith(MmdJsonObj json)
+        {
+            data.UpdateWith(json);
+        }
+
         public static string ShapeName(string shapeStart, string shapeClose = @"/]")
         {
             switch (shapeStart)

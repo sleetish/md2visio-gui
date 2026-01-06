@@ -81,7 +81,7 @@ namespace md2visio.struc.graph
             if (next is GSttExtendShape)
             {
                 iter.Next();
-                node.NodeShape = GNodeShape.CreateExtend(next.Fragment);
+                node.NodeShape.UpdateWith(next.Fragment);
             }
             else if (next is GSttPaired)
             {
