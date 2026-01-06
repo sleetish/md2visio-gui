@@ -17,3 +17,10 @@ The system SHALL execute GUI conversion COM calls on a dedicated STA thread.
 #### Scenario: GUI conversion uses STA
 - **WHEN** a GUI conversion runs
 - **THEN** COM automation occurs on an STA thread.
+
+### Requirement: Text measurement shadow is instance-scoped
+The system SHALL scope the text-measurement shadow shape to each drawer instance to avoid cross-session COM reuse.
+
+#### Scenario: Shadow shape isolated per drawer
+- **WHEN** text size measurement is performed during drawing
+- **THEN** the shadow shape is created and reused only within the drawer instance.

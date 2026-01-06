@@ -9,7 +9,7 @@ namespace md2visio.vsdx.@base
     internal abstract class VShapeDrawer
     {
         public static string VSSX = GetVSSXPath();
-        static Shape? shadow = null;
+        private Shape? _shadow;
 
         private static string GetVSSXPath()
         {
@@ -197,19 +197,19 @@ namespace md2visio.vsdx.@base
 
         public SizeF MeasureTextSizeMM(string text)
         {
-            if(shadow == null)
+            if (_shadow == null)
             {
-                shadow = DropText(text);
-                SetTextColor(shadow, VNamedColor.Create("white"));
+                _shadow = DropText(text);
+                SetTextColor(_shadow, VNamedColor.Create("white"));
             }
-            shadow.Text = text;
-            SizeF size = MeasureTextSizeMM(text, FontName(visioApp, shadow), FontSize(shadow));
+            _shadow.Text = text;
+            SizeF size = MeasureTextSizeMM(text, FontName(visioApp, _shadow), FontSize(_shadow));
             return size;
         }
 
         public static void RemoveShadow()
         {
-            if(shadow != null) shadow.Delete();
+            // Kept for compatibility; shadow is now instance-scoped.
         }
 
         public static double FontSize(Shape shape, string unit)
