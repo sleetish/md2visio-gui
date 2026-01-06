@@ -89,13 +89,18 @@ namespace md2visio.struc.graph
                 case "odd": return ">";
                 case "rect":
                 case "rectangle": return "[";
+                case "text": return "[";
                 case "subproc": return "[[";
                 case "diamond": return "{";
+                case "diam": return "{";
                 case "hex": return "{{";
                 case "rounded": return "(";
                 case "circle": return "((";
                 case "dbl-circ": return "(((";
                 case "cyl": return "[(";
+                case "h-cyl": return "[(";
+                case "tri": return "Triangle";
+                case "card": return "Single Snip Corner Rectangle";
                 case "lean-l":
                 case "trap-t": return @"[\";
                 case "lean-r":
@@ -112,13 +117,18 @@ namespace md2visio.struc.graph
                 case "odd":
                 case "rect":
                 case "rectangle": return "]";
+                case "text": return "]";
                 case "subproc": return "]]";
                 case "diamond": return "}";
+                case "diam": return "}";
                 case "hex": return "}}";
                 case "rounded": return ")";
                 case "circle": return "))";
                 case "dbl-circ": return ")))";
                 case "cyl": return ")]";
+                case "h-cyl": return ")]";
+                case "tri": return string.Empty;
+                case "card": return string.Empty;
                 case "lean-l": return @"\]";
                 case "trap-t": return "/]";
                 case "lean-r": return "/]";
