@@ -19,6 +19,7 @@ namespace md2visio.mermaid.graph.@internal
             if (next == "[") { return Forward<GSttWordFlag>(); }
             if (next == "(") { return Forward<GSttWordFlag>(); }
             if (next == "<") { return Forward<GSttWordFlag>(); }
+            if (next == ">") { return Forward<GSttWordFlag>(); }
             if (next == "`") { return Forward<GSttBackQuote>(); }
             if (next == "\"") { return Forward<GSttQuoted>(); }
             if (next == "-") { return Forward<GSttMinus>(); }
@@ -29,7 +30,6 @@ namespace md2visio.mermaid.graph.@internal
             if (next == ")") { throw new SynException("unexpected ')'", Ctx); }
             if (next == "}") { throw new SynException("unexpected '}'", Ctx); }
             if (next == "]") { throw new SynException("unexpected ']'", Ctx); }
-            if (next == ">") { throw new SynException("unexpected '>'", Ctx); }
 
             return Take().Forward<GSttChar>();
         }

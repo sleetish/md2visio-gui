@@ -100,13 +100,19 @@ namespace md2visio.vsdx.@base
 
         public void AdjustSize(Shape shape, SizeF paddingMM)
         {
+            AdjustSize(shape, paddingMM, 0);
+        }
+
+        public void AdjustSize(Shape shape, SizeF paddingMM, double minTextRate)
+        {
             if (string.IsNullOrEmpty(shape.Text)) return;
 
             double fontSizeMM = FontSize(shape, "mm");
             string fontName = FontName(visioApp, shape);
             SizeF sizeF = MeasureTextSizeMM(shape.Text, fontName, fontSizeMM);
 
-            double TxtWidthRate() {
+            double TxtWidthRate()
+            {
                 if (Width(shape) == 0 || ShapeSheetIU(shape, "TxtWidth") == 0) return 1;
                 return ShapeSheetIU(shape, "TxtWidth") / Width(shape);
             }
@@ -115,10 +121,19 @@ namespace md2visio.vsdx.@base
                 if (Height(shape) == 0 || ShapeSheetIU(shape, "TxtHeight") == 0) return 1;
                 return ShapeSheetIU(shape, "TxtHeight") / Height(shape);
             }
+
+            double txtWidthRate = TxtWidthRate();
+            double txtHeightRate = TxtHeightRate();
+            if (minTextRate > 0)
+            {
+                txtWidthRate = Math.Max(txtWidthRate, minTextRate);
+                txtHeightRate = Math.Max(txtHeightRate, minTextRate);
+            }
+
             double hMargin = ShapeSheet(shape, "LeftMargin", "mm") + ShapeSheet(shape, "LeftMargin", "mm");
             double vMargin = ShapeSheet(shape, "TopMargin", "mm") + ShapeSheet(shape, "BottomMargin", "mm");
-            shape.CellsU["Width"].FormulaU = $"={sizeF.Width / TxtWidthRate() + hMargin + paddingMM.Width * 2} mm";
-            shape.CellsU["Height"].FormulaU = $"={sizeF.Height / TxtHeightRate() + vMargin + paddingMM.Height * 2} mm";
+            shape.CellsU["Width"].FormulaU = $"={sizeF.Width / txtWidthRate + hMargin + paddingMM.Width * 2} mm";
+            shape.CellsU["Height"].FormulaU = $"={sizeF.Height / txtHeightRate + vMargin + paddingMM.Height * 2} mm";
         }
 
 

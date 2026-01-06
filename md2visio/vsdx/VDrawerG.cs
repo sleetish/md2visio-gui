@@ -14,6 +14,7 @@ namespace md2visio.vsdx
 
     internal class VDrawerG : VFigureDrawer<Graph>
     {
+        const double GraphMinTextRate = 0.4;
         LinkedList<GNode> drawnList = new LinkedList<GNode>();
         HashSet<GNode> drawnSet = new HashSet<GNode>();
 
@@ -370,7 +371,7 @@ namespace md2visio.vsdx
         {
             Shape shape = visioPage.Drop(GetMaster($"{node.ShapeStart}{node.ShapeClose}"), 0, 0);
             shape.Text = node.Label;
-            AdjustSize(shape);
+            AdjustSize(shape, new System.Drawing.SizeF(0, 0), GraphMinTextRate);
             node.VisioShape = shape; 
             return shape;
         }

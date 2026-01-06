@@ -18,7 +18,7 @@ namespace md2visio.mermaid.graph.@internal
             if (next == ";") { return Forward<SttFinishFlag>(); }
             if (next == "`") { return Forward<GSttBackQuote>(); }
             if (next == "=") { return Forward<GSttNoLabelLink>(); }
-            if (next == ">") { return Forward<GSttNoLabelLink>(); }
+            if (next == ">") { return Forward<GSttPaired>(); }
             if (next == "<")
             {
                 if (GSttNoLabelLink.IsNoLabelLink(Ctx)) { return Forward<GSttNoLabelLink>(); }
