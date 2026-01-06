@@ -229,8 +229,12 @@ namespace md2visio.vsdx
                     if (drawnEdges.Contains(edge) || edge.To.VisioShape == null) continue;
 
                     Shape shape = CreateEdge(edge);
-                    node.VisioShape.AutoConnect(edge.To.VisioShape, VisAutoConnectDir.visAutoConnectDirNone, shape);
-                    shape.Delete();
+                    if (!TryGlueEdge(edge, shape, node.VisioShape, edge.To.VisioShape))
+                    {
+                        VisAutoConnectDir dir = ResolveAutoConnectDir(node.VisioShape, edge.To.VisioShape);
+                        node.VisioShape.AutoConnect(edge.To.VisioShape, dir, shape);
+                        shape.Delete();
+                    }
                     drawnEdges.Add(edge);
                     PauseForViewing(100); // 每条边绘制后暂停
                 }
@@ -434,9 +438,94 @@ namespace md2visio.vsdx
                 case ">": shape.CellsU["EndArrow"].FormulaU = "=4"; break;
                 default: shape.CellsU["EndArrow"].FormulaU = "=0"; break;
             }
+
+            if (edge.From.NodeShape.Shape == "tri")
+                shape.CellsU["BeginArrowSize"].FormulaU = "0.6";
+            if (edge.To.NodeShape.Shape == "tri")
+                shape.CellsU["EndArrowSize"].FormulaU = "0.6";
             
             // 设置连接线颜色
             SetLineColor(shape, "config.themeVariables.defaultLinkColor");
+        }
+
+        bool TryGlueEdge(GEdge edge, Shape connector, Shape from, Shape to)
+        {
+            if (edge.From.NodeShape.Shape != "tri" && edge.To.NodeShape.Shape != "tri") return false;
+
+            VisAutoConnectDir dir = ResolveAutoConnectDir(from, to);
+            int fromRow = FindBestConnectionRow(from, dir);
+            int toRow = FindBestConnectionRow(to, OppositeDir(dir));
+            if (fromRow < 0 || toRow < 0) return false;
+
+            short sec = (short)VisSectionIndices.visSectionConnectionPts;
+            connector.CellsU["BeginX"].GlueTo(from.CellsSRC[sec, (short)fromRow, (short)VisCellIndices.visCnnctX]);
+            connector.CellsU["EndX"].GlueTo(to.CellsSRC[sec, (short)toRow, (short)VisCellIndices.visCnnctX]);
+            return true;
+        }
+
+        VisAutoConnectDir ResolveAutoConnectDir(Shape from, Shape to)
+        {
+            double dx = PinX(to) - PinX(from);
+            double dy = PinY(to) - PinY(from);
+            if (Math.Abs(dx) >= Math.Abs(dy))
+                return dx >= 0 ? VisAutoConnectDir.visAutoConnectDirRight : VisAutoConnectDir.visAutoConnectDirLeft;
+            return dy >= 0 ? VisAutoConnectDir.visAutoConnectDirUp : VisAutoConnectDir.visAutoConnectDirDown;
+        }
+
+        VisAutoConnectDir OppositeDir(VisAutoConnectDir dir)
+        {
+            return dir switch
+            {
+                VisAutoConnectDir.visAutoConnectDirLeft => VisAutoConnectDir.visAutoConnectDirRight,
+                VisAutoConnectDir.visAutoConnectDirRight => VisAutoConnectDir.visAutoConnectDirLeft,
+                VisAutoConnectDir.visAutoConnectDirUp => VisAutoConnectDir.visAutoConnectDirDown,
+                VisAutoConnectDir.visAutoConnectDirDown => VisAutoConnectDir.visAutoConnectDirUp,
+                _ => VisAutoConnectDir.visAutoConnectDirNone
+            };
+        }
+
+        int FindBestConnectionRow(Shape shape, VisAutoConnectDir dir)
+        {
+            short sec = (short)VisSectionIndices.visSectionConnectionPts;
+            if (shape.SectionExists[sec, (short)VisExistsFlags.visExistsAnywhere] == 0) return -1;
+
+            int rows = shape.RowCount[sec];
+            if (rows <= 0) return -1;
+
+            int bestRow = -1;
+            double bestVal = (dir == VisAutoConnectDir.visAutoConnectDirLeft ||
+                              dir == VisAutoConnectDir.visAutoConnectDirDown)
+                ? double.MaxValue
+                : double.MinValue;
+
+            for (short i = 0; i < rows; i++)
+            {
+                double x = shape.CellsSRC[sec, i, (short)VisCellIndices.visCnnctX].ResultIU;
+                double y = shape.CellsSRC[sec, i, (short)VisCellIndices.visCnnctY].ResultIU;
+                double val = (dir == VisAutoConnectDir.visAutoConnectDirLeft ||
+                              dir == VisAutoConnectDir.visAutoConnectDirRight)
+                    ? x
+                    : y;
+
+                if (dir == VisAutoConnectDir.visAutoConnectDirLeft || dir == VisAutoConnectDir.visAutoConnectDirDown)
+                {
+                    if (val < bestVal)
+                    {
+                        bestVal = val;
+                        bestRow = i;
+                    }
+                }
+                else
+                {
+                    if (val > bestVal)
+                    {
+                        bestVal = val;
+                        bestRow = i;
+                    }
+                }
+            }
+
+            return bestRow;
         }
 
 
