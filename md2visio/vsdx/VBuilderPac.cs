@@ -12,7 +12,7 @@ namespace md2visio.vsdx
 
         protected override void ExecuteBuild()
         {
-            VDrawerPac drawer = new VDrawerPac(figure, _session.Application, _context);
+            using var drawer = new VDrawerPac(figure, _session.Application, _context);
             drawer.SortedNodes = OrderInnerNodes();
             drawer.Draw();
         }

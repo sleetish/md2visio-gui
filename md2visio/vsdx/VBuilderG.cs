@@ -11,7 +11,8 @@ namespace md2visio.vsdx
 
         override protected void ExecuteBuild()
         {
-            new VDrawerG(figure, _session.Application, _context).Draw();
+            using var drawer = new VDrawerG(figure, _session.Application, _context);
+            drawer.Draw();
         }
     }
 }

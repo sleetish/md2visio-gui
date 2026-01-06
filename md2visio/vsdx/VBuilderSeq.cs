@@ -18,7 +18,8 @@ namespace md2visio.vsdx
 
             try
             {
-                new VDrawerSeq(figure, _session.Application, _context).Draw();
+                using var drawer = new VDrawerSeq(figure, _session.Application, _context);
+                drawer.Draw();
 
                 if (_context.Debug)
                 {

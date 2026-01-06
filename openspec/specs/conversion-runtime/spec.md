@@ -31,3 +31,10 @@ The system SHALL release text-measurement shadow COM objects safely, even when C
 #### Scenario: Shadow cleanup tolerates COM errors
 - **WHEN** shadow cleanup encounters COM or invalid COM object exceptions
 - **THEN** cleanup completes without aborting the conversion flow.
+
+### Requirement: Drawer instances are disposed after drawing
+The system SHALL dispose each drawer instance after its Draw routine completes.
+
+#### Scenario: Drawer disposed after render
+- **WHEN** a builder finishes drawing a figure
+- **THEN** its drawer instance is disposed before the document is saved.

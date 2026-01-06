@@ -9,16 +9,18 @@ namespace md2visio.vsdx
     {
         double width, height; // mm
         bool vertical = true;
-        VDrawerXy drawer;
+        VDrawerXy? drawer;
 
         public VBuilderXy(XyChart figure, ConversionContext context, IVisioSession session)
             : base(figure, context, session)
         {
-            drawer = new VDrawerXy(figure, _session.Application, _context);
         }
 
         protected override void ExecuteBuild()
-        {           
+        {
+            using var localDrawer = new VDrawerXy(figure, _session.Application, _context);
+            drawer = localDrawer;
+
             // config
             figure.Config.GetDouble("config.xyChart.width", out width);
             figure.Config.GetDouble("config.xyChart.height", out height);
@@ -37,6 +39,8 @@ namespace md2visio.vsdx
             InitXTicks(drawer.XTicks);
             InitYTicks(drawer.YTicks);
             drawer.Draw();
+
+            drawer = null;
         }
 
         void InitXTicks(List<string> ticks)
@@ -101,6 +105,10 @@ namespace md2visio.vsdx
 
         SizeF TextSize(double num)
         {
+            if (drawer == null)
+            {
+                throw new InvalidOperationException("Drawer is not initialized.");
+            }
             return drawer.MeasureTextSizeMM(TrimZeroEnd(num.ToString()));
         }
 
