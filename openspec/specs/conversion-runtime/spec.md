@@ -45,3 +45,10 @@ The system SHALL include inner exception type and message details in conversion 
 #### Scenario: Inner exception reported
 - **WHEN** a conversion fails with a TargetInvocationException or inner exception
 - **THEN** logs and error messages include the inner exception type and message.
+
+### Requirement: Regression conversions cover multiple diagram types
+The system SHALL provide a regression conversion sweep across multiple diagram types to validate COM stability.
+
+#### Scenario: Multi-diagram regression run
+- **WHEN** regression validation is performed
+- **THEN** sequence and graph sample conversions complete in one session without RPC errors.
