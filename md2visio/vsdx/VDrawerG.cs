@@ -116,6 +116,7 @@ namespace md2visio.vsdx
                 SetLineColor(shape, "config.themeVariables.primaryBorderColor");
                 SetTextColor(shape, "config.themeVariables.primaryTextColor");
                 shape.CellsU["LineWeight"].FormulaU = "0.75 pt";
+                PostProcessShape(node, shape);
             }
 
             // 2. 计算子树宽度（后序遍历）
@@ -372,6 +373,21 @@ namespace md2visio.vsdx
             AdjustSize(shape);
             node.VisioShape = shape; 
             return shape;
+        }
+
+        void PostProcessShape(GNode node, Shape shape)
+        {
+            switch (node.NodeShape.Shape)
+            {
+                case "text":
+                    shape.CellsU["LinePattern"].FormulaU = "=0";
+                    shape.CellsU["FillPattern"].FormulaU = "=0";
+                    break;
+                case "h-cyl":
+                    Rotate(shape, Math.PI / 2);
+                    shape.CellsU["TxtAngle"].FormulaU = "0 rad";
+                    break;
+            }
         }
 
         public Shape CreateEdge(GEdge edge)
