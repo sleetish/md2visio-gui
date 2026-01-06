@@ -1,6 +1,7 @@
 using md2visio.mermaid.cmn;
 using md2visio.struc.figure;
 using md2visio.vsdx.@base;
+using System.Reflection;
 
 namespace md2visio.Api
 {
@@ -45,9 +46,32 @@ namespace md2visio.Api
             }
             catch (Exception ex)
             {
+                var root = UnwrapException(ex);
+                if (!ReferenceEquals(root, ex))
+                {
+                    logger.Error($"转换失败: {root.GetType().Name}: {root.Message}");
+                    return ConversionResult.Failed($"转换失败: {root.GetType().Name}: {root.Message}", ex);
+                }
+
                 logger.Error($"转换失败: {ex.Message}");
                 return ConversionResult.Failed($"转换失败: {ex.Message}", ex);
             }
+        }
+
+        private static Exception UnwrapException(Exception ex)
+        {
+            Exception current = ex;
+            if (current is TargetInvocationException tie && tie.InnerException != null)
+            {
+                current = tie.InnerException;
+            }
+
+            while (current.InnerException != null)
+            {
+                current = current.InnerException;
+            }
+
+            return current;
         }
 
         private ConversionResult ConvertInternal(

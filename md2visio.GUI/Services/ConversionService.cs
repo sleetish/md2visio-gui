@@ -344,6 +344,7 @@ namespace md2visio.GUI.Services
         private class GuiLogSink : md2visio.Api.ILogSink
         {
             private readonly ConversionService _service;
+            private static readonly string[] LevelPrefixes = new[] { "[DEBUG]", "[WARN]", "[ERROR]", "[INFO]" };
 
             public GuiLogSink(ConversionService service)
             {
@@ -351,9 +352,27 @@ namespace md2visio.GUI.Services
             }
 
             public void Info(string message) => _service.ReportLog(message);
-            public void Debug(string message) => _service.ReportLog($"[DEBUG] {message}");
-            public void Warning(string message) => _service.ReportLog($"[WARN] {message}");
-            public void Error(string message) => _service.ReportLog($"[ERROR] {message}");
+            public void Debug(string message) => _service.ReportLog(WithPrefix("[DEBUG]", message));
+            public void Warning(string message) => _service.ReportLog(WithPrefix("[WARN]", message));
+            public void Error(string message) => _service.ReportLog(WithPrefix("[ERROR]", message));
+
+            private static string WithPrefix(string prefix, string message)
+            {
+                if (string.IsNullOrWhiteSpace(message))
+                {
+                    return prefix;
+                }
+
+                foreach (var levelPrefix in LevelPrefixes)
+                {
+                    if (message.StartsWith(levelPrefix, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return message;
+                    }
+                }
+
+                return $"{prefix} {message}";
+            }
         }
     }
 
