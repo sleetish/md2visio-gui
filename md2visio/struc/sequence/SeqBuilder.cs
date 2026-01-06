@@ -224,6 +224,17 @@ namespace md2visio.struc.sequence
             }
         }
 
+        private void BuildActivate(string participantId)
+        {
+            var activation = new SeqActivation(participantId, currentY);
+
+            var existingActivations = activationStack.Where(a => a.ParticipantId == participantId).ToList();
+            activation.NestingLevel = existingActivations.Count;
+
+            sequence.Activations.Add(activation);
+            activationStack.Push(activation);
+        }
+
         private void BuildActivate()
         {
             SynState next = iter.PeekNext();
@@ -231,14 +242,29 @@ namespace md2visio.struc.sequence
             {
                 iter.Next();
                 string participantId = next.Fragment;
+                BuildActivate(participantId);
+            }
+        }
 
-                var activation = new SeqActivation(participantId, currentY);
-
-                var existingActivations = activationStack.Where(a => a.ParticipantId == participantId).ToList();
-                activation.NestingLevel = existingActivations.Count;
-
-                sequence.Activations.Add(activation);
-                activationStack.Push(activation);
+        private void BuildDeactivate(string participantId)
+        {
+            var activation = activationStack.LastOrDefault(a => a.ParticipantId == participantId);
+            if (activation != null)
+            {
+                activation.SetEnd(currentY);
+                var tempStack = new Stack<SeqActivation>();
+                while (activationStack.Count > 0)
+                {
+                    var item = activationStack.Pop();
+                    if (item != activation)
+                    {
+                        tempStack.Push(item);
+                    }
+                }
+                while (tempStack.Count > 0)
+                {
+                    activationStack.Push(tempStack.Pop());
+                }
             }
         }
 
@@ -249,25 +275,7 @@ namespace md2visio.struc.sequence
             {
                 iter.Next();
                 string participantId = next.Fragment;
-
-                var activation = activationStack.LastOrDefault(a => a.ParticipantId == participantId);
-                if (activation != null)
-                {
-                    activation.SetEnd(currentY);
-                    var tempStack = new Stack<SeqActivation>();
-                    while (activationStack.Count > 0)
-                    {
-                        var item = activationStack.Pop();
-                        if (item != activation)
-                        {
-                            tempStack.Push(item);
-                        }
-                    }
-                    while (tempStack.Count > 0)
-                    {
-                        activationStack.Push(tempStack.Pop());
-                    }
-                }
+                BuildDeactivate(participantId);
             }
         }
 
@@ -382,7 +390,7 @@ namespace md2visio.struc.sequence
                 _context.Log($"[DEBUG] SeqBuilder: 解析消息行: {messageText}");
             }
 
-            if (TryParseMessage(messageText, out string from, out string to, out string arrowType, out string label))
+            if (TryParseMessage(messageText, out string from, out string to, out string arrowType, out string activationOp, out string label))
             {
                 if (_context.Debug)
                 {
@@ -402,6 +410,15 @@ namespace md2visio.struc.sequence
 
                 sequence.GetParticipant(from);
                 sequence.GetParticipant(to);
+
+                if (activationOp == "+")
+                {
+                    BuildActivate(to);
+                }
+                else if (activationOp == "-")
+                {
+                    BuildDeactivate(from);
+                }
 
                 currentY -= messageSpacing;
             }
@@ -441,19 +458,20 @@ namespace md2visio.struc.sequence
             return defaultPadding;
         }
 
-        private bool TryParseMessage(string messageText, out string from, out string to, out string arrowType, out string label)
+        private bool TryParseMessage(string messageText, out string from, out string to, out string arrowType, out string activationOp, out string label)
         {
-            from = to = arrowType = label = string.Empty;
+            from = to = arrowType = activationOp = label = string.Empty;
 
-            var pattern = @"^\s*(\w+)\s*(-->?>>?|-->>?|->>?|->)\s*(\w+)\s*:\s*(.*)$";
+            var pattern = @"^\s*(\w+)\s*(-->?>>?|-->>?|->>?|->)\s*([+-]?)\s*(\w+)\s*:\s*(.*)$";
             var match = System.Text.RegularExpressions.Regex.Match(messageText, pattern);
 
             if (match.Success)
             {
                 from = match.Groups[1].Value.Trim();
                 arrowType = match.Groups[2].Value.Trim();
-                to = match.Groups[3].Value.Trim();
-                label = match.Groups[4].Value.Trim();
+                activationOp = match.Groups[3].Value.Trim();
+                to = match.Groups[4].Value.Trim();
+                label = match.Groups[5].Value.Trim();
                 return true;
             }
 

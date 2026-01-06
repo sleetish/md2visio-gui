@@ -1,0 +1,17 @@
+{
+  "plan_path": "plan/2026-01-06_16-42-16-visio-com-rpc-stability.md",
+  "plan_id": "2026-01-06_16-42-16-visio-com-rpc-stability",
+  "json_path": "_issues_snapshot_rows.json",
+  "change_ids": [
+    "entrypoint-scope-audit",
+    "gui-sta-conversion-thread",
+    "vshapedrawer-shadow-instance",
+    "vshapedrawer-safe-dispose",
+    "builder-drawer-disposal",
+    "exception-unwrapping-logging",
+    "conversion-regression-suite"
+  ],
+  "change_count": 7,
+  "step_count": 25,
+  "csv_path": "issues/2026-01-06_17-01-39-2026-01-06_16-42-16-visio-com-rpc-stability.csv"
+}

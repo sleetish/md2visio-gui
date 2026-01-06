@@ -13,7 +13,7 @@ namespace md2visio.mermaid.sequence
         public override SynState NextState()
         {
             // 解析消息语法: from->>to: message
-            // 支持: ->> -->> -> -->
+            // 支持: ->> -->> -> --> 以及 inline 激活 +/- 
             string messageText = Buffer.ToString();
             
             if (!TryParseMessage(messageText))
@@ -27,16 +27,16 @@ namespace md2visio.mermaid.sequence
 
         private bool TryParseMessage(string messageText)
         {
-            // 正则表达式匹配消息格式: participant1->>participant2: message text
-            var pattern = @"^\s*(\w+)\s*(-->?>>?|-->>?|->>?|->)\s*(\w+)\s*:\s*(.*)$";
+            // 正则表达式匹配消息格式: participant1->>[+-]?participant2: message text
+            var pattern = @"^\s*(\w+)\s*(-->?>>?|-->>?|->>?|->)\s*([+-]?)\s*(\w+)\s*:\s*(.*)$";
             var match = Regex.Match(messageText, pattern);
             
             if (match.Success)
             {
                 from = match.Groups[1].Value.Trim();
                 arrowType = match.Groups[2].Value.Trim();
-                to = match.Groups[3].Value.Trim();
-                label = match.Groups[4].Value.Trim();
+                to = match.Groups[4].Value.Trim();
+                label = match.Groups[5].Value.Trim();
                 return true;
             }
             
@@ -52,7 +52,7 @@ namespace md2visio.mermaid.sequence
         {
             string text = ctx.Cache.ToString().Trim();
             // 检查是否包含消息箭头
-            return Regex.IsMatch(text, @"\w+\s*(-->?>>?|-->>?|->>?|->)\s*\w+\s*:");
+            return Regex.IsMatch(text, @"\w+\s*(-->?>>?|-->>?|->>?|->)\s*[+-]?\s*\w+\s*:");
         }
     }
 }
