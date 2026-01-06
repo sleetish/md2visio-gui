@@ -69,9 +69,37 @@ Snipaste_*.png
 *.backup
 *.bak
 
-# Claude logs
+# AI coding tools & configs
+.claude/
 .claude-logs/
+.codex/
+.cursor/
+.aider/
+.continue/
+.augment/
+.copilot/
+.github/copilot/
+.gemini/
+.windsurf/
+.codeium/
+.tabnine/
+.kite/
+
+# AI project docs
+CLAUDE.md
+AGENTS.md
+openspec/
+**/AGENTS.md
+**/project.md
+
+# Project planning & design docs (AI generated)
+plan/
+design/
+issues/*.csv
+
+# Debug files
+debug.txt
 
 # Temporary test files
-test_*.md
+test*.md
 test*.vsdx
