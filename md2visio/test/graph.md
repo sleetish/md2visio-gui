@@ -151,3 +151,19 @@ graph LR
     C -->|否| F[继续搜索目标或采取其他行动]
 ```
 
+# Flowchart Shape Samples
+
+```mermaid
+graph LR
+    R@{ shape: rect } --> T@{ shape: text }
+    O@{ shape: rounded } --> Tri@{ shape: tri }
+    Di@{ shape: diam } --> Hex@{ shape: hex }
+    Cy@{ shape: cyl } --> HC@{ shape: h-cyl }
+    L1@{ shape: lean-l } --> L2@{ shape: lean-r }
+    Tb@{ shape: trap-b } --> Tt@{ shape: trap-t }
+    Card@{ shape: card } --> R
+
+    D -- aS --> n1>"asd"]
+    D -- aS --> n2(["asd"])
+```
+
