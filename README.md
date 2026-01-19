@@ -133,6 +133,7 @@ MIT License
 ## 🙏 Acknowledgments
 
 - [Megre/md2visio](https://github.com/Megre/md2visio) - Original project
+- [@LiLittleCat](https://github.com/LiLittleCat) - ER diagram support adapted from [PR #8](https://github.com/konbakuyomu/md2visio-gui/pull/8)
 
 ## ⭐ Star History
 

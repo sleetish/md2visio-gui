@@ -135,6 +135,7 @@ MIT License
 ## 🙏 致谢
 
 - [Megre/md2visio](https://github.com/Megre/md2visio) - 原始项目
+- [@LiLittleCat](https://github.com/LiLittleCat) - ER 图支持参考 [PR #8](https://github.com/konbakuyomu/md2visio-gui/pull/8)
 
 ## ⭐ Star 趋势
 
