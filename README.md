@@ -49,8 +49,8 @@ Special thanks to **Megre** for the outstanding work and open-source contributio
 | **packet-beta** | ✅ Supported | ✅ |
 | **xychart-beta** | ✅ Supported | - |
 | **Configuration** (frontmatter/directive) | ✅ Supported | - |
+| **erDiagram** | ✅ Supported | - |
 | stateDiagram | ❌ Not yet | - |
-| erDiagram | ❌ Not yet | - |
 | gantt | ❌ Not yet | - |
 | gitGraph | ❌ Not yet | - |
 | mindmap | ❌ Not yet | - |

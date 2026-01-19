@@ -51,8 +51,8 @@
 | **packet-beta** (数据包图) | ✅ 支持 | ✅ |
 | **xychart-beta** (XY图表) | ✅ 支持 | - |
 | **Configuration** (配置指令) | ✅ 支持 | - |
+| **erDiagram** (实体关系图) | ✅ 支持 | - |
 | stateDiagram (状态图) | ❌ 暂不支持 | - |
-| erDiagram (实体关系图) | ❌ 暂不支持 | - |
 | gantt (甘特图) | ❌ 暂不支持 | - |
 | gitGraph (Git图) | ❌ 暂不支持 | - |
 | mindmap (脑图) | ❌ 暂不支持 | - |
