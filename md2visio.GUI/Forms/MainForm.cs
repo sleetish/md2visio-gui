@@ -65,8 +65,8 @@ namespace md2visio.GUI.Forms
             mainPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 120)); // 文件选择区域
             mainPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 120)); // 输出设置
             mainPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 80)); // 选项
-            mainPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 90)); // 支持类型
-            mainPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 250)); // 日志区域
+            mainPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // 支持类型
+            mainPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // 日志区域
             mainPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 80)); // 按钮和状态栏
 
             Controls.Add(mainPanel);
@@ -249,17 +249,20 @@ namespace md2visio.GUI.Forms
             var groupBox = new GroupBox
             {
                 Text = "📊 支持的图表类型",
-                Dock = DockStyle.Fill,
+                Dock = DockStyle.Top,
                 Font = new Font("Microsoft YaHei UI", 9, FontStyle.Bold),
-                Height = 60
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink
             };
 
             var container = new FlowLayoutPanel
             {
-                Dock = DockStyle.Fill,
+                Dock = DockStyle.Top,
                 FlowDirection = FlowDirection.LeftToRight,
                 WrapContents = true,
-                Padding = new Padding(10, 15, 10, 15)
+                Padding = new Padding(10, 15, 10, 15),
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink
             };
 
             // 创建单个类型标签
@@ -270,7 +273,8 @@ namespace md2visio.GUI.Forms
                 ("✅ 用户旅程图", "journey"),
                 ("✅ 数据包图", "packet"),
                 ("✅ XY图表", "xychart"),
-                ("✅ 时序图", "sequence")
+                ("✅ 时序图", "sequence"),
+                ("✅ 实体关系图", "er")
             };
 
             foreach (var (icon, name) in supportedTypes)
@@ -288,6 +292,17 @@ namespace md2visio.GUI.Forms
 
             groupBox.Controls.Add(container);
             parent.Controls.Add(groupBox, 0, row);
+
+            void SyncSupportedTypesWidth()
+            {
+                // FlowLayoutPanel 需要受限宽度才能正确计算换行后的高度
+                int width = groupBox.ClientSize.Width - container.Margin.Horizontal - container.Padding.Horizontal;
+                if (width > 0)
+                    container.MaximumSize = new Size(width, 0);
+            }
+
+            groupBox.SizeChanged += (_, __) => SyncSupportedTypesWidth();
+            groupBox.HandleCreated += (_, __) => SyncSupportedTypesWidth();
         }
 
         private void CreateLogArea(TableLayoutPanel parent, int row)
@@ -536,19 +551,25 @@ namespace md2visio.GUI.Forms
                 if (result.IsSuccess)
                 {
                     _openOutputButton.Enabled = true;
-                    MessageBox.Show($"转换成功！\n生成了 {result.OutputFiles?.Length} 个文件。", "成功", 
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    ShowUserMessage(
+                        $"转换成功！\n生成了 {result.OutputFiles?.Length} 个文件。",
+                        "成功",
+                        MessageBoxIcon.Information);
                 }
                 else
                 {
-                    MessageBox.Show($"转换失败！\n错误: {result.ErrorMessage}", "错误", 
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ShowUserMessage(
+                        $"转换失败！\n错误: {result.ErrorMessage}",
+                        "错误",
+                        MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"转换过程中发生错误:\n{ex.Message}", "错误", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowUserMessage(
+                    $"转换过程中发生错误:\n{ex.Message}",
+                    "错误",
+                    MessageBoxIcon.Error);
             }
             finally
             {
@@ -644,6 +665,17 @@ namespace md2visio.GUI.Forms
         {
             _logTextBox.AppendText($"{message}\n");
             _logTextBox.ScrollToCaret();
+        }
+
+        private void ShowUserMessage(string message, string caption, MessageBoxIcon icon)
+        {
+            if (WindowState == FormWindowState.Minimized)
+            {
+                WindowState = FormWindowState.Normal;
+            }
+            Activate();
+            BringToFront();
+            MessageBox.Show(this, message, caption, MessageBoxButtons.OK, icon);
         }
 
         private async void OnCheckVisioClick(object? sender, EventArgs e)
