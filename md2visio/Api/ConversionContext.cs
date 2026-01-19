@@ -45,6 +45,11 @@ namespace md2visio.Api
 
         #endregion
 
+        /// <summary>
+        /// 记录最后一次错误信息（用于跨层反馈）
+        /// </summary>
+        public string? LastError { get; private set; }
+
         public ConversionContext(ConversionRequest options, ILogSink? logger = null)
         {
             Options = options ?? throw new ArgumentNullException(nameof(options));
@@ -83,6 +88,15 @@ namespace md2visio.Api
         /// </summary>
         public void LogError(string message)
         {
+            Logger.Error(message);
+        }
+
+        /// <summary>
+        /// 记录错误并保存到上下文，供上层终止转换
+        /// </summary>
+        public void SetError(string message)
+        {
+            LastError = message;
             Logger.Error(message);
         }
     }

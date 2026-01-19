@@ -36,6 +36,13 @@ namespace md2visio.vsdx.@base
 
             if (overwrite)
             {
+                if (!CanWriteOutputFile(outputFile, out string? reason))
+                {
+                    _context.SetError(reason ?? "输出文件不可写入。");
+                    visioDoc.Saved = true;
+                    _session.CloseDocument(visioDoc);
+                    return;
+                }
                 _session.SaveDocument(visioDoc, outputFile);
             }
             else
@@ -44,6 +51,32 @@ namespace md2visio.vsdx.@base
             }
 
             _session.CloseDocument(visioDoc);
+        }
+
+        bool CanWriteOutputFile(string outputFile, out string? reason)
+        {
+            reason = null;
+            if (!File.Exists(outputFile)) return true;
+
+            try
+            {
+                using var stream = new FileStream(
+                    outputFile,
+                    FileMode.Open,
+                    FileAccess.ReadWrite,
+                    FileShare.None);
+                return true;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                reason = $"输出文件被占用或只读，无法写入：{outputFile}";
+                return false;
+            }
+            catch (IOException)
+            {
+                reason = $"输出文件正在被其他程序占用，请关闭后重试：{outputFile}";
+                return false;
+            }
         }
 
         public static string? GetVisioContentDirectory()

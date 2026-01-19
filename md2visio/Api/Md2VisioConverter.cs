@@ -136,6 +136,16 @@ namespace md2visio.Api
 
             factory.Build(request.OutputPath);
 
+            if (!string.IsNullOrWhiteSpace(context.LastError))
+            {
+                if (!request.ShowVisio)
+                {
+                    _session?.Dispose();
+                    _session = null;
+                }
+                return ConversionResult.Failed(context.LastError);
+            }
+
             // Step 6: 如果不显示 Visio 则清理
             progress?.Report(new ConversionProgress(90, "保存输出...", ConversionPhase.Saving));
 
