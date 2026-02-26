@@ -1,26 +1,26 @@
 ```mermaid
 ---
-title: "TCP 数据包"
+title: "TCP Packet"
 config:
   theme: 'forest'
 ---
 packet-beta
-    192-252: "数据 (可变长度)"
-    0-15: "源端口"
-    16-31: "目的端口"
-    32-63: "序列号"
-    64-95: "确认号"
-    96-99: "数据偏移"
-    100-105: "保留"
+    192-252: "Data (Variable Length)"
+    0-15: "Source Port"
+    16-31: "Destination Port"
+    32-63: "Sequence Number"
+    64-95: "Acknowledgment Number"
+    96-99: "Data Offset"
+    100-105: "Reserved"
     106: "URG"
     107: "ACK"
     108: "PSH"
     109: "RST"
     110: "SYN"
     111: "FIN"
-    112-127: "窗口"
-    128-143: "校验和"
-    144-159: "紧急指针"
-    160-191: "(选项和填充)"
+    112-127: "Window"
+    128-143: "Checksum"
+    144-159: "Urgent Pointer"
+    160-191: "(Options and Padding)"
     253-289: "test"
 ```
