@@ -212,12 +212,11 @@ namespace md2visio.GUI.Services
         /// </summary>
         public List<string> DetectMermaidTypes(string filePath)
         {
-            var types = new List<string>();
+            var types = new HashSet<string>();
 
             try
             {
-                var content = File.ReadAllText(filePath);
-                var lines = content.Split('\n');
+                var lines = File.ReadLines(filePath);
 
                 bool inMermaidBlock = false;
                 foreach (var line in lines)
@@ -238,15 +237,9 @@ namespace md2visio.GUI.Services
 
                     if (inMermaidBlock && !string.IsNullOrWhiteSpace(trimmed))
                     {
-                        var words = trimmed.Split(' ');
-                        if (words.Length > 0)
-                        {
-                            var type = words[0].ToLower();
-                            if (!types.Contains(type))
-                            {
-                                types.Add(type);
-                            }
-                        }
+                        int spaceIndex = trimmed.IndexOf(' ');
+                        string type = spaceIndex > -1 ? trimmed.Substring(0, spaceIndex) : trimmed;
+                        types.Add(type.ToLower());
                     }
                 }
             }
@@ -255,7 +248,7 @@ namespace md2visio.GUI.Services
                 ReportLog($"Error detecting file type: {ex.Message}");
             }
 
-            return types;
+            return types.ToList();
         }
 
         /// <summary>
