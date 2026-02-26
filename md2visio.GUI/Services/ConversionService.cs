@@ -89,7 +89,7 @@ namespace md2visio.GUI.Services
                     outputPath: outputPath,
                     showVisio: showVisio,
                     silentOverwrite: silentOverwrite,
-                    debug: true  // Keep debug mode for detailed logs
+                    debug: false // 🔒 Security: Disable debug mode by default to prevent info leakage
                 );
 
                 // Create progress reporter

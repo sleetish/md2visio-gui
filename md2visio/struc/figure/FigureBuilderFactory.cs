@@ -71,7 +71,8 @@ namespace md2visio.struc.figure
                     for (int i = 0; i < iter.Context.StateList.Count; i++)
                     {
                         var state = iter.Context.StateList[i];
-                        _context.Log($"[DEBUG] StateList[{i}]: Type={state.GetType().Name}, Fragment='{state.Fragment}'");
+                        // 🔒 Security Fix: Do not log fragment content to prevent sensitive data leakage
+                        _context.Log($"[DEBUG] StateList[{i}]: Type={state.GetType().Name}");
                     }
                 }
             }
@@ -95,8 +96,7 @@ namespace md2visio.struc.figure
 
                     if (_context.Debug)
                     {
-                        _context.Log($"[DEBUG] BuildFigures: Checking position {pos}, Fragment = '{word}'");
-                        _context.Log($"[DEBUG] BuildFigures: SttFigureType.IsFigure('{word}') = {SttFigureType.IsFigure(word)}");
+                        _context.Log($"[DEBUG] BuildFigures: Checking position {pos}");
                     }
 
                     if (SttFigureType.IsFigure(word))
