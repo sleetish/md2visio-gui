@@ -1,4 +1,4 @@
-﻿using Microsoft.Office.Interop.Visio;
+using Microsoft.Office.Interop.Visio;
 
 namespace md2visio.struc.sequence
 {
@@ -13,13 +13,13 @@ namespace md2visio.struc.sequence
         public Shape? MessageShape { get; set; }
         public double LabelHeight { get; set; }
 
-        // 判断是否为自调用
+        // Check if self-call
         public bool IsSelfCall => From == To;
 
-        // 判断是否为虚线
+        // Check if dashed line
         public bool IsDashed => ArrowType.StartsWith("--");
 
-        // 判断是否为同步消息(带>>)
+        // Check if synchronous message (ends with >>)
         public bool IsSynchronous => ArrowType.EndsWith(">>");
 
         public SeqMessage()

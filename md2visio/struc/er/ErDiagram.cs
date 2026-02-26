@@ -6,7 +6,7 @@ using md2visio.vsdx.@base;
 namespace md2visio.struc.er
 {
     /// <summary>
-    /// ER图数据结构主类
+    /// ER Diagram Main Data Structure
     /// </summary>
     internal class ErDiagram : Figure
     {
@@ -16,17 +16,17 @@ namespace md2visio.struc.er
         public ErDiagram() { }
 
         /// <summary>
-        /// 所有实体
+        /// All entities
         /// </summary>
         public Dictionary<string, ErEntity> Entities => entityDict;
 
         /// <summary>
-        /// 所有关系
+        /// All relations
         /// </summary>
         public List<ErRelation> Relations => relations;
 
         /// <summary>
-        /// 获取或创建实体
+        /// Get or create entity
         /// </summary>
         public ErEntity GetOrCreateEntity(string id)
         {
@@ -38,7 +38,7 @@ namespace md2visio.struc.er
         }
 
         /// <summary>
-        /// 添加关系
+        /// Add relation
         /// </summary>
         public void AddRelation(ErRelation relation)
         {
@@ -46,7 +46,7 @@ namespace md2visio.struc.er
         }
 
         /// <summary>
-        /// 转换为 Visio 文件
+        /// Convert to Visio file
         /// </summary>
         public override void ToVisio(string path, ConversionContext context, IVisioSession session)
         {

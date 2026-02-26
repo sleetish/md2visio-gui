@@ -61,7 +61,7 @@ namespace md2visio.vsdx.@base
         }
 
         /// <summary>
-        /// 在绘制过程中添加延迟，让用户看到绘制过程
+        /// Add delay during drawing to let user see the process
         /// </summary>
         protected void PauseForViewing(int milliseconds = 200)
         {
@@ -72,7 +72,7 @@ namespace md2visio.vsdx.@base
         }
 
         /// <summary>
-        /// 确保 Visio 应用程序在绘制时可见
+        /// Ensure Visio application is visible when drawing
         /// </summary>
         protected void EnsureVisible()
         {

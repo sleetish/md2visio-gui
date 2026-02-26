@@ -5,7 +5,7 @@ using md2visio.vsdx.@base;
 namespace md2visio.vsdx
 {
     /// <summary>
-    /// ER图 Visio 构建器
+    /// ER Diagram Visio Builder
     /// </summary>
     internal class VBuilderEr : VFigureBuilder<ErDiagram>
     {

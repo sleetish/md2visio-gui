@@ -5,20 +5,20 @@ using System.Text.RegularExpressions;
 namespace md2visio.mermaid.er
 {
     /// <summary>
-    /// ER图实体体解析状态类
-    /// 解析 { ... } 块内的属性定义
-    /// 格式: type name [PK|FK|UK] ["comment"]
+    /// ER Entity Body Parsing State
+    /// Parses attribute definitions within { ... } block
+    /// Format: type name [PK|FK|UK] ["comment"]
     /// </summary>
     internal class ErSttEntityBody : SynState
     {
-        // 属性行模式: type name [keys] ["comment"]
+        // Attribute line pattern: type name [keys] ["comment"]
         static readonly Regex regAttribute = new(
             @"^\s*(?<type>\S+)\s+(?<name>\S+)(?:\s+(?<keys>(?:PK|FK|UK)(?:\s*,\s*(?:PK|FK|UK))*))?(?:\s+""(?<comment>[^""]*)"")?\s*$",
             RegexOptions.Compiled);
 
         public override SynState NextState()
         {
-            // 跳过开始的 {
+            // Skip starting {
             if (Ctx.Peek() == "{")
             {
                 Ctx.Take();
@@ -27,7 +27,7 @@ namespace md2visio.mermaid.er
             StringBuilder bodyContent = new();
             int braceCount = 1;
 
-            // 读取直到匹配的 }
+            // Read until matching }
             while (braceCount > 0)
             {
                 string? ch = Ctx.Peek();
@@ -52,7 +52,7 @@ namespace md2visio.mermaid.er
         }
 
         /// <summary>
-        /// 解析实体体中的属性列表
+        /// Parse attribute list in entity body
         /// </summary>
         public static List<(string type, string name, string keys, string comment)> ParseAttributes(string body)
         {
@@ -77,7 +77,7 @@ namespace md2visio.mermaid.er
                 }
                 else
                 {
-                    // 尝试简单解析 (只有 type name)
+                    // Simple parse attempt (only type name)
                     var parts = trimmed.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
                     if (parts.Length >= 2)
                     {

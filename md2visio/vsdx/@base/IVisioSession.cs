@@ -3,38 +3,38 @@ using Visio = Microsoft.Office.Interop.Visio;
 namespace md2visio.vsdx.@base
 {
     /// <summary>
-    /// Visio COM 会话接口
-    /// 用于管理 Visio Application 的生命周期
+    /// Visio COM Session Interface
+    /// Used to manage Visio Application lifecycle
     /// </summary>
     public interface IVisioSession : IDisposable
     {
         /// <summary>
-        /// Visio 应用程序实例
+        /// Visio Application Instance
         /// </summary>
         Visio.Application Application { get; }
 
         /// <summary>
-        /// 是否显示 Visio 窗口
+        /// Whether to show Visio window
         /// </summary>
         bool Visible { get; }
 
         /// <summary>
-        /// 创建新的空白文档
+        /// Create a new blank document
         /// </summary>
         Visio.Document CreateDocument();
 
         /// <summary>
-        /// 打开模板文档
+        /// Open stencil document
         /// </summary>
         Visio.Document OpenStencil(string path);
 
         /// <summary>
-        /// 保存文档到指定路径
+        /// Save document to specified path
         /// </summary>
         void SaveDocument(Visio.Document doc, string path, bool overwrite = true);
 
         /// <summary>
-        /// 关闭文档
+        /// Close document
         /// </summary>
         void CloseDocument(Visio.Document doc);
     }

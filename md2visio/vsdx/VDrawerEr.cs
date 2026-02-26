@@ -7,12 +7,12 @@ using System.Text;
 namespace md2visio.vsdx
 {
     /// <summary>
-    /// ER图 Visio 绘制器
-    /// 使用 Crow's Foot 表示法绘制实体关系图
+    /// ER Diagram Visio Drawer
+    /// Draws Entity-Relationship diagrams using Crow's Foot notation
     /// </summary>
     internal class VDrawerEr : VFigureDrawer<ErDiagram>
     {
-        // 实体尺寸常量
+        // Entity dimension constants
         const double ENTITY_WIDTH = 2.2;
         const double ENTITY_MIN_HEIGHT = 0.8;
         const double ATTRIBUTE_HEIGHT = 0.2;
@@ -30,15 +30,15 @@ namespace md2visio.vsdx
             EnsureVisible();
             PauseForViewing(300);
 
-            // 1. 绘制所有实体
+            // 1. Draw all entities
             DrawEntities();
             PauseForViewing(500);
 
-            // 2. 布局实体
+            // 2. Layout entities
             LayoutNodes();
             PauseForViewing(500);
 
-            // 3. 绘制关系
+            // 3. Draw relations
             DrawRelations();
             PauseForViewing(300);
         }
@@ -59,23 +59,23 @@ namespace md2visio.vsdx
         {
             double height = GetEntityHeight(entity);
 
-            // 在原点绘制，之后通过 LayoutNodes 重新定位
+            // Draw at origin, will be repositioned by LayoutNodes
             Shape mainShape = visioPage.DrawRectangle(0, 0, ENTITY_WIDTH, height);
 
             entity.VisioShape = mainShape;
 
-            // 设置样式
+            // Set styles
             mainShape.CellsU["LineWeight"].FormulaU = "1 pt";
             SetFillForegnd(mainShape, "config.themeVariables.primaryColor");
             SetLineColor(mainShape, "config.themeVariables.primaryBorderColor");
 
-            // 构建文本内容
+            // Build text content
             StringBuilder textContent = new();
 
-            // 实体名称 (标题)
+            // Entity Name (Title)
             textContent.AppendLine(entity.GetDisplayName());
 
-            // 属性列表
+            // Attribute list
             if (entity.Attributes.Count > 0)
             {
                 textContent.AppendLine("─────────────");
@@ -91,8 +91,8 @@ namespace md2visio.vsdx
             }
 
             mainShape.Text = textContent.ToString().TrimEnd();
-            mainShape.CellsU["VerticalAlign"].FormulaU = "0"; // 顶部对齐
-            mainShape.CellsU["Para.HorzAlign"].FormulaU = "0"; // 左对齐
+            mainShape.CellsU["VerticalAlign"].FormulaU = "0"; // Top alignment
+            mainShape.CellsU["Para.HorzAlign"].FormulaU = "0"; // Left alignment
             mainShape.CellsU["Char.Size"].FormulaU = "9 pt";
 
             SetTextColor(mainShape, "config.themeVariables.primaryTextColor");
@@ -104,7 +104,7 @@ namespace md2visio.vsdx
 
             if (entity.Attributes.Count > 0)
             {
-                height += entity.Attributes.Count * ATTRIBUTE_HEIGHT + 0.15; // 分隔线间距
+                height += entity.Attributes.Count * ATTRIBUTE_HEIGHT + 0.15; // Separator line spacing
             }
 
             return Math.Max(ENTITY_MIN_HEIGHT, height);
@@ -119,13 +119,13 @@ namespace md2visio.vsdx
             var entities = figure.Entities.Values.ToList();
             if (entities.Count == 0) return;
 
-            // 使用简单的分层布局
+            // Use simple hierarchical layout
             var nodeLayer = AssignLayers();
             var layers = OrganizeLayers(nodeLayer);
 
             if (layers.Count == 0) return;
 
-            // 计算并应用位置
+            // Calculate and apply positions
             double startY = 10.0;
             double currentY = startY;
             var sortedLayerKeys = layers.Keys.OrderBy(k => k).ToList();
@@ -134,10 +134,10 @@ namespace md2visio.vsdx
             {
                 var layerEntities = layers[layerKey];
 
-                // 计算层高度
+                // Calculate layer height
                 double maxHeight = layerEntities.Max(e => e.VisioShape != null ? Height(e.VisioShape) : ENTITY_MIN_HEIGHT);
 
-                // 计算起始 X 位置
+                // Calculate starting X position
                 double startX = 1.0;
                 double currentX = startX;
 
@@ -159,7 +159,7 @@ namespace md2visio.vsdx
         }
 
         /// <summary>
-        /// 为实体分配层级
+        /// Assign layers to entities
         /// </summary>
         Dictionary<string, int> AssignLayers()
         {
@@ -167,18 +167,18 @@ namespace md2visio.vsdx
             var allNodes = figure.Entities.Keys.ToHashSet();
             var inDegree = new Dictionary<string, int>();
 
-            // 初始化入度
+            // Initialize in-degree
             foreach (var node in allNodes)
                 inDegree[node] = 0;
 
-            // 计算入度 (被指向的次数)
+            // Calculate in-degree (number of incoming edges)
             foreach (var rel in figure.Relations)
             {
                 if (allNodes.Contains(rel.ToEntity))
                     inDegree[rel.ToEntity]++;
             }
 
-            // Kahn's 算法分配层级
+            // Kahn's algorithm for layer assignment
             var queue = new Queue<string>();
 
             foreach (var node in allNodes)
@@ -213,7 +213,7 @@ namespace md2visio.vsdx
                 }
             }
 
-            // 处理未分配的节点
+            // Handle unassigned nodes
             foreach (var node in allNodes)
             {
                 if (!nodeLayer.ContainsKey(node))
@@ -226,7 +226,7 @@ namespace md2visio.vsdx
         }
 
         /// <summary>
-        /// 将实体组织到层中
+        /// Organize entities into layers
         /// </summary>
         Dictionary<int, List<ErEntity>> OrganizeLayers(Dictionary<string, int> nodeLayer)
         {
@@ -281,25 +281,25 @@ namespace md2visio.vsdx
                 connector.CellsU["Char.Size"].FormulaU = "8 pt";
             }
 
-            // 检查是否为自关联
+            // Check if self-association
             if (fromEntity == toEntity)
             {
-                // 手动连接自关联关系
+                // Manually connect self-association
                 Shape entityShape = fromEntity.VisioShape!;
                 
-                // 连接连接器的起点和终点到同一个形状的不同连接点
+                // Glue start and end points of the connector to different connection points on the same shape
                 connector.CellsU["BeginX"].GlueTo(entityShape.CellsU["PinX"]);
                 connector.CellsU["BeginY"].GlueTo(entityShape.CellsU["PinY"]);
                 connector.CellsU["EndX"].GlueTo(entityShape.CellsU["PinX"]);
                 connector.CellsU["EndY"].GlueTo(entityShape.CellsU["PinY"]);
                 
-                // 调整连接器路径以形成循环
+                // Adjust connector path to form a loop
                 double shapeWidth = Width(entityShape);
                 double shapeHeight = Height(entityShape);
                 double pinX = PinX(entityShape);
                 double pinY = PinY(entityShape);
                 
-                // 设置连接器的控制点以创建自循环
+                // Set connector control points to create a self-loop
                 connector.CellsU["BeginX"].FormulaU = $"{pinX + shapeWidth/2}";
                 connector.CellsU["BeginY"].FormulaU = $"{pinY}";
                 connector.CellsU["EndX"].FormulaU = $"{pinX}";
@@ -308,7 +308,7 @@ namespace md2visio.vsdx
             }
             else
             {
-                // 使用 AutoConnect 连接两个不同的实体
+                // Use AutoConnect to connect two different entities
                 fromEntity.VisioShape!.AutoConnect(toEntity.VisioShape!, VisAutoConnectDir.visAutoConnectDirNone, connector);
             }
             
@@ -320,20 +320,20 @@ namespace md2visio.vsdx
             Master? master = GetMaster("-");
             Shape connector = visioPage.Drop(master, 0, 0);
 
-            // 初始化两端无箭头
+            // Initialize no arrows at both ends
             connector.CellsU["BeginArrow"].FormulaU = "0";
             connector.CellsU["EndArrow"].FormulaU = "0";
             connector.CellsU["BeginArrowSize"].FormulaU = "2";
             connector.CellsU["EndArrowSize"].FormulaU = "2";
 
-            // 设置线型 (实线或虚线)
+            // Set line pattern (solid or dashed)
             connector.CellsU["LinePattern"].FormulaU = relation.IsIdentifying ? "1" : "2";
 
-            // Crow's Foot 表示法使用箭头
-            // 起始端 (左基数)
+            // Crow's Foot notation uses arrows
+            // Start end (Left cardinality)
             connector.CellsU["BeginArrow"].FormulaU = GetCrowsFootArrow(relation.LeftCardinality);
 
-            // 目标端 (右基数)
+            // Target end (Right cardinality)
             connector.CellsU["EndArrow"].FormulaU = GetCrowsFootArrow(relation.RightCardinality);
 
             connector.CellsU["LineWeight"].FormulaU = "0.75 pt";
@@ -343,23 +343,23 @@ namespace md2visio.vsdx
         }
 
         /// <summary>
-        /// 获取 Crow's Foot 箭头样式
-        /// Visio 箭头索引:
-        /// 0 = 无
-        /// 1 = 简单箭头
-        /// 4 = 空心三角
-        /// 10 = 鸦爪 (many) - Visio 不支持可选性组合符号
-        /// 11 = 空心菱形 (用于近似 zero-or-one)
-        /// 22 = 竖线 (one)
+        /// Get Crow's Foot arrow style
+        /// Visio arrow indices:
+        /// 0 = None
+        /// 1 = Simple arrow
+        /// 4 = Hollow triangle
+        /// 10 = Crow's foot (many) - Visio does not support combined optionality symbols
+        /// 11 = Hollow diamond (used for approximate zero-or-one)
+        /// 22 = Vertical bar (one)
         /// </summary>
         string GetCrowsFootArrow(ErCardinality cardinality)
         {
             return cardinality switch
             {
-                ErCardinality.ExactlyOne => "22",    // 竖线 - 恰好一个
-                ErCardinality.ZeroOrOne => "11",     // 空心菱形 - 零或一个(近似)
-                ErCardinality.OneOrMore => "10",     // 鸦爪 - 一个或多个
-                ErCardinality.ZeroOrMore => "10",    // 鸦爪 - 零个或多个(与 OneOrMore 相同)
+                ErCardinality.ExactlyOne => "22",    // Vertical bar - Exactly one
+                ErCardinality.ZeroOrOne => "11",     // Hollow diamond - Zero or one (approximate)
+                ErCardinality.OneOrMore => "10",     // Crow's foot - One or more
+                ErCardinality.ZeroOrMore => "10",    // Crow's foot - Zero or more (same as OneOrMore)
                 _ => "0"
             };
         }
