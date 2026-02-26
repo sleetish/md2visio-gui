@@ -59,35 +59,35 @@ namespace md2visio.vsdx.@base
                 }
                 catch (COMException ex)
                 {
-                    Console.WriteLine($"COM 异常，重新创建 Visio 应用程序: {ex.Message}");
+                    Console.WriteLine($"COM exception, recreating Visio application: {ex.Message}");
                     _app = null;
                 }
                 catch (InvalidComObjectException ex)
                 {
-                    Console.WriteLine($"COM 对象已释放，重新创建: {ex.Message}");
+                    Console.WriteLine($"COM object released, recreating: {ex.Message}");
                     _app = null;
                 }
 
                 try
                 {
-                    Console.WriteLine("正在创建 Visio 应用程序...");
+                    Console.WriteLine("Creating Visio application...");
                     _app = new Visio.Application();
                     _app.Visible = Visible;
-                    Console.WriteLine($"Visio 应用程序创建成功，版本: {_app.Version}");
+                    Console.WriteLine($"Visio application created successfully, version: {_app.Version}");
                 }
                 catch (COMException ex)
                 {
                     throw new ApplicationException(
-                        $"无法创建 Visio 应用程序。请确认：\n" +
-                        $"1. Microsoft Visio 已正确安装\n" +
-                        $"2. 当前用户有权限访问 Visio\n" +
-                        $"3. Visio 未被其他进程锁定\n" +
-                        $"错误详情: {ex.Message}", ex);
+                        $"Cannot create Visio application. Please ensure:\n" +
+                        $"1. Microsoft Visio is correctly installed\n" +
+                        $"2. Current user has permission to access Visio\n" +
+                        $"3. Visio is not locked by another process\n" +
+                        $"Error details: {ex.Message}", ex);
                 }
                 catch (Exception ex)
                 {
                     throw new ApplicationException(
-                        $"创建 Visio 应用程序时发生未知错误: {ex.Message}", ex);
+                        $"Unknown error occurred while creating Visio application: {ex.Message}", ex);
                 }
             }
         }

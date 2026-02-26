@@ -38,7 +38,7 @@ namespace md2visio.vsdx.@base
             {
                 if (!CanWriteOutputFile(outputFile, out string? reason))
                 {
-                    _context.SetError(reason ?? "输出文件不可写入。");
+                    _context.SetError(reason ?? "Output file is not writable.");
                     visioDoc.Saved = true;
                     _session.CloseDocument(visioDoc);
                     return;
@@ -69,12 +69,12 @@ namespace md2visio.vsdx.@base
             }
             catch (UnauthorizedAccessException)
             {
-                reason = $"输出文件被占用或只读，无法写入：{outputFile}";
+                reason = $"Output file is occupied or read-only, cannot write: {outputFile}";
                 return false;
             }
             catch (IOException)
             {
-                reason = $"输出文件正在被其他程序占用，请关闭后重试：{outputFile}";
+                reason = $"Output file is being used by another program, please close it and try again: {outputFile}";
                 return false;
             }
         }

@@ -18,7 +18,7 @@ namespace md2visio.Tests.Api
 
             // Assert
             Assert.False(result.Success);
-            Assert.Contains("输入文件不存在", result.ErrorMessage);
+            Assert.Contains("Input file does not exist", result.ErrorMessage);
         }
 
         [Fact]
@@ -38,7 +38,7 @@ namespace md2visio.Tests.Api
 
                 // Assert
                 Assert.False(result.Success);
-                Assert.Equal("输入文件必须是 .md 格式", result.ErrorMessage);
+                Assert.Equal("Input file must be in .md format", result.ErrorMessage);
             }
             finally
             {

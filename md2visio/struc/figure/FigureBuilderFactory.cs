@@ -61,7 +61,7 @@ namespace md2visio.struc.figure
         {
             if (_context.Debug)
             {
-                _context.Log($"[DEBUG] BuildFigures: 开始构建图表");
+                _context.Log($"[DEBUG] BuildFigures: Starting to build diagrams");
                 _context.Log($"[DEBUG] BuildFigures: iter.HasNext() = {iter.HasNext()}");
                 if (iter.Context?.StateList != null)
                 {
@@ -76,11 +76,11 @@ namespace md2visio.struc.figure
                 }
             }
 
-            // 检查是否找到任何 mermaid 块
+            // Check if any mermaid blocks are found
             if (iter.Context?.StateList == null || iter.Context.StateList.Count == 0)
             {
-                _context.Log("警告: 文件中未找到任何 mermaid 代码块");
-                _context.Log("提示: 请确保使用 ```mermaid ... ``` 格式包裹图表代码");
+                _context.Log("Warning: No mermaid code blocks found in file");
+                _context.Log("Hint: Please ensure diagrams are wrapped in ```mermaid ... ``` blocks");
                 return;
             }
 
@@ -95,7 +95,7 @@ namespace md2visio.struc.figure
 
                     if (_context.Debug)
                     {
-                        _context.Log($"[DEBUG] BuildFigures: 检查位置 {pos}, Fragment = '{word}'");
+                        _context.Log($"[DEBUG] BuildFigures: Checking position {pos}, Fragment = '{word}'");
                         _context.Log($"[DEBUG] BuildFigures: SttFigureType.IsFigure('{word}') = {SttFigureType.IsFigure(word)}");
                     }
 
@@ -103,21 +103,21 @@ namespace md2visio.struc.figure
                     {
                         foundFigure = true;
 
-                        // 检查是否实现
+                        // Check if implemented
                         if (!builderDict.ContainsKey(word))
                         {
-                            _context.Log($"警告: 图表类型 '{word}' 暂未支持，已跳过");
+                            _context.Log($"Warning: Diagram type '{word}' is not yet supported, skipped");
                             if (!unsupportedTypes.Contains(word))
                                 unsupportedTypes.Add(word);
 
-                            // 跳过不支持的图表：推进迭代器到下一个 SttMermaidStart 或结束
+                            // Skip unsupported diagram: advance iterator to next SttMermaidStart or end
                             SkipUnsupportedFigure(pos);
                             break;
                         }
 
                         if (_context.Debug)
                         {
-                            _context.Log($"[DEBUG] BuildFigures: 找到图表类型 '{word}'，开始构建");
+                            _context.Log($"[DEBUG] BuildFigures: Found diagram type '{word}', starting build");
                         }
                         BuildFigure(word);
                         figuresBuilt++;
@@ -130,19 +130,19 @@ namespace md2visio.struc.figure
                     break;
             }
 
-            // 汇总信息
+            // Summary information
             if (figuresBuilt == 0)
             {
-                _context.Log("警告: 未构建任何图表");
+                _context.Log("Warning: No diagrams built");
                 if (unsupportedTypes.Count > 0)
                 {
-                    _context.Log($"发现 {unsupportedTypes.Count} 个不支持的图表类型: {string.Join(", ", unsupportedTypes)}");
-                    _context.Log($"当前支持的类型: {GetSupportedTypesString()}");
+                    _context.Log($"Found {unsupportedTypes.Count} unsupported diagram types: {string.Join(", ", unsupportedTypes)}");
+                    _context.Log($"Currently supported types: {GetSupportedTypesString()}");
                 }
             }
             else
             {
-                _context.Log($"成功构建 {figuresBuilt} 个图表");
+                _context.Log($"Successfully built {figuresBuilt} diagrams");
             }
         }
 
@@ -163,7 +163,7 @@ namespace md2visio.struc.figure
 
             if (_context.Debug)
             {
-                _context.Log($"[DEBUG] SkipUnsupportedFigure: 跳过完成，iter.Pos = {iter.Pos}");
+                _context.Log($"[DEBUG] SkipUnsupportedFigure: Skip completed, iter.Pos = {iter.Pos}");
             }
         }
 
@@ -177,7 +177,7 @@ namespace md2visio.struc.figure
         {
             if (_context.Debug)
             {
-                _context.Log($"[DEBUG] BuildFigure: 开始构建图表类型 '{figureType}'");
+                _context.Log($"[DEBUG] BuildFigure: Starting build for diagram type '{figureType}'");
                 _context.Log($"[DEBUG] BuildFigure: builderDict.ContainsKey('{figureType}') = {builderDict.ContainsKey(figureType)}");
             }
 
@@ -188,18 +188,18 @@ namespace md2visio.struc.figure
 
             if (_context.Debug)
             {
-                _context.Log($"[DEBUG] BuildFigure: Builder类型 = {type.Name}");
+                _context.Log($"[DEBUG] BuildFigure: Builder type = {type.Name}");
             }
 
-            // 使用注入的 session 和 context 创建 Builder
+            // Use injected session and context to create Builder
             object? obj = Activator.CreateInstance(type, iter, _context, _session);
             MethodInfo? method = type.GetMethod("Build", BindingFlags.Public | BindingFlags.Instance, null,
                 new Type[] { typeof(string) }, null);
 
             if (_context.Debug)
             {
-                _context.Log($"[DEBUG] BuildFigure: 创建Builder实例成功 = {obj != null}");
-                _context.Log($"[DEBUG] BuildFigure: 找到Build方法 = {method != null}");
+                _context.Log($"[DEBUG] BuildFigure: Successfully created Builder instance = {obj != null}");
+                _context.Log($"[DEBUG] BuildFigure: Found Build method = {method != null}");
             }
 
             string outputFilePath;
@@ -217,16 +217,16 @@ namespace md2visio.struc.figure
 
             if (_context.Debug)
             {
-                _context.Log($"[DEBUG] 构建图表: {figureType}");
-                _context.Log($"[DEBUG] 输出模式: {(isFileMode ? "文件模式" : "目录模式")}");
-                _context.Log($"[DEBUG] 输出路径: {outputFilePath}");
-                _context.Log($"[DEBUG] 输出目录: {dir}");
-                _context.Log($"[DEBUG] 文件名: {name}");
+                _context.Log($"[DEBUG] Building diagram: {figureType}");
+                _context.Log($"[DEBUG] Output mode: {(isFileMode ? "File mode" : "Directory mode")}");
+                _context.Log($"[DEBUG] Output path: {outputFilePath}");
+                _context.Log($"[DEBUG] Output directory: {dir}");
+                _context.Log($"[DEBUG] File name: {name}");
             }
 
             if (_context.Debug)
             {
-                _context.Log($"[DEBUG] BuildFigure: 准备调用 {type.Name}.Build('{outputFilePath}')");
+                _context.Log($"[DEBUG] BuildFigure: Preparing to call {type.Name}.Build('{outputFilePath}')");
             }
 
             try
@@ -235,18 +235,18 @@ namespace md2visio.struc.figure
 
                 if (_context.Debug)
                 {
-                    _context.Log($"[DEBUG] BuildFigure: {type.Name}.Build() 调用完成");
+                    _context.Log($"[DEBUG] BuildFigure: {type.Name}.Build() call completed");
                 }
             }
             catch (Exception ex)
             {
                 if (_context.Debug)
                 {
-                    _context.Log($"[DEBUG] BuildFigure: {type.Name}.Build() 调用失败: {ex.Message}");
-                    _context.Log($"[DEBUG] BuildFigure: 异常类型: {ex.GetType().Name}");
+                    _context.Log($"[DEBUG] BuildFigure: {type.Name}.Build() call failed: {ex.Message}");
+                    _context.Log($"[DEBUG] BuildFigure: Exception type: {ex.GetType().Name}");
                     if (ex.InnerException != null)
                     {
-                        _context.Log($"[DEBUG] BuildFigure: 内部异常: {ex.InnerException.Message}");
+                        _context.Log($"[DEBUG] BuildFigure: Inner exception: {ex.InnerException.Message}");
                     }
                 }
                 throw;
@@ -256,11 +256,11 @@ namespace md2visio.struc.figure
             {
                 if (File.Exists(outputFilePath))
                 {
-                    _context.Log($"[DEBUG] ✅ 文件生成成功: {outputFilePath}");
+                    _context.Log($"[DEBUG] ✅ File generated successfully: {outputFilePath}");
                 }
                 else
                 {
-                    _context.Log($"[DEBUG] ❌ 文件生成失败: {outputFilePath}");
+                    _context.Log($"[DEBUG] ❌ File generation failed: {outputFilePath}");
                 }
             }
         }
@@ -286,7 +286,7 @@ namespace md2visio.struc.figure
             }
             else
             {
-                throw new ArgumentException($"输出路径无效: '{outputFile}'。请指定一个 .vsdx 文件路径或现有目录。");
+                throw new ArgumentException($"Invalid output path: '{outputFile}'. Please specify a .vsdx file path or an existing directory.");
             }
         }
     }
