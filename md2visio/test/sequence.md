@@ -1,76 +1,76 @@
-# 时序图测试
+# Sequence Diagram Test
 
-## 基础时序图 - 用户登录流程
+## Basic Sequence Diagram - User Login Flow
 
 ```mermaid
 sequenceDiagram
-    participant a as 用户
-    participant b as 浏览器
-    participant c as 服务器
-    participant d as 数据库
+    participant a as User
+    participant b as Browser
+    participant c as Server
+    participant d as Database
 
-    a->>b: 输入用户名和密码
-    b->>c: 发送登录请求
+    a->>b: Enter username and password
+    b->>c: Send login request
     activate c
-    c->>c: 对接收到的数据进行预处理和校验
-    c->>d: 验证用户信息
+    c->>c: Preprocess and validate received data
+    c->>d: Verify user information
     activate d
-    d-->>c: 用户信息有效
+    d-->>c: User information valid
     deactivate d
-    c-->>b: 登录成功，返回token
+    c-->>b: Login successful, return token
     deactivate c
-    b-->>a: 显示登录成功页面
+    b-->>a: Show login success page
 ```
 
-## 复杂时序图 - 订单处理流程
+## Complex Sequence Diagram - Order Processing Flow
 
 ```mermaid
 sequenceDiagram
-    participant user as 用户
-    participant web as Web前端
-    participant api as API网关
-    participant order as 订单服务
-    participant payment as 支付服务
-    participant inventory as 库存服务
+    participant user as User
+    participant web as Web Frontend
+    participant api as API Gateway
+    participant order as Order Service
+    participant payment as Payment Service
+    participant inventory as Inventory Service
 
-    user->>web: 创建订单
+    user->>web: Create Order
     web->>api: POST /orders
-    api->>order: 创建订单请求
+    api->>order: Create order request
     
     activate order
-    order->>inventory: 检查库存
+    order->>inventory: Check inventory
     activate inventory
-    inventory-->>order: 库存充足
+    inventory-->>order: Inventory sufficient
     deactivate inventory
     
-    order->>order: 生成订单号
-    order->>payment: 发起支付
+    order->>order: Generate order number
+    order->>payment: Initiate payment
     
     activate payment
-    payment->>payment: 处理支付逻辑
-    payment-->>order: 支付成功
+    payment->>payment: Process payment logic
+    payment-->>order: Payment successful
     deactivate payment
     
-    order-->>api: 订单创建成功
+    order-->>api: Order created successfully
     deactivate order
-    api-->>web: 返回订单信息
-    web-->>user: 显示订单确认页面
+    api-->>web: Return order info
+    web-->>user: Show order confirmation page
 ```
 
-## 自调用测试
+## Self-call Test
 
 ```mermaid
 sequenceDiagram
-    participant sys as 系统
-    participant cache as 缓存服务
+    participant sys as System
+    participant cache as Cache Service
 
-    sys->>cache: 查询数据
-    cache->>cache: 检查缓存是否有效
-    cache->>cache: 清理过期缓存
-    cache-->>sys: 返回缓存数据
+    sys->>cache: Query data
+    cache->>cache: Check if cache is valid
+    cache->>cache: Clear expired cache
+    cache-->>sys: Return cached data
 ```
 
-## 简单消息类型测试
+## Simple Message Type Test
 
 ```mermaid
 sequenceDiagram
@@ -78,44 +78,44 @@ sequenceDiagram
     participant B
     participant C
 
-    A->B: 简单消息
-    B->>C: 同步消息
-    C-->A: 异步返回
-    A-->>B: 虚线同步消息
+    A->B: Simple message
+    B->>C: Synchronous message
+    C-->A: Asynchronous return
+    A-->>B: Dashed synchronous message
 ```
 
-## 片段与备注测试 - 接收超时处理
+## Fragment and Note Test - Receive Timeout Handling
 
 ```mermaid
 sequenceDiagram
-    participant Device as 外部设备
+    participant Device as External Device
     participant USART as USART1_RDR
     participant DMA as DMA1_CH0
     participant RX_Buf as data_buffer_USART1_RX
     participant TMR as TMR0_Ch_A
-    participant ISR as 中断处理
+    participant ISR as Interrupt Handler
     participant Parse as usart1_frame_parse_optimized
-    participant Event as 异步事件系统
+    participant Event as Async Event System
 
-    Device->>USART: 串口接收数据
-    USART->>DMA: 触发DMA传输(EVT_SRC_USART1_RI)
-    DMA->>RX_Buf: 自动存储数据
+    Device->>USART: Serial receive data
+    USART->>DMA: Trigger DMA transfer (EVT_SRC_USART1_RI)
+    DMA->>RX_Buf: Automatically store data
 
-    alt 接收超时
-        TMR-->>ISR: TMR0超时中断
+    alt Receive Timeout
+        TMR-->>ISR: TMR0 timeout interrupt
         note over ISR: USART1_RxTimeout_IrqCallback
-        ISR->>DMA: 停止DMA
-        ISR->>ISR: 计算接收长度
-        ISR->>Parse: 调用帧解析
-        Parse->>Parse: 校验帧头(0xAA 0x55)
-        Parse->>Parse: 校验帧尾(0xED)
-        Parse->>Parse: XOR校验
+        ISR->>DMA: Stop DMA
+        ISR->>ISR: Calculate receive length
+        ISR->>Parse: Call frame parsing
+        Parse->>Parse: Validate frame header (0xAA 0x55)
+        Parse->>Parse: Validate frame tail (0xED)
+        Parse->>Parse: XOR checksum
         Parse->>Event: SAFE_EVENT_EMIT(UART1_RECEIVE)
-    else DMA传输完成
-        DMA-->>ISR: DMA_TC中断
+    else DMA Transfer Complete
+        DMA-->>ISR: DMA_TC interrupt
         note over ISR: USART1_RX_DMA_TC_IrqCallback
-        ISR->>DMA: 重置DMA
+        ISR->>DMA: Reset DMA
     end
 
-    ISR->>DMA: 重新使能DMA接收
+    ISR->>DMA: Re-enable DMA receive
 ```

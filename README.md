@@ -1,7 +1,5 @@
 # md2visio - Mermaid to Visio Converter
 
-**English | [中文](README_zh.md)**
-
 ![GUI Screenshot](https://img-cdn.ccrui.cn/2026/01/01/6956766674530.png)
 
 A desktop application built with .NET 8 and Windows Forms that converts Mermaid.js diagrams to Microsoft Visio `.vsdx` format files.

@@ -10,18 +10,18 @@ internal static class Program
     [STAThread]
     static void Main()
     {
-        // 确保COM线程模式
+        // Ensure COM thread mode
         System.Threading.Thread.CurrentThread.SetApartmentState(System.Threading.ApartmentState.STA);
         
         // To customize application configuration such as set high DPI settings or default font,
         // see https://aka.ms/applicationconfiguration.
         ApplicationConfiguration.Initialize();
         
-        // 设置应用程序外观
+        // Set application appearance
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
         
-        // 启动主窗口
+        // Start main window
         Application.Run(new MainForm());
     }    
 }
