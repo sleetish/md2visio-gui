@@ -1,4 +1,5 @@
 ﻿using md2visio.mermaid.cmn;
+using System.IO;
 
 namespace md2visio.struc.figure
 {
@@ -65,8 +66,10 @@ namespace md2visio.struc.figure
         MmdFrontMatter LoadThemeVars(string theme2load, bool darkMode = false)
         {
             DarkMode = darkMode;
-            Theme = theme2load.ToLower();
-            Theme = string.Format("{0}{1}", Theme, Theme == "base" && darkMode ? "-darkMode" : "");
+            string sanitizedTheme = Path.GetFileName(theme2load).ToLower();
+            if (string.IsNullOrEmpty(sanitizedTheme)) sanitizedTheme = "default";
+            Theme = string.Format("{0}{1}", sanitizedTheme, sanitizedTheme == "base" && darkMode ? "-darkMode" : "");
+
             if (themeVars.TryGetValue(Theme, out MmdFrontMatter? fm))
                 return fm ?? Empty.Get<MmdFrontMatter>();
 
