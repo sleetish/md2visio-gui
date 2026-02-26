@@ -1,5 +1,7 @@
 ﻿using md2visio.mermaid.cmn;
 using System.Text;
+using YamlDotNet.Core;
+using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
 
 namespace md2visio.struc.figure
@@ -34,8 +36,34 @@ namespace md2visio.struc.figure
 
         public MmdFrontMatter LoadYaml(string yaml)
         {
-            yamlObj = new DeserializerBuilder().Build().Deserialize(yaml);
+            var parser = new Parser(new StringReader(yaml));
+            var safeParser = new SafeParser(parser);
+            yamlObj = new DeserializerBuilder()
+                .Build()
+                .Deserialize(safeParser);
             return this;
+        }
+
+        private class SafeParser : IParser
+        {
+            private readonly IParser _inner;
+
+            public SafeParser(IParser inner)
+            {
+                _inner = inner;
+            }
+
+            public ParsingEvent? Current => _inner.Current;
+
+            public bool MoveNext()
+            {
+                bool result = _inner.MoveNext();
+                if (result && _inner.Current is AnchorAlias)
+                {
+                    throw new YamlException(_inner.Current.Start, _inner.Current.End, "Aliases are not allowed because they can cause YAML bombs.");
+                }
+                return result;
+            }
         }
 
         public MmdFrontMatter LoadFile(string filePath)
