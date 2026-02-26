@@ -1,4 +1,4 @@
-﻿using Microsoft.Office.Interop.Visio;
+using Microsoft.Office.Interop.Visio;
 
 namespace md2visio.struc.sequence
 {
@@ -8,9 +8,9 @@ namespace md2visio.struc.sequence
         public double StartY { get; set; }
         public double EndY { get; set; }
         public Shape? ActivationShape { get; set; }
-        public int NestingLevel { get; set; } = 0; // 支持嵌套激活
+        public int NestingLevel { get; set; } = 0; // Supports nested activation
 
-        public double Height => StartY - EndY; // 注意：Y轴向下递减
+        public double Height => StartY - EndY; // Note: Y axis decreases downwards
         public double CenterY => (StartY + EndY) / 2;
 
         public SeqActivation()
@@ -21,7 +21,7 @@ namespace md2visio.struc.sequence
         {
             ParticipantId = participantId;
             StartY = startY;
-            EndY = startY; // 初始时结束位置与开始位置相同
+            EndY = startY; // Initially end position is same as start position
         }
 
         public void SetEnd(double endY)

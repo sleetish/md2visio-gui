@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 namespace md2visio.GUI.Forms
 {
     /// <summary>
-    /// md2visio 主窗口
+    /// md2visio Main Window
     /// </summary>
     public partial class MainForm : Form
     {
         private readonly ConversionService _conversionService;
 
-        // 控件声明
+        // Control declarations
         private Panel _dragDropPanel = null!;
         private Label _dragDropLabel = null!;
         private Label _selectedFileLabel = null!;
@@ -45,13 +45,13 @@ namespace md2visio.GUI.Forms
 
         private void InitializeComponent()
         {
-            // 窗口设置
-            Text = "md2visio - Mermaid 转 Visio 工具";
+            // Window settings
+            Text = "md2visio - Mermaid to Visio Tool";
             Size = new Size(1250, 850);
             StartPosition = FormStartPosition.CenterScreen;
             MinimumSize = new Size(600, 500);
 
-            // 创建主面板
+            // Create main panel
             var mainPanel = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
@@ -60,18 +60,18 @@ namespace md2visio.GUI.Forms
                 Padding = new Padding(10)
             };
 
-            // 设置行高比例
-            mainPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 40)); // 标题
-            mainPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 120)); // 文件选择区域
-            mainPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 120)); // 输出设置
-            mainPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 80)); // 选项
-            mainPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // 支持类型
-            mainPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // 日志区域
-            mainPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 80)); // 按钮和状态栏
+            // Set row styles
+            mainPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 40)); // Title
+            mainPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 120)); // File selection area
+            mainPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 120)); // Output settings
+            mainPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 80)); // Options
+            mainPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // Supported types
+            mainPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // Log area
+            mainPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 80)); // Buttons and status bar
 
             Controls.Add(mainPanel);
 
-            // 创建各个区域
+            // Create areas
             CreateTitleArea(mainPanel, 0);
             CreateFileSelectionArea(mainPanel, 1);
             CreateOutputSettingsArea(mainPanel, 2);
@@ -85,7 +85,7 @@ namespace md2visio.GUI.Forms
         {
             var titleLabel = new Label
             {
-                Text = "📄 md2visio - Mermaid 转 Visio 工具",
+                Text = "📄 md2visio - Mermaid to Visio Tool",
                 Font = new Font("Microsoft YaHei UI", 12, FontStyle.Bold),
                 ForeColor = Color.DarkBlue,
                 Dock = DockStyle.Fill,
@@ -99,7 +99,7 @@ namespace md2visio.GUI.Forms
         {
             var groupBox = new GroupBox
             {
-                Text = "📁 输入文件",
+                Text = "📁 Input File",
                 Dock = DockStyle.Fill,
                 Font = new Font("Microsoft YaHei UI", 9, FontStyle.Bold)
             };
@@ -116,7 +116,7 @@ namespace md2visio.GUI.Forms
             container.RowStyles.Add(new RowStyle(SizeType.Percent, 70));
             container.RowStyles.Add(new RowStyle(SizeType.Percent, 30));
 
-            // 拖拽区域
+            // Drag and drop area
             _dragDropPanel = new Panel
             {
                 BorderStyle = BorderStyle.FixedSingle,
@@ -127,26 +127,26 @@ namespace md2visio.GUI.Forms
 
             _dragDropLabel = new Label
             {
-                Text = "将 .md 文件拖拽到此处或点击浏览选择",
+                Text = "Drag .md file here or click 'Browse' to select",
                 TextAlign = ContentAlignment.MiddleCenter,
                 Dock = DockStyle.Fill,
                 Font = new Font("Microsoft YaHei UI", 10)
             };
             _dragDropPanel.Controls.Add(_dragDropLabel);
 
-            // 浏览按钮
+            // Browse button
             _browseFileButton = new Button
             {
-                Text = "浏览文件...",
+                Text = "Browse...",
                 Dock = DockStyle.Fill,
                 Font = new Font("Microsoft YaHei UI", 9),
                 Margin = new Padding(10, 0, 0, 0)
             };
 
-            // 选中文件显示
+            // Selected file display
             _selectedFileLabel = new Label
             {
-                Text = "未选择文件",
+                Text = "No file selected",
                 Dock = DockStyle.Fill,
                 ForeColor = Color.Gray,
                 Font = new Font("Microsoft YaHei UI", 8)
@@ -165,7 +165,7 @@ namespace md2visio.GUI.Forms
         {
             var groupBox = new GroupBox
             {
-                Text = "📂 输出设置",
+                Text = "📂 Output Settings",
                 Dock = DockStyle.Fill,
                 Font = new Font("Microsoft YaHei UI", 9, FontStyle.Bold)
             };
@@ -177,19 +177,19 @@ namespace md2visio.GUI.Forms
                 RowCount = 2,
                 Padding = new Padding(10, 10, 10, 10)
             };
-            container.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 80));
+            container.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100));
             container.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
             container.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
             container.RowStyles.Add(new RowStyle(SizeType.Absolute, 45));
             container.RowStyles.Add(new RowStyle(SizeType.Absolute, 45));
 
-            // 输出目录
-            var outputDirLabel = new Label { Text = "输出目录:", TextAlign = ContentAlignment.MiddleRight, Dock = DockStyle.Fill, Font = new Font("Microsoft YaHei UI", 9) };
+            // Output directory
+            var outputDirLabel = new Label { Text = "Output Dir:", TextAlign = ContentAlignment.MiddleRight, Dock = DockStyle.Fill, Font = new Font("Microsoft YaHei UI", 9) };
             _outputDirTextBox = new TextBox { Text = Environment.GetFolderPath(Environment.SpecialFolder.Desktop), Dock = DockStyle.Fill, Font = new Font("Microsoft YaHei UI", 9) };
-            _selectDirButton = new Button { Text = "选择目录...", Dock = DockStyle.Fill, Margin = new Padding(5, 0, 0, 0), Font = new Font("Microsoft YaHei UI", 9) };
+            _selectDirButton = new Button { Text = "Select...", Dock = DockStyle.Fill, Margin = new Padding(5, 0, 0, 0), Font = new Font("Microsoft YaHei UI", 9) };
 
-            // 文件名
-            var fileNameLabel = new Label { Text = "文件名:", TextAlign = ContentAlignment.MiddleRight, Dock = DockStyle.Fill, Font = new Font("Microsoft YaHei UI", 9) };
+            // File name
+            var fileNameLabel = new Label { Text = "Filename:", TextAlign = ContentAlignment.MiddleRight, Dock = DockStyle.Fill, Font = new Font("Microsoft YaHei UI", 9) };
             _fileNameTextBox = new TextBox { Text = "output", Dock = DockStyle.Fill, Font = new Font("Microsoft YaHei UI", 9) };
             var extensionLabel = new Label { Text = ".vsdx", TextAlign = ContentAlignment.MiddleLeft, Dock = DockStyle.Fill, Font = new Font("Microsoft YaHei UI", 9) };
 
@@ -208,7 +208,7 @@ namespace md2visio.GUI.Forms
         {
             var groupBox = new GroupBox
             {
-                Text = "⚙️ 转换选项",
+                Text = "⚙️ Conversion Options",
                 Dock = DockStyle.Fill,
                 Font = new Font("Microsoft YaHei UI", 9, FontStyle.Bold)
             };
@@ -223,7 +223,7 @@ namespace md2visio.GUI.Forms
 
             _showVisioCheckBox = new CheckBox
             {
-                Text = "显示 Visio 窗口",
+                Text = "Show Visio Window",
                 AutoSize = true,
                 Font = new Font("Microsoft YaHei UI", 9),
                 Margin = new Padding(0, 0, 30, 0)
@@ -231,7 +231,7 @@ namespace md2visio.GUI.Forms
 
             _silentOverwriteCheckBox = new CheckBox
             {
-                Text = "静默覆盖文件",
+                Text = "Silent Overwrite",
                 AutoSize = true,
                 Font = new Font("Microsoft YaHei UI", 9),
                 Checked = true
@@ -248,7 +248,7 @@ namespace md2visio.GUI.Forms
         {
             var groupBox = new GroupBox
             {
-                Text = "📊 支持的图表类型",
+                Text = "📊 Supported Diagram Types",
                 Dock = DockStyle.Top,
                 Font = new Font("Microsoft YaHei UI", 9, FontStyle.Bold),
                 AutoSize = true,
@@ -265,16 +265,16 @@ namespace md2visio.GUI.Forms
                 AutoSizeMode = AutoSizeMode.GrowAndShrink
             };
 
-            // 创建单个类型标签
+            // Create individual type labels
             var supportedTypes = new[]
             {
-                ("✅ 流程图", "graph/flowchart"),
-                ("✅ 饼图", "pie"),
-                ("✅ 用户旅程图", "journey"),
-                ("✅ 数据包图", "packet"),
-                ("✅ XY图表", "xychart"),
-                ("✅ 时序图", "sequence"),
-                ("✅ 实体关系图", "er")
+                ("✅ Flowchart", "graph/flowchart"),
+                ("✅ Pie Chart", "pie"),
+                ("✅ Journey Map", "journey"),
+                ("✅ Packet", "packet"),
+                ("✅ XY Chart", "xychart"),
+                ("✅ Sequence", "sequence"),
+                ("✅ ER Diagram", "er")
             };
 
             foreach (var (icon, name) in supportedTypes)
@@ -295,7 +295,7 @@ namespace md2visio.GUI.Forms
 
             void SyncSupportedTypesWidth()
             {
-                // FlowLayoutPanel 需要受限宽度才能正确计算换行后的高度
+                // FlowLayoutPanel needs constrained width to correctly calculate height after wrapping
                 int width = groupBox.ClientSize.Width - container.Margin.Horizontal - container.Padding.Horizontal;
                 if (width > 0)
                     container.MaximumSize = new Size(width, 0);
@@ -309,7 +309,7 @@ namespace md2visio.GUI.Forms
         {
             var groupBox = new GroupBox
             {
-                Text = "📝 转换日志",
+                Text = "📝 Conversion Log",
                 Dock = DockStyle.Fill,
                 Font = new Font("Microsoft YaHei UI", 9, FontStyle.Bold)
             };
@@ -335,7 +335,7 @@ namespace md2visio.GUI.Forms
 
             _clearLogButton = new Button
             {
-                Text = "清空日志",
+                Text = "Clear Log",
                 Dock = DockStyle.Fill,
                 Font = new Font("Microsoft YaHei UI", 9),
                 Margin = new Padding(5, 5, 0, 5),
@@ -366,10 +366,10 @@ namespace md2visio.GUI.Forms
             container.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
             container.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
-            // 按钮
+            // Buttons
             _startConversionButton = new Button
             {
-                Text = "🚀 开始转换",
+                Text = "🚀 Start",
                 Dock = DockStyle.Fill,
                 BackColor = Color.LightGreen,
                 Font = new Font("Microsoft YaHei UI", 9, FontStyle.Bold),
@@ -378,7 +378,7 @@ namespace md2visio.GUI.Forms
 
             var checkVisioButton = new Button
             {
-                Text = "🔍 检查Visio",
+                Text = "🔍 Check Visio",
                 Dock = DockStyle.Fill,
                 BackColor = Color.LightBlue,
                 Font = new Font("Microsoft YaHei UI", 9, FontStyle.Bold),
@@ -388,7 +388,7 @@ namespace md2visio.GUI.Forms
 
             _openOutputButton = new Button
             {
-                Text = "📁 打开输出目录",
+                Text = "📁 Open Output",
                 Dock = DockStyle.Fill,
                 Enabled = false,
                 Margin = new Padding(0, 0, 5, 0)
@@ -396,23 +396,23 @@ namespace md2visio.GUI.Forms
 
             var exitButton = new Button
             {
-                Text = "❌ 退出",
+                Text = "❌ Exit",
                 Dock = DockStyle.Fill,
                 BackColor = Color.LightCoral,
                 Margin = new Padding(0, 0, 5, 0)
             };
             exitButton.Click += (s, e) => Close();
 
-            // 状态标签
+            // Status label
             _statusLabel = new Label
             {
-                Text = "就绪",
+                Text = "Ready",
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleLeft,
                 Font = new Font("Microsoft YaHei UI", 9)
             };
 
-            // 进度条
+            // Progress bar
             _progressBar = new ProgressBar
             {
                 Dock = DockStyle.Fill,
@@ -446,19 +446,19 @@ namespace md2visio.GUI.Forms
 
         private void SetupEventHandlers()
         {
-            // 拖拽事件
+            // Drag events
             _dragDropPanel.DragEnter += OnDragEnter;
             _dragDropPanel.DragDrop += OnDragDrop;
             _dragDropPanel.Click += OnDragPanelClick;
 
-            // 按钮事件
+            // Button events
             _browseFileButton.Click += OnBrowseFileClick;
             _selectDirButton.Click += OnSelectDirClick;
             _startConversionButton.Click += OnStartConversionClick;
             _openOutputButton.Click += OnOpenOutputClick;
             _clearLogButton.Click += OnClearLogClick;
 
-            // 文件名自动更新
+            // Filename auto-update
             _selectedFileLabel.TextChanged += OnSelectedFileChanged;
         }
 
@@ -484,7 +484,7 @@ namespace md2visio.GUI.Forms
                 }
                 else
                 {
-                    MessageBox.Show("请选择 .md 文件！", "错误", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Please select a .md file!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }
@@ -498,8 +498,8 @@ namespace md2visio.GUI.Forms
         {
             using var dialog = new OpenFileDialog
             {
-                Filter = "Markdown 文件|*.md|所有文件|*.*",
-                Title = "选择 Markdown 文件"
+                Filter = "Markdown File|*.md|All Files|*.*",
+                Title = "Select Markdown File"
             };
 
             if (dialog.ShowDialog() == DialogResult.OK)
@@ -512,7 +512,7 @@ namespace md2visio.GUI.Forms
         {
             using var dialog = new FolderBrowserDialog
             {
-                Description = "选择输出目录",
+                Description = "Select Output Directory",
                 SelectedPath = _outputDirTextBox.Text
             };
 
@@ -526,13 +526,13 @@ namespace md2visio.GUI.Forms
         {
             if (string.IsNullOrEmpty(_selectedFilePath))
             {
-                MessageBox.Show("请先选择要转换的文件！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Please select a file to convert first!", "Tip", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             if (string.IsNullOrEmpty(_outputDirTextBox.Text))
             {
-                MessageBox.Show("请选择输出目录！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Please select an output directory!", "Tip", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -543,7 +543,7 @@ namespace md2visio.GUI.Forms
                 var result = await _conversionService.ConvertAsync(
                     _selectedFilePath,
                     _outputDirTextBox.Text,
-                    _fileNameTextBox.Text, // 传递用户设置的文件名
+                    _fileNameTextBox.Text, // Pass user-set filename
                     _showVisioCheckBox.Checked,
                     _silentOverwriteCheckBox.Checked
                 );
@@ -552,23 +552,23 @@ namespace md2visio.GUI.Forms
                 {
                     _openOutputButton.Enabled = true;
                     ShowUserMessage(
-                        $"转换成功！\n生成了 {result.OutputFiles?.Length} 个文件。",
-                        "成功",
+                        $"Conversion Successful!\nGenerated {result.OutputFiles?.Length} files.",
+                        "Success",
                         MessageBoxIcon.Information);
                 }
                 else
                 {
                     ShowUserMessage(
-                        $"转换失败！\n错误: {result.ErrorMessage}",
-                        "错误",
+                        $"Conversion Failed!\nError: {result.ErrorMessage}",
+                        "Error",
                         MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
             {
                 ShowUserMessage(
-                    $"转换过程中发生错误:\n{ex.Message}",
-                    "错误",
+                    $"Error during conversion:\n{ex.Message}",
+                    "Error",
                     MessageBoxIcon.Error);
             }
             finally
@@ -602,14 +602,14 @@ namespace md2visio.GUI.Forms
         private void SetSelectedFile(string filePath)
         {
             _selectedFilePath = filePath;
-            _selectedFileLabel.Text = $"选中文件: {filePath}";
+            _selectedFileLabel.Text = $"Selected: {filePath}";
             _selectedFileLabel.ForeColor = Color.Green;
 
-            // 检测图表类型
+            // Detect diagram type
             var types = _conversionService.DetectMermaidTypes(filePath);
             if (types.Count > 0)
             {
-                LogMessage($"检测到图表类型: {string.Join(", ", types)}");
+                LogMessage($"Detected diagram types: {string.Join(", ", types)}");
             }
 
             UpdateUI();
@@ -624,12 +624,12 @@ namespace md2visio.GUI.Forms
             
             if (busy)
             {
-                _statusLabel.Text = "转换中...";
+                _statusLabel.Text = "Converting...";
                 _progressBar.Value = 0;
             }
             else
             {
-                _statusLabel.Text = "就绪";
+                _statusLabel.Text = "Ready";
             }
         }
 
@@ -681,7 +681,7 @@ namespace md2visio.GUI.Forms
         private async void OnCheckVisioClick(object? sender, EventArgs e)
         {
             SetUIBusy(true);
-            _statusLabel.Text = "正在检查Visio环境...";
+            _statusLabel.Text = "Checking Visio environment...";
 
             try
             {
@@ -689,21 +689,21 @@ namespace md2visio.GUI.Forms
                 
                 if (result.IsSuccess)
                 {
-                    MessageBox.Show($"✅ Visio环境检查通过！\n\n{string.Join("\n", result.OutputFiles ?? new string[0])}", 
-                        "环境检查成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    _statusLabel.Text = "Visio环境正常";
+                    MessageBox.Show($"✅ Visio check passed!\n\n{string.Join("\n", result.OutputFiles ?? new string[0])}",
+                        "Environment Check Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    _statusLabel.Text = "Visio Normal";
                 }
                 else
                 {
-                    MessageBox.Show($"❌ Visio环境检查失败！\n\n{result.ErrorMessage}", 
-                        "环境检查失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    _statusLabel.Text = "Visio环境异常";
+                    MessageBox.Show($"❌ Visio check failed!\n\n{result.ErrorMessage}",
+                        "Environment Check Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    _statusLabel.Text = "Visio Abnormal";
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"检查过程中发生异常：\n{ex.Message}", "异常", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                _statusLabel.Text = "检查异常";
+                MessageBox.Show($"Exception during check:\n{ex.Message}", "Exception", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _statusLabel.Text = "Check Exception";
             }
             finally
             {
@@ -713,7 +713,7 @@ namespace md2visio.GUI.Forms
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            // 释放服务持有的资源，例如Visio COM对象
+            // Release resources held by service, e.g., Visio COM object
             _conversionService.Dispose();
             base.OnFormClosing(e);
         }

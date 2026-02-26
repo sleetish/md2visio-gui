@@ -16,17 +16,17 @@ namespace md2visio.struc.figure
         int figuresBuilt = 0;
         List<string> unsupportedTypes = new();
 
-        // 注入的依赖
+        // Injected dependencies
         private readonly ConversionContext _context;
         private readonly IVisioSession _session;
 
         /// <summary>
-        /// 构建的图表数量
+        /// Number of figures built
         /// </summary>
         public int FiguresBuilt => figuresBuilt;
 
         /// <summary>
-        /// 遇到的不支持类型
+        /// Unsupported types encountered
         /// </summary>
         public IReadOnlyList<string> UnsupportedTypes => unsupportedTypes;
 
@@ -61,7 +61,7 @@ namespace md2visio.struc.figure
         {
             if (_context.Debug)
             {
-                _context.Log($"[DEBUG] BuildFigures: Starting to build diagrams");
+                _context.Log($"[DEBUG] BuildFigures: Start building figures");
                 _context.Log($"[DEBUG] BuildFigures: iter.HasNext() = {iter.HasNext()}");
                 if (iter.Context?.StateList != null)
                 {
@@ -76,11 +76,11 @@ namespace md2visio.struc.figure
                 }
             }
 
-            // Check if any mermaid blocks are found
+            // Check if any mermaid block is found
             if (iter.Context?.StateList == null || iter.Context.StateList.Count == 0)
             {
-                _context.Log("Warning: No mermaid code blocks found in file");
-                _context.Log("Hint: Please ensure diagrams are wrapped in ```mermaid ... ``` blocks");
+                _context.Log("Warning: No mermaid code block found in file");
+                _context.Log("Tip: Please ensure diagram code is wrapped in ```mermaid ... ``` format");
                 return;
             }
 
@@ -106,7 +106,7 @@ namespace md2visio.struc.figure
                         // Check if implemented
                         if (!builderDict.ContainsKey(word))
                         {
-                            _context.Log($"Warning: Diagram type '{word}' is not yet supported, skipped");
+                            _context.Log($"Warning: Diagram type '{word}' not yet supported, skipped");
                             if (!unsupportedTypes.Contains(word))
                                 unsupportedTypes.Add(word);
 
@@ -121,19 +121,19 @@ namespace md2visio.struc.figure
                         }
                         BuildFigure(word);
                         figuresBuilt++;
-                        break;  // BuildFigure 会推进迭代器
+                        break;  // BuildFigure will advance iterator
                     }
                 }
 
-                // 如果遍历完整个列表都没找到图表类型，退出循环
+                // If loop through entire list without finding diagram type, break loop
                 if (!foundFigure)
                     break;
             }
 
-            // Summary information
+            // Summary info
             if (figuresBuilt == 0)
             {
-                _context.Log("Warning: No diagrams built");
+                _context.Log("Warning: No figures built");
                 if (unsupportedTypes.Count > 0)
                 {
                     _context.Log($"Found {unsupportedTypes.Count} unsupported diagram types: {string.Join(", ", unsupportedTypes)}");
@@ -142,18 +142,18 @@ namespace md2visio.struc.figure
             }
             else
             {
-                _context.Log($"Successfully built {figuresBuilt} diagrams");
+                _context.Log($"Successfully built {figuresBuilt} figures");
             }
         }
 
         /// <summary>
-        /// 跳过不支持的图表类型，推进迭代器到下一个图表边界
+        /// Skip unsupported diagram type, advance iterator to next diagram boundary
         /// </summary>
         void SkipUnsupportedFigure(int startPos)
         {
             List<SynState> list = iter.Context.StateList;
 
-            // 从当前位置推进迭代器，直到遇到 SttMermaidClose 或超出范围
+            // Advance iterator from current position until SttMermaidClose or out of range
             while (iter.HasNext())
             {
                 var state = iter.Next();
@@ -169,15 +169,15 @@ namespace md2visio.struc.figure
 
         public void Quit()
         {
-            // Quit 逻辑已移至 VisioSession.Dispose()
-            // 此方法保留为空，供向后兼容
+            // Quit logic moved to VisioSession.Dispose()
+            // This method remains empty for backward compatibility
         }
 
         void BuildFigure(string figureType)
         {
             if (_context.Debug)
             {
-                _context.Log($"[DEBUG] BuildFigure: Starting build for diagram type '{figureType}'");
+                _context.Log($"[DEBUG] BuildFigure: Start building diagram type '{figureType}'");
                 _context.Log($"[DEBUG] BuildFigure: builderDict.ContainsKey('{figureType}') = {builderDict.ContainsKey(figureType)}");
             }
 
@@ -188,17 +188,17 @@ namespace md2visio.struc.figure
 
             if (_context.Debug)
             {
-                _context.Log($"[DEBUG] BuildFigure: Builder type = {type.Name}");
+                _context.Log($"[DEBUG] BuildFigure: Builder Type = {type.Name}");
             }
 
-            // Use injected session and context to create Builder
+            // Create Builder using injected session and context
             object? obj = Activator.CreateInstance(type, iter, _context, _session);
             MethodInfo? method = type.GetMethod("Build", BindingFlags.Public | BindingFlags.Instance, null,
                 new Type[] { typeof(string) }, null);
 
             if (_context.Debug)
             {
-                _context.Log($"[DEBUG] BuildFigure: Successfully created Builder instance = {obj != null}");
+                _context.Log($"[DEBUG] BuildFigure: Create Builder instance success = {obj != null}");
                 _context.Log($"[DEBUG] BuildFigure: Found Build method = {method != null}");
             }
 
@@ -218,10 +218,10 @@ namespace md2visio.struc.figure
             if (_context.Debug)
             {
                 _context.Log($"[DEBUG] Building diagram: {figureType}");
-                _context.Log($"[DEBUG] Output mode: {(isFileMode ? "File mode" : "Directory mode")}");
+                _context.Log($"[DEBUG] Output mode: {(isFileMode ? "File Mode" : "Directory Mode")}");
                 _context.Log($"[DEBUG] Output path: {outputFilePath}");
-                _context.Log($"[DEBUG] Output directory: {dir}");
-                _context.Log($"[DEBUG] File name: {name}");
+                _context.Log($"[DEBUG] Output dir: {dir}");
+                _context.Log($"[DEBUG] Filename: {name}");
             }
 
             if (_context.Debug)

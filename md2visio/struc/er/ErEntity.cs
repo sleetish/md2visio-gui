@@ -3,33 +3,33 @@ using Microsoft.Office.Interop.Visio;
 namespace md2visio.struc.er
 {
     /// <summary>
-    /// ER图实体类
-    /// 表示一个数据库表或实体
+    /// ER Entity Class
+    /// Represents a database table or entity
     /// </summary>
     internal class ErEntity
     {
         /// <summary>
-        /// 实体ID (用于内部引用)
+        /// Entity ID (for internal reference)
         /// </summary>
         public string ID { get; set; } = "";
 
         /// <summary>
-        /// 显示名称 (别名，如有)
+        /// Display Name (Alias, if any)
         /// </summary>
         public string DisplayName { get; set; } = "";
 
         /// <summary>
-        /// 实体属性列表
+        /// List of entity attributes
         /// </summary>
         public List<ErAttribute> Attributes { get; } = new();
 
         /// <summary>
-        /// 对应的 Visio 形状
+        /// Corresponding Visio Shape
         /// </summary>
         public Shape? VisioShape { get; set; }
 
         /// <summary>
-        /// 获取显示用的名称
+        /// Get display name
         /// </summary>
         public string GetDisplayName()
         {
@@ -37,7 +37,7 @@ namespace md2visio.struc.er
         }
 
         /// <summary>
-        /// 添加属性
+        /// Add attribute
         /// </summary>
         public void AddAttribute(ErAttribute attribute)
         {
@@ -45,7 +45,7 @@ namespace md2visio.struc.er
         }
 
         /// <summary>
-        /// 添加属性
+        /// Add attribute
         /// </summary>
         public void AddAttribute(string type, string name, string keys = "", string comment = "")
         {

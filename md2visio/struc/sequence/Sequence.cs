@@ -40,7 +40,7 @@ namespace md2visio.struc.sequence
             };
             Messages.Add(message);
 
-            // 确保参与者存在
+            // Ensure participants exist
             GetParticipant(from);
             GetParticipant(to);
         }
@@ -51,7 +51,7 @@ namespace md2visio.struc.sequence
             {
                 ParticipantId = participantId,
                 StartY = startY,
-                EndY = startY // 将在deactivate时更新
+                EndY = startY // Will be updated on deactivate
             };
             Activations.Add(activation);
         }

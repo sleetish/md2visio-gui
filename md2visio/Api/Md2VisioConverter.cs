@@ -6,8 +6,8 @@ using System.Reflection;
 namespace md2visio.Api
 {
     /// <summary>
-    /// Mermaid 到 Visio 转换器实现
-    /// 包装现有转换逻辑，提供简洁的 API
+    /// Mermaid to Visio Converter Implementation
+    /// Wraps existing conversion logic, providing a clean API
     /// </summary>
     public sealed class Md2VisioConverter : IMd2VisioConverter
     {
@@ -16,7 +16,7 @@ namespace md2visio.Api
         private readonly object _lock = new object();
 
         /// <summary>
-        /// 执行转换
+        /// Execute conversion
         /// </summary>
         public ConversionResult Convert(
             ConversionRequest request,
@@ -42,7 +42,8 @@ namespace md2visio.Api
                 logger.Error($"Visio COM error: {ex.Message}");
                 return ConversionResult.Failed(
                     "Visio COM error, please ensure Microsoft Visio is correctly installed.",
-                    ex);
+                logger.Error($"Unsupported diagram type: {ex.Message}");
+                return ConversionResult.Failed($"Unsupported diagram type: {ex.Message}", ex);
             }
             catch (Exception ex)
             {
@@ -102,7 +103,7 @@ namespace md2visio.Api
             if (!string.IsNullOrEmpty(outputDir) && !Directory.Exists(outputDir))
             {
                 Directory.CreateDirectory(outputDir);
-                logger.Debug($"Creating output directory: {outputDir}");
+                logger.Debug($"Created output directory: {outputDir}");
             }
 
             // Step 2: Create conversion context and Visio session
@@ -124,7 +125,7 @@ namespace md2visio.Api
                 logger.Debug(synContext.ToString());
             }
 
-            // Step 4: Build diagrams
+            // Step 4: Build diagram structure
             progress?.Report(new ConversionProgress(50, "Building diagram structure...", ConversionPhase.Building));
             logger.Info("Building diagram structure...");
 
@@ -146,7 +147,7 @@ namespace md2visio.Api
                 return ConversionResult.Failed(context.LastError);
             }
 
-            // Step 6: Cleanup if Visio is not shown
+            // Step 6: Cleanup if not showing Visio
             progress?.Report(new ConversionProgress(90, "Saving output...", ConversionPhase.Saving));
 
             if (!request.ShowVisio)
@@ -185,31 +186,31 @@ namespace md2visio.Api
                     else
                     {
                         return ConversionResult.Failed(
-                            "No valid Mermaid diagrams found in the file.\n" +
-                            "Please ensure diagrams are wrapped in ```mermaid ... ``` blocks.");
+                            "No valid Mermaid diagrams found in file.\n" +
+                            "Please ensure diagram code is wrapped in ```mermaid ... ``` format.");
                     }
                 }
 
-                logger.Warning("Conversion completed but no output files were found.");
-                return ConversionResult.Failed("Conversion completed but no output files were generated. Please check output path and permissions.");
+                logger.Warning("Conversion completed but no output files found.");
+                return ConversionResult.Failed("Conversion completed but no output files generated. Please check output path and permissions.");
             }
         }
 
         /// <summary>
-        /// 收集输出文件
+        /// Collect output files
         /// </summary>
         private string[] CollectOutputFiles(ConversionRequest request)
         {
             if (request.OutputPath.EndsWith(".vsdx", StringComparison.OrdinalIgnoreCase))
             {
-                // 文件模式：检查指定文件
+                // File mode: Check specified file
                 return File.Exists(request.OutputPath)
                     ? new[] { request.OutputPath }
                     : Array.Empty<string>();
             }
             else
             {
-                // 目录模式：查找所有 .vsdx 文件
+                // Directory mode: Find all .vsdx files
                 return Directory.Exists(request.OutputPath)
                     ? Directory.GetFiles(request.OutputPath, "*.vsdx")
                     : Array.Empty<string>();

@@ -1,4 +1,4 @@
-﻿using md2visio.mermaid.graph;
+using md2visio.mermaid.graph;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -6,6 +6,9 @@ namespace md2visio.mermaid.cmn
 {
     internal class SynContext
     {
+        // 🛡️ Sentinel: Add timeout to prevent ReDoS attacks
+        private static readonly TimeSpan RegexTimeout = TimeSpan.FromSeconds(2);
+
         List<SynState> stateList = new List<SynState>();
 
         StringBuilder incoming = new StringBuilder();
@@ -29,7 +32,7 @@ namespace md2visio.mermaid.cmn
             InputFile = inputFile;
 
             try {
-                // 明确指定UTF-8编码读取文件
+                // Explicitly specify UTF-8 encoding to read file
                 string[] lines = File.ReadAllLines(inputFile, Encoding.UTF8);
 
                 foreach (string line in lines) incoming.Append(line).Append('\n');
@@ -106,7 +109,7 @@ namespace md2visio.mermaid.cmn
         public bool Expect(string pattern, bool multiline = false)
         {
             Match match = Regex.Match(incoming.ToString(), $"^(?<tail>{pattern})",
-                multiline ? RegexOptions.Multiline : RegexOptions.None);
+                multiline ? RegexOptions.Multiline : RegexOptions.None, RegexTimeout);
             if (match.Success)
             {
                 consumed.Append(match.Groups[0].Value);
@@ -119,7 +122,7 @@ namespace md2visio.mermaid.cmn
         public bool Until(string pattern, bool multiline = true)
         {
             Match match = Regex.Match(incoming.ToString(0, incoming.Length), $"^(?<head>.*?)(?<tail>{pattern})",
-                multiline ? RegexOptions.Multiline : RegexOptions.None);
+                multiline ? RegexOptions.Multiline : RegexOptions.None, RegexTimeout);
             if (match.Success)
             {
                 consumed.Append(match.Groups[0].Value);
@@ -132,7 +135,7 @@ namespace md2visio.mermaid.cmn
 
         public bool Test(string pattern)
         {
-            Match match = Regex.Match(Incoming.ToString(), pattern);
+            Match match = Regex.Match(Incoming.ToString(), pattern, RegexOptions.None, RegexTimeout);
             if (!match.Success) return false;
 
             TestGroups = match.Groups;
@@ -155,7 +158,7 @@ namespace md2visio.mermaid.cmn
             {
                 SynState state = stateList[i];
                 string typeName = state.GetType().Name;
-                if (Regex.IsMatch(typeName, $"^({stateNamePattern})$")) return (true, state);
+                if (Regex.IsMatch(typeName, $"^({stateNamePattern})$", RegexOptions.None, RegexTimeout)) return (true, state);
             }
             return (false, EmptyState.Instance);
         }
@@ -165,7 +168,7 @@ namespace md2visio.mermaid.cmn
             for (int i = stateList.Count - 1; i >= 0; i--)
             {
                 string frag = stateList.ElementAt(i).Fragment;
-                if (Regex.IsMatch(frag, $"^({fragmentPattern})$")) return (true, frag);
+                if (Regex.IsMatch(frag, $"^({fragmentPattern})$", RegexOptions.None, RegexTimeout)) return (true, frag);
             }
             return (false, string.Empty);
         }

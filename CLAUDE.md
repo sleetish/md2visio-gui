@@ -1,230 +1,230 @@
-# md2visio Mermaid转Visio工具
+# md2visio Mermaid to Visio Converter
 
-## 变更记录 (Changelog)
+## Changelog
 
-| 日期 | 版本 | 变更内容 | 作者 |
-|------|------|----------|------|
-| 2025-12-23 | v2.0.0 | 完整架构分析与模块索引文档重构，新增时序图支持 | Claude |
-
----
-
-## 项目愿景
-
-**md2visio** 是一个将 Mermaid.js 图表语法转换为 Microsoft Visio (.vsdx) 文件的工具，基于 .NET 8 和 C# 开发。系统通过状态机解析 Mermaid 语法，构建抽象语法树(AST)，然后通过 COM Interop 调用 Visio API 生成专业的 Visio 图表文件。
-
-**核心特性**：
-- **状态机解析引擎**：基于正则表达式的逐字符状态机解析器，支持多种图表语法
-- **TypeMap调度架构**：通过类型映射表实现解析器、构建器、绘制器的松耦合
-- **COM对象生命周期管理**：精细控制 Visio 应用程序实例的创建、复用与释放
-- **YAML配置系统**：支持样式配置、主题切换、FrontMatter覆盖
-- **GUI/CLI双模式**：提供 Windows Forms 图形界面和命令行两种使用方式
+| Date | Version | Changes | Author |
+|------|---------|---------|--------|
+| 2025-12-23 | v2.0.0 | Complete architecture analysis and module index documentation refactoring, added sequence diagram support | Claude |
 
 ---
 
-## 架构总览
+## Project Vision
 
-### 硬件/运行环境架构
+**md2visio** is a tool that converts Mermaid.js diagram syntax into Microsoft Visio (.vsdx) files, developed with .NET 8 and C#. The system builds an Abstract Syntax Tree (AST) by parsing Mermaid syntax via a state machine, and then generates professional Visio diagram files by calling Visio APIs through COM Interop.
+
+**Core Features**:
+- **State Machine Parsing Engine**: A character-by-character state machine parser based on regular expressions, supporting multiple diagram syntaxes.
+- **TypeMap Dispatch Architecture**: A loose coupling of parsers, builders, and drawers achieved through type mapping tables.
+- **COM Object Lifecycle Management**: Precise control over the creation, reuse, and release of Visio application instances.
+- **YAML Configuration System**: Supports style configuration, theme switching, and FrontMatter overriding.
+- **GUI/CLI Dual Mode**: Provides both Windows Forms graphical interface and command-line usage.
+
+---
+
+## Architecture Overview
+
+### Hardware/Runtime Environment Architecture
 ```
     ┌─────────────────────────────────────────────────────────────┐
     │                   .NET 8 Runtime (Windows)                   │
     │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
     │  │   md2visio   │  │ md2visio.GUI │  │  COM Interop Layer  │  │
-    │  │   核心库     │  │    WinForms  │  │  Visio Automation   │  │
+    │  │  Core Lib    │  │    WinForms  │  │  Visio Automation   │  │
     │  └─────────────┘  └─────────────┘  └─────────────────────┘  │
     └─────────────────────────────────────────────────────────────┘
                               │
            ┌──────────────────┼──────────────────┐
            │                  │                  │
     ┌─────────────┐    ┌─────────────┐   ┌─────────────┐
-    │   输入解析    │    │   数据结构    │   │   输出绘制    │
-    │   Mermaid    │    │   AST模型    │   │   Visio COM   │
-    │   状态机     │    │   Figure层   │   │   绘制引擎    │
+    │ Input Parse │    │ Data Struct │   │ Output Draw │
+    │   Mermaid   │    │  AST Model  │   │  Visio COM  │
+    │ State Mach  │    │ Figure Layer│   │ Draw Engine │
     └─────────────┘    └─────────────┘   └─────────────┘
 ```
 
-### 软件分层架构
+### Software Layered Architecture
 
-系统采用**三层状态机驱动架构**：
+The system adopts a **three-layer state machine driven architecture**:
 
-- **解析层 (mermaid/)**：状态机逐字符解析 Mermaid 语法，生成状态序列
-- **数据层 (struc/)**：抽象语法树与图表数据模型，构建器模式生成 Figure 对象
-- **绘制层 (vsdx/)**：COM Interop 调用 Visio API，将 Figure 对象渲染为 .vsdx 文件
+- **Parsing Layer (mermaid/)**: The state machine parses Mermaid syntax character by character to generate a state sequence.
+- **Data Layer (struc/)**: Abstract Syntax Tree and diagram data model, generating Figure objects via builder pattern.
+- **Drawing Layer (vsdx/)**: COM Interop calls Visio API to render Figure objects into .vsdx files.
 
 ---
 
-## 模块结构图
+## Module Structure
 
 ```mermaid
 graph TD
-    A["(根) md2visio"] --> B["md2visio<br/>核心库"];
-    A --> C["md2visio.GUI<br/>图形界面"];
+    A["(Root) md2visio"] --> B["md2visio<br/>Core Lib"];
+    A --> C["md2visio.GUI<br/>GUI"];
 
-    B --> D["main/<br/>入口与配置"];
-    B --> E["mermaid/<br/>解析引擎"];
-    B --> F["struc/<br/>数据结构"];
-    B --> G["vsdx/<br/>绘制引擎"];
-    B --> H["default/<br/>配置文件"];
+    B --> D["main/<br/>Entry & Config"];
+    B --> E["mermaid/<br/>Parse Engine"];
+    B --> F["struc/<br/>Data Struct"];
+    B --> G["vsdx/<br/>Draw Engine"];
+    B --> H["default/<br/>Config Files"];
 
-    D --> D1["AppConfig.cs<br/>全局配置/CLI入口"];
-    D --> D2["AppTest.cs<br/>测试入口"];
-    D --> D3["ConsoleApp.cs<br/>控制台入口"];
+    D --> D1["AppConfig.cs<br/>Global Config/CLI Entry"];
+    D --> D2["AppTest.cs<br/>Test Entry"];
+    D --> D3["ConsoleApp.cs<br/>Console Entry"];
 
-    E --> E1["@cmn/<br/>通用状态机组件"];
-    E --> E2["graph/<br/>流程图解析器"];
-    E --> E3["sequence/<br/>时序图解析器"];
-    E --> E4["journey/<br/>旅程图解析器"];
-    E --> E5["pie/<br/>饼图解析器"];
-    E --> E6["packet/<br/>数据包图解析器"];
-    E --> E7["xy/<br/>XY图表解析器"];
+    E --> E1["@cmn/<br/>Common State Machine Components"];
+    E --> E2["graph/<br/>Flowchart Parser"];
+    E --> E3["sequence/<br/>Sequence Diagram Parser"];
+    E --> E4["journey/<br/>Journey Map Parser"];
+    E --> E5["pie/<br/>Pie Chart Parser"];
+    E --> E6["packet/<br/>Packet Diagram Parser"];
+    E --> E7["xy/<br/>XY Chart Parser"];
 
-    E1 --> E1a["SynContext.cs<br/>解析上下文"];
-    E1 --> E1b["TypeMap.cs<br/>类型映射表"];
-    E1 --> E1c["SynState.cs<br/>状态基类"];
-    E1 --> E1d["SttIterator.cs<br/>状态迭代器"];
+    E1 --> E1a["SynContext.cs<br/>Parse Context"];
+    E1 --> E1b["TypeMap.cs<br/>Type Map Table"];
+    E1 --> E1c["SynState.cs<br/>State Base Class"];
+    E1 --> E1d["SttIterator.cs<br/>State Iterator"];
 
-    F --> F1["figure/<br/>图表基础架构"];
-    F --> F2["graph/<br/>流程图数据结构"];
-    F --> F3["sequence/<br/>时序图数据结构"];
-    F --> F4["journey/<br/>旅程图数据结构"];
-    F --> F5["pie/<br/>饼图数据结构"];
-    F --> F6["packet/<br/>数据包图数据结构"];
-    F --> F7["xy/<br/>XY图数据结构"];
+    F --> F1["figure/<br/>Figure Infrastructure"];
+    F --> F2["graph/<br/>Flowchart Data Struct"];
+    F --> F3["sequence/<br/>Sequence Data Struct"];
+    F --> F4["journey/<br/>Journey Data Struct"];
+    F --> F5["pie/<br/>Pie Data Struct"];
+    F --> F6["packet/<br/>Packet Data Struct"];
+    F --> F7["xy/<br/>XY Data Struct"];
 
-    F1 --> F1a["FigureBuilderFactory.cs<br/>构建器工厂(核心调度)"];
-    F1 --> F1b["Figure.cs<br/>图表基类"];
-    F1 --> F1c["Config.cs<br/>配置加载器"];
+    F1 --> F1a["FigureBuilderFactory.cs<br/>Builder Factory (Core Dispatch)"];
+    F1 --> F1b["Figure.cs<br/>Figure Base Class"];
+    F1 --> F1c["Config.cs<br/>Config Loader"];
 
-    G --> G1["@base/<br/>绘制基础组件"];
-    G --> G2["@tool/<br/>绘制工具"];
-    G --> G3["VBuilderG/VDrawerG<br/>流程图绘制"];
-    G --> G4["VBuilderSeq/VDrawerSeq<br/>时序图绘制"];
-    G --> G5["其他图表绘制器"];
+    G --> G1["@base/<br/>Drawing Base Components"];
+    G --> G2["@tool/<br/>Drawing Tools"];
+    G --> G3["VBuilderG/VDrawerG<br/>Flowchart Drawing"];
+    G --> G4["VBuilderSeq/VDrawerSeq<br/>Sequence Drawing"];
+    G --> G5["Other Drawers"];
 
-    G1 --> G1a["VBuilder.cs<br/>Visio应用管理"];
-    G1 --> G1b["VFigureBuilder.cs<br/>图表构建器基类"];
-    G1 --> G1c["VFigureDrawer.cs<br/>图表绘制器基类"];
+    G1 --> G1a["VBuilder.cs<br/>Visio App Management"];
+    G1 --> G1b["VFigureBuilder.cs<br/>Figure Builder Base"];
+    G1 --> G1c["VFigureDrawer.cs<br/>Figure Drawer Base"];
 
-    H --> H1["flowchart.yaml<br/>流程图配置"];
-    H --> H2["sequence.yaml<br/>时序图配置"];
-    H --> H3["theme/<br/>主题配置"];
+    H --> H1["flowchart.yaml<br/>Flowchart Config"];
+    H --> H2["sequence.yaml<br/>Sequence Config"];
+    H --> H3["theme/<br/>Theme Config"];
 
-    C --> C1["Forms/<br/>窗体"];
-    C --> C2["Services/<br/>服务层"];
-    C1 --> C1a["MainForm.cs<br/>主窗体"];
-    C2 --> C2a["ConversionService.cs<br/>转换服务"];
+    C --> C1["Forms/<br/>Forms"];
+    C --> C2["Services/<br/>Service Layer"];
+    C1 --> C1a["MainForm.cs<br/>Main Form"];
+    C2 --> C2a["ConversionService.cs<br/>Conversion Service"];
 ```
 
 ---
 
-## 模块索引
+## Module Index
 
-### 核心模块索引
+### Core Module Index
 
-| 模块路径 | 职责描述 | 关键文件 | 关键类/接口 |
-|----------|----------|----------|-------------|
-| `md2visio/main/` | **应用入口**：命令行参数解析、全局配置、COM对象生命周期管理 | `AppConfig.cs` | `AppConfig` (单例模式) |
-| `md2visio/mermaid/@cmn/` | **解析核心**：状态机基础设施、类型映射、解析上下文 | `SynContext.cs`, `TypeMap.cs`, `SynState.cs` | `SynContext`, `TypeMap`, `SttIterator` |
-| `md2visio/struc/figure/` | **数据核心**：图表基类、构建器工厂、配置系统 | `FigureBuilderFactory.cs`, `Figure.cs`, `Config.cs` | `FigureBuilderFactory`, `Figure`, `FigureBuilder` |
-| `md2visio/vsdx/@base/` | **绘制核心**：Visio应用管理、绘制器基类 | `VBuilder.cs`, `VFigureBuilder.cs`, `VFigureDrawer.cs` | `VBuilder`, `VFigureBuilder<T>`, `VFigureDrawer<T>` |
-| `md2visio.GUI/Services/` | **GUI服务层**：异步转换服务、事件通知、COM对象管理 | `ConversionService.cs` | `ConversionService`, `ConversionResult` |
+| Module Path | Responsibility Description | Key Files | Key Classes/Interfaces |
+|-------------|----------------------------|-----------|------------------------|
+| `md2visio/main/` | **App Entry**: Command line parsing, global config, COM object lifecycle management | `AppConfig.cs` | `AppConfig` (Singleton) |
+| `md2visio/mermaid/@cmn/` | **Parse Core**: State machine infrastructure, type mapping, parsing context | `SynContext.cs`, `TypeMap.cs`, `SynState.cs` | `SynContext`, `TypeMap`, `SttIterator` |
+| `md2visio/struc/figure/` | **Data Core**: Figure base class, builder factory, config system | `FigureBuilderFactory.cs`, `Figure.cs`, `Config.cs` | `FigureBuilderFactory`, `Figure`, `FigureBuilder` |
+| `md2visio/vsdx/@base/` | **Draw Core**: Visio app management, drawer base classes | `VBuilder.cs`, `VFigureBuilder.cs`, `VFigureDrawer.cs` | `VBuilder`, `VFigureBuilder<T>`, `VFigureDrawer<T>` |
+| `md2visio.GUI/Services/` | **GUI Service Layer**: Async conversion service, event notification, COM object management | `ConversionService.cs` | `ConversionService`, `ConversionResult` |
 
-### 解析器模块索引 (mermaid/)
+### Parser Module Index (mermaid/)
 
-| 图表类型 | 模块路径 | 关键文件 | 状态类 |
-|----------|----------|----------|--------|
-| 流程图 | `mermaid/graph/` | `GSttKeyword.cs`, `GSttText.cs`, `GSttLinkStart.cs` | `GSttKeyword`, `GSttChar`, `GSttText`, `GSttLinkStart`, `GSttLinkEnd` |
-| 时序图 | `mermaid/sequence/` | `SeqSttKeyword.cs`, `SeqSttMessage.cs`, `SeqSttParticipantId.cs` | `SeqSttKeyword`, `SeqSttChar`, `SeqSttMessage`, `SeqSttParticipantDecl` |
-| 旅程图 | `mermaid/journey/` | `JoSttKeyword.cs`, `JoSttTriple.cs` | `JoSttKeyword`, `JoSttChar`, `JoSttTriple`, `JoSttWord` |
-| 饼图 | `mermaid/pie/` | `PieSttKeyword.cs`, `PieSttTuple.cs` | `PieSttKeyword`, `PieSttChar`, `PieSttTuple` |
-| 数据包图 | `mermaid/packet/` | `PacSttKeyword.cs`, `PacSttTuple.cs` | `PacSttKeyword`, `PaSttChar`, `PacSttTuple` |
-| XY图表 | `mermaid/xy/` | `XySttKeyword.cs`, `XySttWord.cs` | `XySttKeyword`, `XySttChar`, `XySttWord` |
+| Diagram Type | Module Path | Key Files | State Classes |
+|--------------|-------------|-----------|---------------|
+| Flowchart | `mermaid/graph/` | `GSttKeyword.cs`, `GSttText.cs`, `GSttLinkStart.cs` | `GSttKeyword`, `GSttChar`, `GSttText`, `GSttLinkStart`, `GSttLinkEnd` |
+| Sequence | `mermaid/sequence/` | `SeqSttKeyword.cs`, `SeqSttMessage.cs`, `SeqSttParticipantId.cs` | `SeqSttKeyword`, `SeqSttChar`, `SeqSttMessage`, `SeqSttParticipantDecl` |
+| Journey | `mermaid/journey/` | `JoSttKeyword.cs`, `JoSttTriple.cs` | `JoSttKeyword`, `JoSttChar`, `JoSttTriple`, `JoSttWord` |
+| Pie | `mermaid/pie/` | `PieSttKeyword.cs`, `PieSttTuple.cs` | `PieSttKeyword`, `PieSttChar`, `PieSttTuple` |
+| Packet | `mermaid/packet/` | `PacSttKeyword.cs`, `PacSttTuple.cs` | `PacSttKeyword`, `PaSttChar`, `PacSttTuple` |
+| XY Chart | `mermaid/xy/` | `XySttKeyword.cs`, `XySttWord.cs` | `XySttKeyword`, `XySttChar`, `XySttWord` |
 
-### 数据结构模块索引 (struc/)
+### Data Structure Module Index (struc/)
 
-| 图表类型 | 模块路径 | 关键文件 | 数据类 |
-|----------|----------|----------|--------|
-| 流程图 | `struc/graph/` | `Graph.cs`, `GBuilder.cs`, `GNode.cs`, `GEdge.cs` | `Graph`, `GBuilder`, `GNode`, `GEdge`, `GSubgraph`, `GNodeShape` |
-| 时序图 | `struc/sequence/` | `Sequence.cs`, `SeqBuilder.cs`, `SeqMessage.cs` | `Sequence`, `SeqBuilder`, `SeqParticipant`, `SeqMessage`, `SeqActivation` |
-| 旅程图 | `struc/journey/` | `Journey.cs`, `JoBuilder.cs`, `JoSection.cs` | `Journey`, `JoBuilder`, `JoSection`, `JoTask` |
-| 饼图 | `struc/pie/` | `Pie.cs`, `PieBuilder.cs`, `PieDataItem.cs` | `Pie`, `PieBuilder`, `PieDataItem` |
-| 数据包图 | `struc/packet/` | `Packet.cs`, `PacBuilder.cs`, `PacBlock.cs` | `Packet`, `PacBuilder`, `PacBlock` |
-| XY图表 | `struc/xy/` | `XyChart.cs`, `XyBuilder.cs`, `XyAxis.cs` | `XyChart`, `XyBuilder`, `XyAxis` |
+| Diagram Type | Module Path | Key Files | Data Classes |
+|--------------|-------------|-----------|--------------|
+| Flowchart | `struc/graph/` | `Graph.cs`, `GBuilder.cs`, `GNode.cs`, `GEdge.cs` | `Graph`, `GBuilder`, `GNode`, `GEdge`, `GSubgraph`, `GNodeShape` |
+| Sequence | `struc/sequence/` | `Sequence.cs`, `SeqBuilder.cs`, `SeqMessage.cs` | `Sequence`, `SeqBuilder`, `SeqParticipant`, `SeqMessage`, `SeqActivation` |
+| Journey | `struc/journey/` | `Journey.cs`, `JoBuilder.cs`, `JoSection.cs` | `Journey`, `JoBuilder`, `JoSection`, `JoTask` |
+| Pie | `struc/pie/` | `Pie.cs`, `PieBuilder.cs`, `PieDataItem.cs` | `Pie`, `PieBuilder`, `PieDataItem` |
+| Packet | `struc/packet/` | `Packet.cs`, `PacBuilder.cs`, `PacBlock.cs` | `Packet`, `PacBuilder`, `PacBlock` |
+| XY Chart | `struc/xy/` | `XyChart.cs`, `XyBuilder.cs`, `XyAxis.cs` | `XyChart`, `XyBuilder`, `XyAxis` |
 
-### 绘制器模块索引 (vsdx/)
+### Drawer Module Index (vsdx/)
 
-| 图表类型 | 构建器文件 | 绘制器文件 | 关键类 |
-|----------|------------|------------|--------|
-| 流程图 | `VBuilderG.cs` | `VDrawerG.cs` | `VBuilderG`, `VDrawerG` |
-| 时序图 | `VBuilderSeq.cs` | `VDrawerSeq.cs` | `VBuilderSeq`, `VDrawerSeq` |
-| 旅程图 | `VBuilderJo.cs` | `VDrawerJo.cs` | `VBuilderJo`, `VDrawerJo` |
-| 饼图 | `VBuilderPie.cs` | `VDrawerPie.cs` | `VBuilderPie`, `VDrawerPie` |
-| 数据包图 | `VBuilderPac.cs` | `VDrawerPac.cs` | `VBuilderPac`, `VDrawerPac` |
-| XY图表 | `VBuilderXy.cs` | `VDrawerXy.cs` | `VBuilderXy`, `VDrawerXy` |
+| Diagram Type | Builder File | Drawer File | Key Classes |
+|--------------|--------------|-------------|-------------|
+| Flowchart | `VBuilderG.cs` | `VDrawerG.cs` | `VBuilderG`, `VDrawerG` |
+| Sequence | `VBuilderSeq.cs` | `VDrawerSeq.cs` | `VBuilderSeq`, `VDrawerSeq` |
+| Journey | `VBuilderJo.cs` | `VDrawerJo.cs` | `VBuilderJo`, `VDrawerJo` |
+| Pie | `VBuilderPie.cs` | `VDrawerPie.cs` | `VBuilderPie`, `VDrawerPie` |
+| Packet | `VBuilderPac.cs` | `VDrawerPac.cs` | `VBuilderPac`, `VDrawerPac` |
+| XY Chart | `VBuilderXy.cs` | `VDrawerXy.cs` | `VBuilderXy`, `VDrawerXy` |
 
-### 配置文件索引 (default/)
+### Configuration File Index (default/)
 
-| 文件名 | 用途 | 关键配置项 |
-|--------|------|------------|
-| `flowchart.yaml` | 流程图样式 | 节点大小、边框颜色、字体样式 |
-| `sequence.yaml` | 时序图样式 | 参与者间距、消息样式、激活框颜色 |
-| `journey.yaml` | 旅程图样式 | 游泳道布局、任务评分颜色 |
-| `pie.yaml` | 饼图样式 | 扇形颜色、标签样式 |
-| `packet.yaml` | 数据包图样式 | 位字段宽度、边框样式 |
-| `xyChart.yaml` | XY图表样式 | 坐标轴样式、数据点颜色 |
-| `default.yaml` | 全局默认配置 | 通用字体、颜色、边距 |
-| `theme/default.yaml` | 默认主题 | 主题色、背景色、文本色 |
-| `theme/forest.yaml` | 森林主题 | 绿色系配色方案 |
-| `theme/dark.yaml` | 暗色主题 | 深色背景配色方案 |
-| `theme/neutral.yaml` | 中性主题 | 灰色系配色方案 |
+| Filename | Purpose | Key Config Items |
+|----------|---------|------------------|
+| `flowchart.yaml` | Flowchart Style | Node size, border color, font style |
+| `sequence.yaml` | Sequence Style | Participant spacing, message style, activation box color |
+| `journey.yaml` | Journey Style | Swimlane layout, task score color |
+| `pie.yaml` | Pie Style | Sector color, label style |
+| `packet.yaml` | Packet Style | Bit field width, border style |
+| `xyChart.yaml` | XY Chart Style | Axis style, data point color |
+| `default.yaml` | Global Default Config | Common fonts, colors, margins |
+| `theme/default.yaml` | Default Theme | Theme colors, background color, text color |
+| `theme/forest.yaml` | Forest Theme | Green color scheme |
+| `theme/dark.yaml` | Dark Theme | Dark background color scheme |
+| `theme/neutral.yaml` | Neutral Theme | Gray color scheme |
 
 ---
 
-## 核心数据流
+## Core Data Flow
 
 ```
-用户输入 (.md文件)
+User Input (.md file)
     │
     ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ [1. 解析阶段] mermaid/                                       │
+│ [1. Parsing Phase] mermaid/                                  │
 │   SynContext.Load(file)                                     │
 │   → SttMermaidStart.Run()                                   │
-│   → 状态机逐字符解析 (GSttKeyword → GSttText → GSttLinkStart) │
-│   → 生成 StateList (状态序列)                                │
+│   → State Machine Character Parsing (GSttKeyword → GSttText)│
+│   → Generate StateList (State Sequence)                     │
 └─────────────────────────────────────────────────────────────┘
     │
     ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ [2. 构建阶段] struc/                                        │
+│ [2. Building Phase] struc/                                   │
 │   FigureBuilderFactory.BuildFigures()                       │
-│   → 遍历 StateList                                          │
-│   → TypeMap.BuilderMap[figureType] 获取构建器类型            │
-│   → 反射创建 Builder 实例 (如 GBuilder)                      │
-│   → Builder.Build() 构建 Figure 数据结构                     │
+│   → Iterate StateList                                       │
+│   → TypeMap.BuilderMap[figureType] Get Builder Type         │
+│   → Reflection Create Builder Instance (e.g., GBuilder)     │
+│   → Builder.Build() Build Figure Data Structure             │
 └─────────────────────────────────────────────────────────────┘
     │
     ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ [3. 绘制阶段] vsdx/                                         │
+│ [3. Drawing Phase] vsdx/                                     │
 │   Figure.ToVisio(path)                                      │
 │   → VFigureBuilder.Build()                                  │
 │   → VFigureDrawer.Draw()                                    │
-│   → COM调用 Visio API (DrawRectangle, SetShapeSheet, etc.)  │
-│   → SaveAndClose() 保存 .vsdx 文件                          │
+│   → COM Call Visio API (DrawRectangle, SetShapeSheet, etc.) │
+│   → SaveAndClose() Save .vsdx File                          │
 └─────────────────────────────────────────────────────────────┘
     │
     ▼
-输出文件 (.vsdx)
+Output File (.vsdx)
 ```
 
 ---
 
-## TypeMap 核心映射表
+## TypeMap Core Mapping Table
 
-`TypeMap.cs:17-58` 是整个系统的调度中心：
+`TypeMap.cs:17-58` is the dispatch center of the entire system:
 
 ```csharp
-// 图表关键字 → 关键字解析器状态类
+// Diagram Keyword → Keyword Parser State Class
 KeywordMap = {
     "graph"/"flowchart" → GSttKeyword,
     "sequenceDiagram"   → SeqSttKeyword,
@@ -234,7 +234,7 @@ KeywordMap = {
     "xychart-beta"      → XySttKeyword,
 }
 
-// 图表关键字 → 字符解析器状态类
+// Diagram Keyword → Character Parser State Class
 CharMap = {
     "graph"/"flowchart" → GSttChar,
     "sequenceDiagram"   → SeqSttChar,
@@ -244,7 +244,7 @@ CharMap = {
     "xychart-beta"      → XySttChar,
 }
 
-// 图表关键字 → 数据结构构建器
+// Diagram Keyword → Data Structure Builder
 BuilderMap = {
     "graph"/"flowchart" → GBuilder,
     "sequenceDiagram"   → SeqBuilder,
@@ -254,7 +254,7 @@ BuilderMap = {
     "xychart-beta"      → XyBuilder,
 }
 
-// 数据类型名 → 配置文件名
+// Data Type Name → Config File Name
 ConfigMap = {
     "Graph"    → "flowchart",
     "Sequence" → "sequence",
@@ -267,174 +267,174 @@ ConfigMap = {
 
 ---
 
-## 支持的图表类型
+## Supported Diagram Types
 
-| 图表类型 | Mermaid关键字 | 状态 | 示例语法 |
-|---------|--------------|------|----------|
-| 流程图 | `graph`, `flowchart` | ✅ 完整支持 | `graph LR; A-->B` |
-| 时序图 | `sequenceDiagram` | ✅ 支持 | `sequenceDiagram; A->>B: msg` |
-| 用户旅程图 | `journey` | ✅ 完整支持 | `journey; title My Day; section Work` |
-| 饼图 | `pie` | ✅ 完整支持 | `pie title Sales; "A": 30` |
-| 数据包图 | `packet-beta` | ✅ 完整支持 | `packet-beta; 0-7: "Header"` |
-| XY图表 | `xychart-beta` | ✅ 完整支持 | `xychart-beta; x-axis [a,b,c]` |
-| 类图 | `classDiagram` | ❌ 未实现 | - |
-| 状态图 | `stateDiagram` | ❌ 未实现 | - |
-| ER图 | `erDiagram` | ❌ 未实现 | - |
-| 甘特图 | `gantt` | ❌ 未实现 | - |
+| Diagram Type | Mermaid Keyword | Status | Example Syntax |
+|--------------|-----------------|--------|----------------|
+| Flowchart | `graph`, `flowchart` | ✅ Full Support | `graph LR; A-->B` |
+| Sequence | `sequenceDiagram` | ✅ Support | `sequenceDiagram; A->>B: msg` |
+| User Journey | `journey` | ✅ Full Support | `journey; title My Day; section Work` |
+| Pie | `pie` | ✅ Full Support | `pie title Sales; "A": 30` |
+| Packet | `packet-beta` | ✅ Full Support | `packet-beta; 0-7: "Header"` |
+| XY Chart | `xychart-beta` | ✅ Full Support | `xychart-beta; x-axis [a,b,c]` |
+| Class Diagram | `classDiagram` | ❌ Not Implemented | - |
+| State Diagram | `stateDiagram` | ❌ Not Implemented | - |
+| ER Diagram | `erDiagram` | ❌ Not Implemented | - |
+| Gantt | `gantt` | ❌ Not Implemented | - |
 
 ---
 
-## 运行与开发
+## Run & Develop
 
-### 开发环境
-- **运行时**：.NET 8.0 (Windows x64)
-- **依赖组件**：Microsoft Visio 2013+ (COM组件)
-- **开发工具**：Visual Studio 2022, Rider
-- **UI框架**：Windows Forms
+### Development Environment
+- **Runtime**: .NET 8.0 (Windows x64)
+- **Dependencies**: Microsoft Visio 2013+ (COM Component)
+- **Tools**: Visual Studio 2022, Rider
+- **UI Framework**: Windows Forms
 
-### 依赖库
-- **Microsoft.Office.Interop.Visio**: Visio COM组件交互
-- **YamlDotNet**: YAML配置文件解析
-- **System.Drawing.Common**: 图形处理
-- **stdole**: COM标准对象库
+### Dependency Libraries
+- **Microsoft.Office.Interop.Visio**: Visio COM component interaction
+- **YamlDotNet**: YAML configuration file parsing
+- **System.Drawing.Common**: Graphics processing
+- **stdole**: COM standard object library
 
-### 编译构建
+### Build & Construct
 ```bash
-# 编译解决方案
+# Build Solution
 dotnet build md2visio.sln
 
-# 运行GUI程序
+# Run GUI
 dotnet run --project md2visio.GUI
 
-# 运行控制台版本
+# Run Console Version
 dotnet run --project md2visio --configuration ConsoleRelease -- /I input.md /O output.vsdx
 
-# 发布单文件
+# Publish Single File
 dotnet publish md2visio.GUI -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
 ```
 
-### 命令行参数
-| 参数 | 用途 | 示例 |
-|------|------|------|
-| `/I` | 指定输入MD文件路径 | `/I test.md` |
-| `/O` | 指定输出路径(.vsdx文件或目录) | `/O output/` |
-| `/V` | 显示Visio窗口(可视化绘制过程) | `/V` |
-| `/Y` | 静默覆盖已存在文件 | `/Y` |
-| `/D` | 调试模式(详细日志输出) | `/D` |
-| `/?` | 显示帮助信息 | `/?` |
+### Command Line Arguments
+| Arg | Purpose | Example |
+|-----|---------|---------|
+| `/I` | Specify input MD file path | `/I test.md` |
+| `/O` | Specify output path (.vsdx file or dir) | `/O output/` |
+| `/V` | Show Visio window (visualize drawing process) | `/V` |
+| `/Y` | Silent overwrite existing files | `/Y` |
+| `/D` | Debug mode (verbose logging) | `/D` |
+| `/?` | Show help info | `/?` |
 
-### 测试文件
-测试Mermaid文件位于`md2visio/test/`目录：
-- `graph.md` - 流程图测试
-- `sequence.md` - 时序图测试
-- `journey.md` - 旅程图测试
-- `packet.md` - 数据包图测试
-- `pie.md` - 饼图测试
-- `xy.md` - XY图表测试
-
----
-
-## 设计模式应用
-
-| 设计模式 | 应用位置 | 作用 |
-|---------|---------|------|
-| **状态机模式** | `mermaid/` 全部解析器 | Mermaid语法逐字符解析 |
-| **工厂模式** | `FigureBuilderFactory` | 根据图表类型创建对应Builder |
-| **策略模式** | `VFigureDrawer<T>` | 不同图表类型的绘制策略 |
-| **单例模式** | `AppConfig.Instance` | 全局配置管理 |
-| **模板方法模式** | `FigureBuilder.Build()` | 定义构建骨架，子类实现细节 |
-| **观察者模式** | `ConversionService.ProgressChanged` | GUI转换进度通知 |
-| **IDisposable模式** | `AppConfig`, `ConversionService` | COM对象生命周期管理 |
+### Test Files
+Mermaid test files are located in `md2visio/test/` directory:
+- `graph.md` - Flowchart test
+- `sequence.md` - Sequence diagram test
+- `journey.md` - Journey map test
+- `packet.md` - Packet diagram test
+- `pie.md` - Pie chart test
+- `xy.md` - XY chart test
 
 ---
 
-## COM对象生命周期管理
+## Design Pattern Application
 
-项目重点处理 Visio COM 对象的生命周期：
+| Design Pattern | Application Location | Function |
+|----------------|----------------------|----------|
+| **State Machine Pattern** | `mermaid/` all parsers | Mermaid syntax character-by-character parsing |
+| **Factory Pattern** | `FigureBuilderFactory` | Create corresponding Builder based on diagram type |
+| **Strategy Pattern** | `VFigureDrawer<T>` | Drawing strategies for different diagram types |
+| **Singleton Pattern** | `AppConfig.Instance` | Global configuration management |
+| **Template Method Pattern** | `FigureBuilder.Build()` | Define build skeleton, subclasses implement details |
+| **Observer Pattern** | `ConversionService.ProgressChanged` | GUI conversion progress notification |
+| **IDisposable Pattern** | `AppConfig`, `ConversionService` | COM object lifecycle management |
+
+---
+
+## COM Object Lifecycle Management
+
+The project focuses on handling the Visio COM object lifecycle:
 
 ```csharp
-// VBuilder.cs - 静态共享Visio实例
+// VBuilder.cs - Static shared Visio instance
 public static Visio.Application? VisioApp = null;
 
-// EnsureVisioApp() - 智能检测与复用
+// EnsureVisioApp() - Smart detection and reuse
 if (VisioApp != null) {
-    try { _ = VisioApp.Version; return; }  // 测试有效性
-    catch { VisioApp = null; }              // 失效则重建
+    try { _ = VisioApp.Version; return; }  // Test validity
+    catch { VisioApp = null; }              // Recreate if invalid
 }
 VisioApp = new Visio.Application();
 
-// FigureBuilderFactory.Quit() - 清理逻辑
+// FigureBuilderFactory.Quit() - Cleanup logic
 if (!Visible && VisioApp != null) {
     VisioApp.Quit();
     VisioApp = null;
 }
 ```
 
-### COM异常处理
-COM异常常见原因：
-1. Microsoft Visio未正确安装或注册
-2. Visio进程权限不足
-3. COM组件损坏
+### COM Exception Handling
+Common causes of COM exceptions:
+1. Microsoft Visio not correctly installed or registered
+2. Visio process permission insufficient
+3. COM component corrupted
 
-### 多图表支持
-- 文件模式：指定具体.vsdx文件名
-- 目录模式：自动为多个图表生成带编号的文件
+### Multi-Diagram Support
+- File Mode: Specify specific .vsdx filename
+- Directory Mode: Automatically generate numbered files for multiple diagrams
 
-### 线程模型
-- GUI程序必须设置STA线程模式(Program.cs:14)
-- 异步转换使用Task.Run包装同步方法
+### Threading Model
+- GUI program must set STA thread mode (Program.cs:14)
+- Async conversion uses Task.Run to wrap synchronous methods
 
 ---
 
-## 扩展新图表类型步骤
+## Steps to Extend New Diagram Type
 
-1. **创建解析器** (`mermaid/新类型/`)
-   - `XxxSttKeyword.cs` - 关键字状态
-   - `XxxSttChar.cs` - 字符状态
-   - 其他必要状态类
+1. **Create Parser** (`mermaid/NewType/`)
+   - `XxxSttKeyword.cs` - Keyword state
+   - `XxxSttChar.cs` - Character state
+   - Other necessary state classes
 
-2. **创建数据结构** (`struc/新类型/`)
-   - `Xxx.cs` - 继承 `Figure`
-   - `XxxBuilder.cs` - 继承 `FigureBuilder`
-   - 数据元素类
+2. **Create Data Structure** (`struc/NewType/`)
+   - `Xxx.cs` - Inherits `Figure`
+   - `XxxBuilder.cs` - Inherits `FigureBuilder`
+   - Data element classes
 
-3. **创建绘制器** (`vsdx/`)
-   - `VBuilderXxx.cs` - 继承 `VFigureBuilder<Xxx>`
-   - `VDrawerXxx.cs` - 继承 `VFigureDrawer<Xxx>`
+3. **Create Drawer** (`vsdx/`)
+   - `VBuilderXxx.cs` - Inherits `VFigureBuilder<Xxx>`
+   - `VDrawerXxx.cs` - Inherits `VFigureDrawer<Xxx>`
 
-4. **注册到TypeMap** (`mermaid/@cmn/TypeMap.cs`)
+4. **Register to TypeMap** (`mermaid/@cmn/TypeMap.cs`)
    ```csharp
-   KeywordMap.Add("新关键字", typeof(XxxSttKeyword));
-   CharMap.Add("新关键字", typeof(XxxSttChar));
-   BuilderMap.Add("新关键字", typeof(XxxBuilder));
+   KeywordMap.Add("new_keyword", typeof(XxxSttKeyword));
+   CharMap.Add("new_keyword", typeof(XxxSttChar));
+   BuilderMap.Add("new_keyword", typeof(XxxBuilder));
    ConfigMap.Add("Xxx", "xxx");
    ```
 
-5. **创建配置文件** (`default/xxx.yaml`)
+5. **Create Configuration File** (`default/xxx.yaml`)
 
-6. **创建测试文件** (`test/xxx.md`)
-
----
-
-## AI 使用指引
-
-### 代码理解要点
-1. **TypeMap是核心**：所有图表类型的解析器、构建器、绘制器都通过TypeMap调度
-2. **状态机驱动**：解析过程由状态类链式调用完成，StateList保留完整解析轨迹
-3. **三层分离**：解析层(mermaid) → 数据层(struc) → 绘制层(vsdx) 完全解耦
-4. **泛型抽象**：`VFigureBuilder<T>` 和 `VFigureDrawer<T>` 提供统一的构建/绘制框架
-
-### 常见修改场景
-- **添加新图表类型**：按照上述扩展步骤，依次创建解析器、数据结构、绘制器，注册TypeMap
-- **修改图表样式**：编辑 `default/` 下对应的 YAML 配置文件
-- **扩展节点形状**：修改 `GNodeShape.cs` 和 `VDrawerG.cs` 中的形状绘制逻辑
-- **调整解析语法**：修改对应图表的状态类（如 `GSttText.cs` 处理节点文本解析）
-
-### 调试技巧
-- **启用调试模式**：使用 `/D` 参数，输出完整的 StateList 和构建过程日志
-- **可视化绘制**：使用 `/V` 参数，实时观看 Visio 绘制过程
-- **状态追踪**：`SynContext.ToString()` 输出所有解析状态的详细信息
+6. **Create Test File** (`test/xxx.md`)
 
 ---
 
-*本文档由Claude AI基于项目源码分析生成，生成时间：2025-12-23*
+## AI Usage Guidelines
+
+### Code Understanding Points
+1. **TypeMap is Core**: Parsers, builders, and drawers for all diagram types are dispatched through TypeMap.
+2. **State Machine Driven**: Parsing is done by chained calls of state classes, StateList retains complete parsing trajectory.
+3. **Three-Layer Separation**: Parsing layer (mermaid) → Data layer (struc) → Drawing layer (vsdx) are completely decoupled.
+4. **Generic Abstraction**: `VFigureBuilder<T>` and `VFigureDrawer<T>` provide a unified build/draw framework.
+
+### Common Modification Scenarios
+- **Add New Diagram Type**: Follow the extension steps above, create parser, data structure, drawer, and register to TypeMap.
+- **Modify Diagram Style**: Edit the corresponding YAML config file under `default/`.
+- **Extend Node Shape**: Modify shape drawing logic in `GNodeShape.cs` and `VDrawerG.cs`.
+- **Adjust Parsing Syntax**: Modify the corresponding diagram state class (e.g., `GSttText.cs` handles node text parsing).
+
+### Debugging Tips
+- **Enable Debug Mode**: Use `/D` argument to output full StateList and build process logs.
+- **Visualize Drawing**: Use `/V` argument to watch Visio drawing process in real-time.
+- **State Tracing**: `SynContext.ToString()` outputs detailed information of all parsing states.
+
+---
+
+*This document was generated by Claude AI based on project source code analysis, generation time: 2025-12-23*

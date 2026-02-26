@@ -1,4 +1,4 @@
-﻿using md2visio.mermaid.cmn;
+using md2visio.mermaid.cmn;
 
 namespace md2visio.mermaid.sequence
 {
@@ -13,8 +13,8 @@ namespace md2visio.mermaid.sequence
 
             if (char.IsWhiteSpace(ch) && ch != '\n' && ch != '\r')
             {
-                // 如果 Buffer 包含消息箭头格式（如 a->>b:），继续读取到行尾
-                // 不在空格处分割，保持消息行的完整性
+                // If Buffer contains message arrow format (e.g., a->>b:), continue reading until end of line
+                // Do not split at space to keep message line intact
                 if (IsMessageArrowLine())
                 {
                     return Take().Forward<SeqSttChar>();
@@ -45,13 +45,13 @@ namespace md2visio.mermaid.sequence
         }
 
         /// <summary>
-        /// 检查 Buffer 是否包含消息箭头格式
-        /// 消息格式: from->>to: message 或 from-->>to: message 等
+        /// Check if Buffer contains message arrow format
+        /// Message format: from->>to: message or from-->>to: message, etc.
         /// </summary>
         private bool IsMessageArrowLine()
         {
             string buf = Buffer.ToString();
-            // 检查是否包含消息箭头并且后面有冒号（表示这是消息行）
+            // Check if it contains message arrow and is followed by a colon (indicating a message line)
             return (buf.Contains("->>") || buf.Contains("-->>") ||
                     buf.Contains("->") || buf.Contains("-->")) &&
                    buf.Contains(":");

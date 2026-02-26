@@ -14,7 +14,7 @@ namespace md2visio.mermaid.classdiag
             string keyword = Buffer;
             Save(Buffer).ClearBuffer();
 
-            // class 和 namespace 不使用参数检查，让状态机正常解析
+            // class and namespace do not use parameter checking, let the state machine parse normally
             if (keyword == "class" || keyword == "namespace")
             {
                 return Forward<ClsSttChar>();

@@ -1,27 +1,27 @@
 namespace md2visio.Api
 {
     /// <summary>
-    /// 转换结果
+    /// Conversion Result
     /// </summary>
     public sealed class ConversionResult
     {
         /// <summary>
-        /// 是否成功
+        /// Whether successful
         /// </summary>
         public bool Success { get; }
 
         /// <summary>
-        /// 生成的输出文件路径数组
+        /// Generated output file paths
         /// </summary>
         public string[] OutputFiles { get; }
 
         /// <summary>
-        /// 错误消息（失败时）
+        /// Error message (if failed)
         /// </summary>
         public string? ErrorMessage { get; }
 
         /// <summary>
-        /// 异常详情（用于调试）
+        /// Exception details (for debugging)
         /// </summary>
         public Exception? Exception { get; }
 
@@ -34,7 +34,7 @@ namespace md2visio.Api
         }
 
         /// <summary>
-        /// 创建成功结果
+        /// Create successful result
         /// </summary>
         public static ConversionResult Succeeded(params string[] outputFiles)
         {
@@ -42,7 +42,7 @@ namespace md2visio.Api
         }
 
         /// <summary>
-        /// 创建失败结果
+        /// Create failed result
         /// </summary>
         public static ConversionResult Failed(string errorMessage, Exception? exception = null)
         {

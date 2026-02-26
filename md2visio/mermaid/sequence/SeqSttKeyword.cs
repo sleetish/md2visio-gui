@@ -1,4 +1,4 @@
-﻿using md2visio.mermaid.cmn;
+using md2visio.mermaid.cmn;
 using System.Text.RegularExpressions;
 
 namespace md2visio.mermaid.sequence
@@ -13,7 +13,7 @@ namespace md2visio.mermaid.sequence
             
             string keyword = Fragment;
             
-            // 根据关键字类型决定下一个状态
+            // Determine next state based on keyword type
             switch (keyword)
             {
                 case "sequenceDiagram":
@@ -27,7 +27,7 @@ namespace md2visio.mermaid.sequence
                     return Forward<SeqSttChar>();
                     
                 case "note":
-                    // TODO: 实现note语法解析
+                    // TODO: Implement note syntax parsing
                     return Forward<SeqSttChar>();
                     
                 default:

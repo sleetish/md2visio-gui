@@ -1,4 +1,4 @@
-﻿using md2visio.mermaid.cmn;
+using md2visio.mermaid.cmn;
 using System.Text.RegularExpressions;
 
 namespace md2visio.mermaid.sequence
@@ -10,7 +10,7 @@ namespace md2visio.mermaid.sequence
 
         public override SynState NextState()
         {
-            // 解析participant声明: participant a as 用户
+            // Parse participant declaration: participant a as User
             string declText = Buffer.ToString();
             
             if (!TryParseParticipantDecl(declText))
@@ -24,7 +24,7 @@ namespace md2visio.mermaid.sequence
 
         private bool TryParseParticipantDecl(string declText)
         {
-            // 匹配 "id as alias" 或者单独的 "id"
+            // Match "id as alias" or single "id"
             var patternWithAlias = @"^\s*(\w+)\s+as\s+(.+)$";
             var patternIdOnly = @"^\s*(\w+)\s*$";
             
