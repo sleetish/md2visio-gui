@@ -47,7 +47,8 @@ namespace md2visio.struc.figure
             }
 
             StringBuilder yaml = new StringBuilder();
-            foreach (var line in File.ReadAllLines(filePath))
+            // Use ReadLines for lazy loading to prevent potential DoS with large files
+            foreach (var line in File.ReadLines(filePath))
                 yaml.AppendLine(line);
             return LoadYaml(yaml.ToString());
         }

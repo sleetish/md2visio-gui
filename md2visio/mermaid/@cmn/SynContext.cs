@@ -33,7 +33,8 @@ namespace md2visio.mermaid.cmn
 
             try {
                 // Explicitly specify UTF-8 encoding to read file
-                string[] lines = File.ReadAllLines(inputFile, Encoding.UTF8);
+                // Use ReadLines for lazy loading to prevent potential DoS with large files
+                IEnumerable<string> lines = File.ReadLines(inputFile, Encoding.UTF8);
 
                 foreach (string line in lines) incoming.Append(line).Append('\n');
             } catch (Exception ex) { 
