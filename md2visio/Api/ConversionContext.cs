@@ -50,6 +50,13 @@ namespace md2visio.Api
         /// </summary>
         public string? LastError { get; private set; }
 
+        private readonly List<string> _generatedFiles = new();
+
+        /// <summary>
+        /// Successfully generated files during this session
+        /// </summary>
+        public IReadOnlyList<string> GeneratedFiles => _generatedFiles;
+
         public ConversionContext(ConversionRequest options, ILogSink? logger = null)
         {
             Options = options ?? throw new ArgumentNullException(nameof(options));
@@ -98,6 +105,17 @@ namespace md2visio.Api
         {
             LastError = message;
             Logger.Error(message);
+        }
+
+        /// <summary>
+        /// Record a successfully generated file
+        /// </summary>
+        public void AddGeneratedFile(string path)
+        {
+            if (!_generatedFiles.Contains(path))
+            {
+                _generatedFiles.Add(path);
+            }
         }
     }
 }

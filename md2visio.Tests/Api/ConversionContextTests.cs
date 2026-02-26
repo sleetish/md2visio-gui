@@ -117,5 +117,37 @@ namespace md2visio.Tests.Api
             // Assert
             Assert.True(mockLogger.HasErrorMessages);
         }
+
+        [Fact]
+        public void AddGeneratedFile_AddsFileToList()
+        {
+            // Arrange
+            var request = ConversionRequest.Create("input.md", "output_dir");
+            var context = new ConversionContext(request);
+            var filePath = "output_dir/file1.vsdx";
+
+            // Act
+            context.AddGeneratedFile(filePath);
+
+            // Assert
+            Assert.Single(context.GeneratedFiles);
+            Assert.Equal(filePath, context.GeneratedFiles[0]);
+        }
+
+        [Fact]
+        public void AddGeneratedFile_DoesNotAddDuplicateFile()
+        {
+            // Arrange
+            var request = ConversionRequest.Create("input.md", "output_dir");
+            var context = new ConversionContext(request);
+            var filePath = "output_dir/file1.vsdx";
+
+            // Act
+            context.AddGeneratedFile(filePath);
+            context.AddGeneratedFile(filePath);
+
+            // Assert
+            Assert.Single(context.GeneratedFiles);
+        }
     }
 }

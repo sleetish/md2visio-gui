@@ -163,7 +163,7 @@ namespace md2visio.Api
             // Step 7: Collect output files and provide detailed feedback
             progress?.Report(new ConversionProgress(100, "Conversion completed!", ConversionPhase.Completed));
 
-            var outputFiles = CollectOutputFiles(request);
+            var outputFiles = CollectOutputFiles(context);
 
             if (outputFiles.Length > 0)
             {
@@ -203,22 +203,9 @@ namespace md2visio.Api
         /// <summary>
         /// Collect output files
         /// </summary>
-        private string[] CollectOutputFiles(ConversionRequest request)
+        internal string[] CollectOutputFiles(ConversionContext context)
         {
-            if (request.OutputPath.EndsWith(".vsdx", StringComparison.OrdinalIgnoreCase))
-            {
-                // File mode: Check specified file
-                return File.Exists(request.OutputPath)
-                    ? new[] { request.OutputPath }
-                    : Array.Empty<string>();
-            }
-            else
-            {
-                // Directory mode: Find all .vsdx files
-                return Directory.Exists(request.OutputPath)
-                    ? Directory.GetFiles(request.OutputPath, "*.vsdx")
-                    : Array.Empty<string>();
-            }
+            return context.GeneratedFiles.ToArray();
         }
 
         public void Dispose()
