@@ -232,6 +232,10 @@ namespace md2visio.struc.figure
             try
             {
                 method?.Invoke(obj, new object[] { outputFilePath });
+                if (File.Exists(outputFilePath))
+                {
+                    _context.AddGeneratedFile(outputFilePath);
+                }
 
                 if (_context.Debug)
                 {
