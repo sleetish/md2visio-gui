@@ -583,9 +583,9 @@ namespace md2visio.GUI.Forms
             {
                 Process.Start(new ProcessStartInfo
                 {
-                    FileName = "explorer.exe",
-                    Arguments = $"\"{_outputDirTextBox.Text}\"",
-                    UseShellExecute = true
+                    FileName = _outputDirTextBox.Text,
+                    UseShellExecute = true,
+                    Verb = "open"
                 });
             }
         }
