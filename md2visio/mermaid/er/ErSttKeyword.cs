@@ -4,8 +4,8 @@ using System.Text.RegularExpressions;
 namespace md2visio.mermaid.er
 {
     /// <summary>
-    /// ER图关键字状态类
-    /// 处理 erDiagram, title, direction 等关键字
+    /// ER Diagram Keyword State
+    /// Handles keywords like erDiagram, title, direction
     /// </summary>
     internal class ErSttKeyword : SynState
     {
@@ -18,7 +18,7 @@ namespace md2visio.mermaid.er
             string keyword = Buffer;
             Save(Buffer).ClearBuffer();
 
-            // direction/title 关键字后跟参数
+            // direction/title keywords are followed by parameters
             if (keyword == "direction" || keyword == "title")
             {
                 if (ErSttKeywordParam.HasParam(Ctx)) return Forward<ErSttKeywordParam>();

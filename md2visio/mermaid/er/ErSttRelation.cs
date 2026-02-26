@@ -4,16 +4,16 @@ using System.Text.RegularExpressions;
 namespace md2visio.mermaid.er
 {
     /// <summary>
-    /// ER图关系解析状态类
-    /// 解析关系符号如: ||--o{, }|..|{, ||--|{
+    /// ER Diagram Relation Parsing State
+    /// Parses relation symbols like: ||--o{, }|..|{, ||--|{
     /// </summary>
     internal class ErSttRelation : SynState
     {
-        // 完整关系符号模式
-        // 左基数: ||, |o, o|, }|, }o, o{, |{
-        // 线型: -- (实线/识别), .. (虚线/非识别)
-        // 右基数: ||, o|, |{, o{, }|, }o
-        // 修复：使用更明确的交替模式
+        // Complete relation symbol pattern
+        // Left cardinality: ||, |o, o|, }|, }o, o{, |{
+        // Line type: -- (solid/identifying), .. (dashed/non-identifying)
+        // Right cardinality: ||, o|, |{, o{, }|, }o
+        // Fix: Use more explicit alternation pattern
         static readonly Regex regRelation = new(
             @"^(?<left>\|\||o\||o\{|\|o|\}\||\}o|\|{|\}\{)(?<line>--|\.\.)" +
             @"(?<right>\|\||o\||o\{|\|o|\}\||\}o|\|{|\}\{)",
@@ -28,13 +28,13 @@ namespace md2visio.mermaid.er
             {
                 string relationSymbol = match.Value;
 
-                // 消费匹配的字符
+                // Consume matched characters
                 for (int i = 0; i < relationSymbol.Length; i++)
                 {
                     Ctx.Take();
                 }
 
-                // 保存关系符号到 Parts
+                // Save relation symbol components
                 AddCompo("relation", relationSymbol);
                 AddCompo("left", match.Groups["left"].Value);
                 AddCompo("line", match.Groups["line"].Value);
@@ -48,7 +48,7 @@ namespace md2visio.mermaid.er
         }
 
         /// <summary>
-        /// 解析左基数
+        /// Parse left cardinality
         /// </summary>
         public static string ParseLeftCardinality(string symbol)
         {
@@ -57,7 +57,7 @@ namespace md2visio.mermaid.er
         }
 
         /// <summary>
-        /// 解析右基数
+        /// Parse right cardinality
         /// </summary>
         public static string ParseRightCardinality(string symbol)
         {
@@ -66,7 +66,7 @@ namespace md2visio.mermaid.er
         }
 
         /// <summary>
-        /// 检查是否是识别关系 (实线)
+        /// Check if identifying relationship (solid line)
         /// </summary>
         public static bool IsIdentifying(string symbol)
         {

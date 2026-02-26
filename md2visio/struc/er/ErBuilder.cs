@@ -7,8 +7,8 @@ using md2visio.vsdx.@base;
 namespace md2visio.struc.er
 {
     /// <summary>
-    /// ER图构建器
-    /// 从状态序列构建 ErDiagram 数据结构
+    /// ER Diagram Builder
+    /// Builds ErDiagram data structure from state sequence
     /// </summary>
     internal class ErBuilder : FigureBuilder
     {
@@ -53,16 +53,16 @@ namespace md2visio.struc.er
             switch (kw)
             {
                 case "erDiagram":
-                    // 标记为已处理，避免被 FigureBuilderFactory 重复检测
+                    // Mark as processed to avoid repeated detection by FigureBuilderFactory
                     iter.Current.Fragment = "_erDiagram_processed";
                     break;
 
                 case "title":
-                    // 可选: 解析标题
+                    // Optional: Parse title
                     break;
 
                 case "direction":
-                    // 可选: 解析方向
+                    // Optional: Parse direction
                     break;
             }
         }
@@ -72,10 +72,10 @@ namespace md2visio.struc.er
             string word = iter.Current.Fragment.Trim();
             if (string.IsNullOrWhiteSpace(word)) return;
 
-            // 如果有待处理的关系符号，这个词是目标实体
+            // If there is a pending relation symbol, this word is the target entity
             if (!string.IsNullOrEmpty(pendingRelationSymbol))
             {
-                // 创建关系
+                // Create relation
                 if (!string.IsNullOrEmpty(pendingEntityId))
                 {
                     var relation = new ErRelation
@@ -89,18 +89,18 @@ namespace md2visio.struc.er
                     };
                     diagram.AddRelation(relation);
 
-                    // 确保两个实体都存在
+                    // Ensure both entities exist
                     diagram.GetOrCreateEntity(pendingEntityId);
                     diagram.GetOrCreateEntity(word);
                 }
 
-                // 清除待处理状态，但保留 pendingEntityId 以便处理标签
+                // Clear pending state, but keep pendingEntityId for label processing
                 pendingRelationSymbol = null;
-                pendingEntityId = word; // 更新为目标实体，以便可能的后续关系
+                pendingEntityId = word; // Update to target entity for possible subsequent relations
             }
             else
             {
-                // 这是一个新的实体名
+                // This is a new entity name
                 pendingEntityId = word;
                 currentEntity = diagram.GetOrCreateEntity(word);
             }
@@ -142,7 +142,7 @@ namespace md2visio.struc.er
         {
             string label = iter.Current.GetPart("label");
 
-            // 将标签应用到最后一个关系
+            // Apply label to the last relation
             if (diagram.Relations.Count > 0)
             {
                 var lastRelation = diagram.Relations[^1];

@@ -3,7 +3,7 @@ using md2visio.Api;
 namespace md2visio.GUI.Services
 {
     /// <summary>
-    /// Mermaid 到 Visio 转换服务 - 使用新的 API 层
+    /// Mermaid to Visio Conversion Service - Using new API layer
     /// </summary>
     public class ConversionService : IDisposable
     {
@@ -15,7 +15,7 @@ namespace md2visio.GUI.Services
         private readonly object _lock = new object();
 
         /// <summary>
-        /// 转换 MD 文件到 Visio（异步）
+        /// Convert MD file to Visio (Async)
         /// </summary>
         public async Task<ConversionResult> ConvertAsync(
             string inputFile,
@@ -53,7 +53,7 @@ namespace md2visio.GUI.Services
         }
 
         /// <summary>
-        /// 同步转换方法
+        /// Synchronous conversion method
         /// </summary>
         private ConversionResult Convert(
             string inputFile,
@@ -64,66 +64,66 @@ namespace md2visio.GUI.Services
         {
             try
             {
-                ReportProgress(0, "开始转换...");
-                ReportLog($"输入文件: {inputFile}");
-                ReportLog($"输出目录: {outputDir}");
+                ReportProgress(0, "Starting conversion...");
+                ReportLog($"Input file: {inputFile}");
+                ReportLog($"Output directory: {outputDir}");
 
-                // 验证输入文件
+                // Validate input file
                 if (!File.Exists(inputFile))
-                    return ConversionResult.Error($"输入文件不存在: {inputFile}");
+                    return ConversionResult.Error($"Input file does not exist: {inputFile}");
 
                 if (!Path.GetExtension(inputFile).Equals(".md", StringComparison.OrdinalIgnoreCase))
-                    return ConversionResult.Error("输入文件必须是 .md 格式");
+                    return ConversionResult.Error("Input file must be in .md format");
 
-                // 创建输出目录
+                // Create output directory
                 Directory.CreateDirectory(outputDir);
-                ReportProgress(10, "准备转换环境...");
+                ReportProgress(10, "Preparing conversion environment...");
 
-                // 构建输出路径
+                // Build output path
                 string outputPath = BuildOutputPath(outputDir, fileName);
-                ReportLog($"输出路径: {outputPath}");
+                ReportLog($"Output path: {outputPath}");
 
-                // 创建转换请求
+                // Create conversion request
                 var request = new md2visio.Api.ConversionRequest(
                     inputPath: inputFile,
                     outputPath: outputPath,
                     showVisio: showVisio,
                     silentOverwrite: silentOverwrite,
-                    debug: true  // 保持调试模式以获取详细日志
+                    debug: true  // Keep debug mode for detailed logs
                 );
 
-                // 创建进度报告器
+                // Create progress reporter
                 var progress = new Progress<md2visio.Api.ConversionProgress>(p =>
                 {
                     int guiProgress = MapProgress(p.Phase, p.Percentage);
                     ReportProgress(guiProgress, p.Message);
                 });
 
-                // 创建日志接收器
+                // Create log sink
                 var logSink = new GuiLogSink(this);
 
-                // 获取或创建转换器
+                // Get or create converter
                 lock (_lock)
                 {
                     if (showVisio)
                     {
-                        // 显示模式：复用转换器以保持 Visio 窗口
+                        // Show mode: Reuse converter to keep Visio window
                         _converter ??= new md2visio.Api.Md2VisioConverter();
                     }
                     else
                     {
-                        // 非显示模式：每次创建新的转换器
+                        // Non-show mode: Create new converter each time
                         _converter?.Dispose();
                         _converter = new md2visio.Api.Md2VisioConverter();
                     }
                 }
 
-                // 执行转换
-                ReportLog("开始执行核心转换逻辑...");
+                // Execute conversion
+                ReportLog("Executing core conversion logic...");
                 var apiResult = _converter.Convert(request, progress, logSink);
-                ReportLog("核心转换逻辑执行完成");
+                ReportLog("Core conversion logic completed");
 
-                // 非显示模式立即释放资源
+                // Immediately release resources in non-show mode
                 if (!showVisio)
                 {
                     lock (_lock)
@@ -133,11 +133,11 @@ namespace md2visio.GUI.Services
                     }
                 }
 
-                // 转换结果
+                // Conversion result
                 if (apiResult.Success)
                 {
-                    ReportProgress(100, "转换完成!");
-                    ReportLog($"成功生成 {apiResult.OutputFiles.Length} 个文件:");
+                    ReportProgress(100, "Conversion completed!");
+                    ReportLog($"Successfully generated {apiResult.OutputFiles.Length} files:");
                     foreach (var file in apiResult.OutputFiles)
                     {
                         ReportLog($"  - {Path.GetFileName(file)}");
@@ -146,38 +146,38 @@ namespace md2visio.GUI.Services
                 }
                 else
                 {
-                    ReportLog($"转换失败: {apiResult.ErrorMessage}");
-                    return ConversionResult.Error(apiResult.ErrorMessage ?? "未知错误");
+                    ReportLog($"Conversion failed: {apiResult.ErrorMessage}");
+                    return ConversionResult.Error(apiResult.ErrorMessage ?? "Unknown error");
                 }
             }
             catch (NotImplementedException ex)
             {
-                ReportLog($"功能未实现: {ex.Message}");
-                return ConversionResult.Error($"该图表类型暂未支持: {ex.Message}");
+                ReportLog($"Feature not implemented: {ex.Message}");
+                return ConversionResult.Error($"This diagram type is not yet supported: {ex.Message}");
             }
             catch (System.Runtime.InteropServices.COMException ex)
             {
-                ReportLog($"COM异常: {ex.Message} (HRESULT: 0x{ex.HResult:X8})");
-                return ConversionResult.Error($"COM组件异常，可能的原因：\n" +
-                    "1. Microsoft Visio未正确安装或注册\n" +
-                    "2. Visio进程被锁定或权限不足\n" +
-                    "3. 系统COM组件损坏\n" +
-                    $"详细错误: {ex.Message}");
+                ReportLog($"COM Exception: {ex.Message} (HRESULT: 0x{ex.HResult:X8})");
+                return ConversionResult.Error($"COM component exception, possible causes:\n" +
+                    "1. Microsoft Visio not correctly installed or registered\n" +
+                    "2. Visio process locked or insufficient permissions\n" +
+                    "3. System COM component corrupted\n" +
+                    $"Detailed error: {ex.Message}");
             }
             catch (Exception ex)
             {
-                ReportLog($"转换出错: {ex.Message}");
-                ReportLog($"异常类型: {ex.GetType().Name}");
+                ReportLog($"Conversion error: {ex.Message}");
+                ReportLog($"Exception type: {ex.GetType().Name}");
                 if (ex.InnerException != null)
                 {
-                    ReportLog($"内部异常: {ex.InnerException.Message}");
+                    ReportLog($"Inner exception: {ex.InnerException.Message}");
                 }
-                return ConversionResult.Error($"转换失败: {ex.Message}");
+                return ConversionResult.Error($"Conversion failed: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// 构建输出路径
+        /// Build output path
         /// </summary>
         private string BuildOutputPath(string outputDir, string? fileName)
         {
@@ -191,7 +191,7 @@ namespace md2visio.GUI.Services
         }
 
         /// <summary>
-        /// 映射 API 进度到 GUI 进度
+        /// Map API progress to GUI progress
         /// </summary>
         private int MapProgress(md2visio.Api.ConversionPhase phase, int apiPercentage)
         {
@@ -208,7 +208,7 @@ namespace md2visio.GUI.Services
         }
 
         /// <summary>
-        /// 检测 MD 文件中的 Mermaid 图表类型
+        /// Detect Mermaid diagram types in MD file
         /// </summary>
         public List<string> DetectMermaidTypes(string filePath)
         {
@@ -252,40 +252,40 @@ namespace md2visio.GUI.Services
             }
             catch (Exception ex)
             {
-                ReportLog($"检测文件类型时出错: {ex.Message}");
+                ReportLog($"Error detecting file type: {ex.Message}");
             }
 
             return types;
         }
 
         /// <summary>
-        /// 检查 Visio 是否可用
+        /// Check if Visio is available
         /// </summary>
         public ConversionResult CheckVisioAvailability()
         {
             Microsoft.Office.Interop.Visio.Application? visioApp = null;
             try
             {
-                ReportLog("正在检查Visio环境...");
+                ReportLog("Checking Visio environment...");
 
                 visioApp = new Microsoft.Office.Interop.Visio.Application();
                 var version = visioApp.Version;
-                ReportLog($"Visio可用，版本: {version}");
-                return ConversionResult.Success(new string[] { $"Visio版本: {version}" });
+                ReportLog($"Visio available, version: {version}");
+                return ConversionResult.Success(new string[] { $"Visio Version: {version}" });
             }
             catch (System.Runtime.InteropServices.COMException ex)
             {
-                ReportLog($"Visio不可用: {ex.Message}");
-                return ConversionResult.Error($"Visio环境检查失败：\n" +
-                    "1. 请确认Microsoft Visio已正确安装\n" +
-                    "2. 检查Visio是否已正确注册\n" +
-                    "3. 尝试手动启动Visio测试\n" +
-                    $"错误详情: {ex.Message}");
+                ReportLog($"Visio unavailable: {ex.Message}");
+                return ConversionResult.Error($"Visio environment check failed:\n" +
+                    "1. Please confirm Microsoft Visio is correctly installed\n" +
+                    "2. Check if Visio is correctly registered\n" +
+                    "3. Try starting Visio manually to test\n" +
+                    $"Error details: {ex.Message}");
             }
             catch (Exception ex)
             {
-                ReportLog($"环境检查异常: {ex.Message}");
-                return ConversionResult.Error($"环境检查失败: {ex.Message}");
+                ReportLog($"Environment check exception: {ex.Message}");
+                return ConversionResult.Error($"Environment check failed: {ex.Message}");
             }
             finally
             {
@@ -339,7 +339,7 @@ namespace md2visio.GUI.Services
         }
 
         /// <summary>
-        /// GUI 日志接收器 - 将 API 日志转发到 GUI 事件
+        /// GUI Log Sink - Forwards API logs to GUI events
         /// </summary>
         private class GuiLogSink : md2visio.Api.ILogSink
         {
@@ -377,7 +377,7 @@ namespace md2visio.GUI.Services
     }
 
     /// <summary>
-    /// 转换结果（保持向后兼容）
+    /// Conversion Result (Backward compatible)
     /// </summary>
     public class ConversionResult
     {
@@ -397,7 +397,7 @@ namespace md2visio.GUI.Services
     }
 
     /// <summary>
-    /// 转换进度事件参数
+    /// Conversion Progress Event Args
     /// </summary>
     public class ConversionProgressEventArgs : EventArgs
     {
@@ -412,7 +412,7 @@ namespace md2visio.GUI.Services
     }
 
     /// <summary>
-    /// 转换日志事件参数
+    /// Conversion Log Event Args
     /// </summary>
     public class ConversionLogEventArgs : EventArgs
     {

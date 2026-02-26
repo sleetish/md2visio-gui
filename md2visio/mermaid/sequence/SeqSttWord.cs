@@ -1,4 +1,4 @@
-﻿using md2visio.mermaid.cmn;
+using md2visio.mermaid.cmn;
 
 namespace md2visio.mermaid.sequence
 {
@@ -14,7 +14,7 @@ namespace md2visio.mermaid.sequence
             }
             else if (word.Contains("->>") || word.Contains("-->>") || word.Contains("->") || word.Contains("-->"))
             {
-                // 包含消息箭头，当作消息处理
+                // Contains message arrow, treat as message
                 Save(Buffer).ClearBuffer();
                 return Forward<SeqSttChar>();
             }

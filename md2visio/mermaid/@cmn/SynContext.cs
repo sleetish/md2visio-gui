@@ -1,4 +1,4 @@
-﻿using md2visio.mermaid.graph;
+using md2visio.mermaid.graph;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -29,7 +29,7 @@ namespace md2visio.mermaid.cmn
             InputFile = inputFile;
 
             try {
-                // 明确指定UTF-8编码读取文件
+                // Explicitly specify UTF-8 encoding to read file
                 string[] lines = File.ReadAllLines(inputFile, Encoding.UTF8);
 
                 foreach (string line in lines) incoming.Append(line).Append('\n');

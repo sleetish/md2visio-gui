@@ -1,4 +1,4 @@
-﻿using md2visio.struc.figure;
+using md2visio.struc.figure;
 using md2visio.struc.graph;
 using Microsoft.Office.Interop.Visio;
 
@@ -8,19 +8,19 @@ namespace md2visio.struc.sequence
     {
         public string ID { get; set; } = string.Empty;
         public string Label { get; set; } = string.Empty;
-        public string Alias { get; set; } = string.Empty; // 支持 "participant a as 用户" 语法
-        public double X { get; set; } // 水平位置
+        public string Alias { get; set; } = string.Empty; // Supports "participant a as user" syntax
+        public double X { get; set; } // Horizontal position
         
-        // Visio图形对象
-        public Shape? TopShape { get; set; }      // 顶部参与者框
-        public Shape? BottomShape { get; set; }   // 底部参与者框
-        public Shape? LifelineShape { get; set; } // 生命线
+        // Visio shape objects
+        public Shape? TopShape { get; set; }      // Top participant box
+        public Shape? BottomShape { get; set; }   // Bottom participant box
+        public Shape? LifelineShape { get; set; } // Lifeline
 
-        public Shape? VisioShape { get; set; } // INode接口要求
+        public Shape? VisioShape { get; set; } // Required by INode interface
 
         public Container Container { get; set; } = Empty.Get<Container>();
 
-        // INode接口要求的边集合
+        // Required by INode interface
         public List<GEdge> InputEdges { get; } = new List<GEdge>();
         public List<GEdge> OutputEdges { get; } = new List<GEdge>();
 

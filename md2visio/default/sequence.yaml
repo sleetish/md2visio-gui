@@ -1,54 +1,54 @@
 config:
-    # Mermaid时序图配置 - 针对md2visio优化
+    # Mermaid sequence diagram configuration - optimized for md2visio
     sequence:
-        # 布局参数 (单位: mm)
-        diagramMarginX: 50          # 图表左右边距
-        diagramMarginY: 20          # 图表上下边距
-        participantSpacing: 100     # 参与者间距
-        messageSpacing: 25          # 消息间距
-        fragmentPaddingTop: 6.25    # 片段头部额外留白
-        fragmentPaddingBottom: 6.25 # 片段底部额外留白
-        fragmentSectionPadding: 6.25 # 片段分段额外留白
+        # Layout parameters (Unit: mm)
+        diagramMarginX: 50          # Diagram left/right margin
+        diagramMarginY: 20          # Diagram top/bottom margin
+        participantSpacing: 100     # Spacing between participants
+        messageSpacing: 25          # Spacing between messages
+        fragmentPaddingTop: 6.25    # Extra padding at fragment top
+        fragmentPaddingBottom: 6.25 # Extra padding at fragment bottom
+        fragmentSectionPadding: 6.25 # Extra padding for fragment sections
         
-        # 参与者样式
-        participantWidth: 60        # 参与者框宽度
-        participantHeight: 30       # 参与者框高度
-        participantFontSize: 12     # 参与者字体大小
-        participantBgColor: "#E1F5FE"     # 参与者背景色
-        participantBorderColor: "#0277BD" # 参与者边框色
-        mirrorActors: true          # 底部显示参与者镜像
+        # Participant style
+        participantWidth: 60        # Participant box width
+        participantHeight: 30       # Participant box height
+        participantFontSize: 12     # Participant font size
+        participantBgColor: "#E1F5FE"     # Participant background color
+        participantBorderColor: "#0277BD" # Participant border color
+        mirrorActors: true          # Mirror participants at the bottom
         
-        # 消息样式
-        messageFontSize: 10         # 消息字体大小
-        messageColor: "#333333"     # 消息线条颜色
-        messageWeight: 1            # 消息线条粗细(pt)
+        # Message style
+        messageFontSize: 10         # Message font size
+        messageColor: "#333333"     # Message line color
+        messageWeight: 1            # Message line weight (pt)
         
-        # 激活框样式
-        activationWidth: 8          # 激活框宽度
-        activationBgColor: "#FFFFCC"      # 激活框背景色
-        activationBorderColor: "#FFA000"  # 激活框边框色
-        activationNestOffset: 2     # 嵌套激活框偏移量
+        # Activation box style
+        activationWidth: 8          # Activation box width
+        activationBgColor: "#FFFFCC"      # Activation box background color
+        activationBorderColor: "#FFA000"  # Activation box border color
+        activationNestOffset: 2     # Nested activation offset
         
-        # 自调用样式
-        selfCallWidth: 20           # 自调用圆弧宽度
-        selfCallHeight: 15          # 自调用圆弧高度
-        selfCallTextOffset: 8       # 自调用文本偏移量
+        # Self-call style
+        selfCallWidth: 20           # Self-call arc width
+        selfCallHeight: 15          # Self-call arc height
+        selfCallTextOffset: 8       # Self-call text offset
         
-        # 生命线样式
-        lifelinePattern: 2          # 生命线样式(2=虚线)
-        lifelineWeight: 0.5         # 生命线粗细(pt)
-        lifelineColor: "#666666"    # 生命线颜色
+        # Lifeline style
+        lifelinePattern: 2          # Lifeline pattern (2=dashed)
+        lifelineWeight: 0.5         # Lifeline weight (pt)
+        lifelineColor: "#666666"    # Lifeline color
         
-        # 箭头样式
-        arrowSize: 4                # 箭头大小
-        solidArrow: 4               # 实心箭头样式ID
+        # Arrow style
+        arrowSize: 4                # Arrow size
+        solidArrow: 4               # Solid arrow style ID
         
-        # 文本对齐
-        messageTextAlign: center    # 消息文本对齐方式
-        participantTextAlign: center # 参与者文本对齐方式
+        # Text alignment
+        messageTextAlign: center    # Message text alignment
+        participantTextAlign: center # Participant text alignment
         
-        # 高级选项
-        showSequenceNumbers: false  # 显示序列号
-        rightAngles: false         # 使用直角连接
-        wrap: false                # 文本自动换行
-        wrapPadding: 10            # 换行内边距
+        # Advanced options
+        showSequenceNumbers: false  # Show sequence numbers
+        rightAngles: false         # Use right-angle connections
+        wrap: false                # Text auto-wrap
+        wrapPadding: 10            # Wrap padding

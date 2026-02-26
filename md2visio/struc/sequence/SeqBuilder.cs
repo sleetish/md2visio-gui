@@ -30,7 +30,7 @@ namespace md2visio.struc.sequence
         {
             if (_context.Debug)
             {
-                _context.Log($"[DEBUG] SeqBuilder.Build: 开始构建，输出文件: {outputFile}");
+                _context.Log($"[DEBUG] SeqBuilder.Build: Start building, output file: {outputFile}");
             }
 
             currentY = 0;
@@ -42,7 +42,7 @@ namespace md2visio.struc.sequence
 
                 if (_context.Debug)
                 {
-                    _context.Log($"[DEBUG] SeqBuilder: 处理状态 {cur.GetType().Name}, Fragment='{cur.Fragment}'");
+                    _context.Log($"[DEBUG] SeqBuilder: Processing state {cur.GetType().Name}, Fragment='{cur.Fragment}'");
                 }
 
                 if (cur is SttMermaidStart) { }
@@ -50,22 +50,22 @@ namespace md2visio.struc.sequence
                 {
                     if (_context.Debug)
                     {
-                        _context.Log($"[DEBUG] SeqBuilder: 解析完成，参与者数量: {sequence.Participants.Count}，消息数量: {sequence.Messages.Count}");
-                        _context.Log($"[DEBUG] SeqBuilder: 激活框数量: {sequence.Activations.Count}");
+                        _context.Log($"[DEBUG] SeqBuilder: Parsing completed, Participants: {sequence.Participants.Count}, Messages: {sequence.Messages.Count}");
+                        _context.Log($"[DEBUG] SeqBuilder: Activations: {sequence.Activations.Count}");
 
                         for (int i = 0; i < sequence.Participants.Count; i++)
                         {
                             var p = sequence.Participants[i];
-                            _context.Log($"[DEBUG] SeqBuilder: 参与者[{i}]: ID='{p.ID}', Label='{p.Label}', Alias='{p.Alias}'");
+                            _context.Log($"[DEBUG] SeqBuilder: Participant[{i}]: ID='{p.ID}', Label='{p.Label}', Alias='{p.Alias}'");
                         }
 
                         for (int i = 0; i < sequence.Messages.Count; i++)
                         {
                             var m = sequence.Messages[i];
-                            _context.Log($"[DEBUG] SeqBuilder: 消息[{i}]: From='{m.From}', To='{m.To}', Label='{m.Label}', ArrowType='{m.ArrowType}'");
+                            _context.Log($"[DEBUG] SeqBuilder: Message[{i}]: From='{m.From}', To='{m.To}', Label='{m.Label}', ArrowType='{m.ArrowType}'");
                         }
 
-                        _context.Log($"[DEBUG] SeqBuilder: 开始调用sequence.ToVisio(\"{outputFile}\")");
+                        _context.Log($"[DEBUG] SeqBuilder: Start calling sequence.ToVisio(\"{outputFile}\")");
                     }
 
                     try
@@ -74,20 +74,20 @@ namespace md2visio.struc.sequence
 
                         if (_context.Debug)
                         {
-                            _context.Log($"[DEBUG] SeqBuilder: sequence.ToVisio() 调用完成");
+                            _context.Log($"[DEBUG] SeqBuilder: sequence.ToVisio() call completed");
                         }
                     }
                     catch (Exception ex)
                     {
                         if (_context.Debug)
                         {
-                            _context.Log($"[DEBUG] SeqBuilder: sequence.ToVisio() 调用失败: {ex.Message}");
-                            _context.Log($"[DEBUG] SeqBuilder: 异常类型: {ex.GetType().Name}");
+                            _context.Log($"[DEBUG] SeqBuilder: sequence.ToVisio() call failed: {ex.Message}");
+                            _context.Log($"[DEBUG] SeqBuilder: Exception type: {ex.GetType().Name}");
                             if (ex.InnerException != null)
                             {
-                                _context.Log($"[DEBUG] SeqBuilder: 内部异常: {ex.InnerException.Message}");
+                                _context.Log($"[DEBUG] SeqBuilder: Inner exception: {ex.InnerException.Message}");
                             }
-                            _context.Log($"[DEBUG] SeqBuilder: 异常堆栈: {ex.StackTrace}");
+                            _context.Log($"[DEBUG] SeqBuilder: Stack trace: {ex.StackTrace}");
                         }
                         throw;
                     }
@@ -172,7 +172,7 @@ namespace md2visio.struc.sequence
         {
             if (_context.Debug)
             {
-                _context.Log($"[DEBUG] SeqBuilder.BuildParticipant: 开始处理participant");
+                _context.Log($"[DEBUG] SeqBuilder.BuildParticipant: Start processing participant");
             }
 
             var participantInfo = new List<string>();
@@ -184,7 +184,7 @@ namespace md2visio.struc.sequence
 
                 if (_context.Debug)
                 {
-                    _context.Log($"[DEBUG] SeqBuilder.BuildParticipant: 检查状态 {peek.GetType().Name}, Fragment='{peek.Fragment}'");
+                    _context.Log($"[DEBUG] SeqBuilder.BuildParticipant: Checking state {peek.GetType().Name}, Fragment='{peek.Fragment}'");
                 }
 
                 if (peek is SttFinishFlag) break;
@@ -198,7 +198,7 @@ namespace md2visio.struc.sequence
 
             if (_context.Debug)
             {
-                _context.Log($"[DEBUG] SeqBuilder.BuildParticipant: 收集到的片段: [{string.Join(", ", participantInfo)}]");
+                _context.Log($"[DEBUG] SeqBuilder.BuildParticipant: Collected fragments: [{string.Join(", ", participantInfo)}]");
             }
 
             if (participantInfo.Count >= 1)
@@ -387,14 +387,14 @@ namespace md2visio.struc.sequence
         {
             if (_context.Debug)
             {
-                _context.Log($"[DEBUG] SeqBuilder: 解析消息行: {messageText}");
+                _context.Log($"[DEBUG] SeqBuilder: Parsing message line: {messageText}");
             }
 
             if (TryParseMessage(messageText, out string from, out string to, out string arrowType, out string activationOp, out string label))
             {
                 if (_context.Debug)
                 {
-                    _context.Log($"[DEBUG] SeqBuilder: 解析成功 - From: {from}, To: {to}, Arrow: {arrowType}, Label: {label}");
+                    _context.Log($"[DEBUG] SeqBuilder: Parse success - From: {from}, To: {to}, Arrow: {arrowType}, Label: {label}");
                 }
                 var message = new SeqMessage(from, to, label, arrowType)
                 {
@@ -426,7 +426,7 @@ namespace md2visio.struc.sequence
             {
                 if (_context.Debug)
                 {
-                    _context.Log($"[DEBUG] SeqBuilder: 消息解析失败: {messageText}");
+                    _context.Log($"[DEBUG] SeqBuilder: Message parse failed: {messageText}");
                 }
             }
         }

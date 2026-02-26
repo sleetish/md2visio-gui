@@ -3,52 +3,52 @@ using Microsoft.Office.Interop.Visio;
 namespace md2visio.struc.er
 {
     /// <summary>
-    /// ER图关系类
-    /// 表示两个实体之间的关系
+    /// ER Relation Class
+    /// Represents relationship between two entities
     /// </summary>
     internal class ErRelation
     {
         /// <summary>
-        /// 起始实体ID
+        /// Source Entity ID
         /// </summary>
         public string FromEntity { get; set; } = "";
 
         /// <summary>
-        /// 目标实体ID
+        /// Target Entity ID
         /// </summary>
         public string ToEntity { get; set; } = "";
 
         /// <summary>
-        /// 起始端基数
+        /// Source Cardinality
         /// </summary>
         public ErCardinality LeftCardinality { get; set; } = ErCardinality.ExactlyOne;
 
         /// <summary>
-        /// 目标端基数
+        /// Target Cardinality
         /// </summary>
         public ErCardinality RightCardinality { get; set; } = ErCardinality.ExactlyOne;
 
         /// <summary>
-        /// 是否是识别关系 (实线)，否则是非识别关系 (虚线)
+        /// Is identifying relationship (solid line), else non-identifying (dashed line)
         /// </summary>
         public bool IsIdentifying { get; set; } = true;
 
         /// <summary>
-        /// 关系标签
+        /// Relation Label
         /// </summary>
         public string Label { get; set; } = "";
 
         /// <summary>
-        /// 对应的 Visio 形状
+        /// Corresponding Visio Shape
         /// </summary>
         public Shape? VisioShape { get; set; }
 
         /// <summary>
-        /// 解析基数符号
+        /// Parse Cardinality Symbol
         /// </summary>
         public static ErCardinality ParseCardinality(string symbol)
         {
-            // 规范化符号
+            // Normalize symbol
             symbol = symbol.Trim();
 
             return symbol switch
@@ -62,11 +62,11 @@ namespace md2visio.struc.er
         }
 
         /// <summary>
-        /// 解析完整的关系符号
+        /// Parse Complete Relation Symbol
         /// </summary>
         public static (ErCardinality left, ErCardinality right, bool isIdentifying) ParseRelationSymbol(string symbol)
         {
-            // 查找中间的线型 (-- 或 ..)
+            // Find middle line style (-- or ..)
             int dashPos = symbol.IndexOf("--");
             int dotPos = symbol.IndexOf("..");
 

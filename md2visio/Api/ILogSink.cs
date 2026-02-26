@@ -1,7 +1,7 @@
 namespace md2visio.Api
 {
     /// <summary>
-    /// 日志接收器接口
+    /// Log Sink Interface
     /// </summary>
     public interface ILogSink
     {
@@ -12,7 +12,7 @@ namespace md2visio.Api
     }
 
     /// <summary>
-    /// 空日志接收器（丢弃所有日志）
+    /// Null Log Sink (Discards all logs)
     /// </summary>
     public sealed class NullLogSink : ILogSink
     {
@@ -26,7 +26,7 @@ namespace md2visio.Api
     }
 
     /// <summary>
-    /// 控制台日志接收器
+    /// Console Log Sink
     /// </summary>
     public sealed class ConsoleLogSink : ILogSink
     {

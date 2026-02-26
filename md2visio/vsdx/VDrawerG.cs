@@ -1,4 +1,4 @@
-﻿using md2visio.Api;
+using md2visio.Api;
 using md2visio.mermaid.cmn;
 using md2visio.struc.figure;
 using md2visio.struc.graph;
@@ -23,14 +23,14 @@ namespace md2visio.vsdx
 
         public override void Draw()
         {
-            EnsureVisible(); // 确保Visio可见
-            PauseForViewing(300); // 给用户时间看到初始状态
+            EnsureVisible(); // Ensure Visio is visible
+            PauseForViewing(300); // Give user time to see initial state
             
             DrawNodes(figure);
-            PauseForViewing(500); // 节点绘制完成后暂停
+            PauseForViewing(500); // Pause after nodes drawn
             
             DrawEdges(figure);
-            PauseForViewing(300); // 边绘制完成后暂停
+            PauseForViewing(300); // Pause after edges drawn
         }        
 
         void DrawNodes(Graph graph)
@@ -61,7 +61,7 @@ namespace md2visio.vsdx
                 Relocate(nodes2Draw.ToList(), graph.GrowthDirect);
             }
 
-            // border - 直接判断当前graph是否为subgraph
+            // border - directly check if current graph is subgraph
             if (graph is GSubgraph subgraph)
             {
                 DrawSubgraphBorder(subgraph);
@@ -107,7 +107,7 @@ namespace md2visio.vsdx
 
             var sortedNodes = SortNodesBFS(nodes);
 
-            // 1. 创建所有形状
+            // 1. Create all shapes
             foreach (GNode node in sortedNodes)
             {
                 if (node is GBorderNode) continue;
@@ -120,7 +120,7 @@ namespace md2visio.vsdx
                 PostProcessShape(node, shape);
             }
 
-            // 2. 计算子树宽度（后序遍历）
+            // 2. Calculate subtree width (Post-order traversal)
             var subtreeCrossSizes = new Dictionary<GNode, double>();
             bool isVertical = direct.H == 0;
 
@@ -129,7 +129,7 @@ namespace md2visio.vsdx
             double GetMainSize(GNode n) => n.VisioShape != null
                 ? (isVertical ? Height(n.VisioShape) : Width(n.VisioShape)) : 0;
 
-            // 反向遍历BFS列表实现后序
+            // Reverse iterate BFS list to achieve post-order
             for (int i = sortedNodes.Count - 1; i >= 0; i--)
             {
                 var node = sortedNodes[i];
@@ -153,7 +153,7 @@ namespace md2visio.vsdx
                 }
             }
 
-            // 3. 布局（预序遍历）
+            // 3. Layout (Pre-order traversal)
             var processed = new HashSet<GNode>();
             var roots = sortedNodes.Where(n => !n.InputNodes().Any(p => sortedNodes.Contains(p))).ToList();
             double currentRootCross = 0;
@@ -163,7 +163,7 @@ namespace md2visio.vsdx
                 if (processed.Contains(node) || node.VisioShape == null) return;
                 processed.Add(node);
 
-                // 定位节点
+                // Position node
                 double finalX, finalY;
                 if (isVertical)
                 {
@@ -180,7 +180,7 @@ namespace md2visio.vsdx
                 drawnSet.Add(node);
                 PauseForViewing(100);
 
-                // 处理子节点
+                // Process children
                 var children = node.OutputNodes()
                     .Where(c => sortedNodes.Contains(c) && c.VisioShape != null && !processed.Contains(c))
                     .ToList();
@@ -201,7 +201,7 @@ namespace md2visio.vsdx
                     double childMain = GetMainSize(child);
                     double dist = selfMain / 2 + GNode.SPACE + childMain / 2;
 
-                    // 按生长方向计算下一层位置
+                    // Calculate next level position based on growth direction
                     double nextMain = mainPos + (isVertical ? direct.V : direct.H) * dist;
 
                     PlaceTree(child, childCenter, nextMain);
@@ -236,7 +236,7 @@ namespace md2visio.vsdx
                         shape.Delete();
                     }
                     drawnEdges.Add(edge);
-                    PauseForViewing(100); // 每条边绘制后暂停
+                    PauseForViewing(100); // Pause after each edge
                 }
             }
         }
@@ -444,7 +444,7 @@ namespace md2visio.vsdx
             if (edge.To.NodeShape.Shape == "tri")
                 shape.CellsU["EndArrowSize"].FormulaU = "0.6";
             
-            // 设置连接线颜色
+            // Set link color
             SetLineColor(shape, "config.themeVariables.defaultLinkColor");
         }
 

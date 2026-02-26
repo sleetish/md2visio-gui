@@ -6,7 +6,7 @@ namespace md2visio.vsdx.@base
 {
     internal abstract class VBuilder
     {
-        // 注入的依赖
+        // Injected dependencies
         protected readonly IVisioSession _session;
         protected readonly ConversionContext _context;
 
@@ -25,7 +25,7 @@ namespace md2visio.vsdx.@base
         {
             visioPage.ResizeToFitContents();
 
-            // 如果显示 Visio 窗口，给用户时间查看结果
+            // If showing Visio window, give user time to view results
             if (_context.Visible && _session.Application != null)
             {
                 _session.Application.Visible = true;
@@ -38,7 +38,7 @@ namespace md2visio.vsdx.@base
             {
                 if (!CanWriteOutputFile(outputFile, out string? reason))
                 {
-                    _context.SetError(reason ?? "输出文件不可写入。");
+                    _context.SetError(reason ?? "Output file is not writable.");
                     visioDoc.Saved = true;
                     _session.CloseDocument(visioDoc);
                     return;
@@ -69,12 +69,12 @@ namespace md2visio.vsdx.@base
             }
             catch (UnauthorizedAccessException)
             {
-                reason = $"输出文件被占用或只读，无法写入：{outputFile}";
+                reason = $"Output file is locked or read-only, cannot write: {outputFile}";
                 return false;
             }
             catch (IOException)
             {
-                reason = $"输出文件正在被其他程序占用，请关闭后重试：{outputFile}";
+                reason = $"Output file is being used by another process, please close it and try again: {outputFile}";
                 return false;
             }
         }

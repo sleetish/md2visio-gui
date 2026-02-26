@@ -4,20 +4,20 @@ using System.Text;
 namespace md2visio.mermaid.er
 {
     /// <summary>
-    /// ER图关系标签状态类
-    /// 解析 : 后面的关系标签
+    /// ER Diagram Relation Label State
+    /// Parses relation label after :
     /// </summary>
     internal class ErSttLabel : SynState
     {
         public override SynState NextState()
         {
-            // 跳过冒号
+            // Skip colon
             if (Ctx.Peek() == ":")
             {
                 Ctx.Take();
             }
 
-            // 跳过空白
+            // Skip whitespace
             while (Ctx.Peek() == " " || Ctx.Peek() == "\t")
             {
                 Ctx.Take();
@@ -26,7 +26,7 @@ namespace md2visio.mermaid.er
             StringBuilder label = new();
             bool inQuotes = false;
 
-            // 读取标签内容
+            // Read label content
             while (true)
             {
                 string? ch = Ctx.Peek();

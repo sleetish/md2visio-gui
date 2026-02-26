@@ -1,4 +1,4 @@
-﻿using md2visio.vsdx.tool;
+using md2visio.vsdx.tool;
 using Microsoft.Office.Interop.Visio;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -15,28 +15,28 @@ namespace md2visio.vsdx.@base
 
         private static string GetVSSXPath()
         {
-            // 首先尝试程序所在目录（发布版本）
+            // First try program directory (published version)
             string publishPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "md2visio.vssx");
             if (System.IO.File.Exists(publishPath))
             {
                 return publishPath;
             }
 
-            // 然后尝试开发环境路径
+            // Then try development environment path
             string devPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "md2visio.vssx");
             if (System.IO.File.Exists(devPath))
             {
                 return devPath;
             }
 
-            // 最后尝试项目根目录的相对路径
+            // Finally try relative path from project root
             string relativePath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "md2visio.vssx");
             if (System.IO.File.Exists(relativePath))
             {
                 return relativePath;
             }
 
-            // 如果都找不到，返回默认路径
+            // If not found, return default
             return "md2visio.vssx";
         }
 
@@ -277,7 +277,7 @@ namespace md2visio.vsdx.@base
 
         public static double FontSize(Shape shape)
         {
-            return shape.CellsU["Char.Size"].ResultIU; // visio内部单位drawing units（Result Internal Unit）
+            return shape.CellsU["Char.Size"].ResultIU; // Visio internal unit (drawing units)
         }
         public static string FontName(Application visioApp, Shape shape)
         {
@@ -411,7 +411,7 @@ namespace md2visio.vsdx.@base
 
         public static double Pt2MM()
         {
-            // 1 pt = 1/72 英寸, 1 英寸= 25.4 mm。
+            // 1 pt = 1/72 inch, 1 inch = 25.4 mm.
             return 1 / 72f * 25.4;
         }
 
@@ -428,7 +428,7 @@ namespace md2visio.vsdx.@base
 #pragma warning disable CA1416
             using (Graphics graphics = Graphics.FromHwnd(nint.Zero))
             {
-                // 每英寸有25.4毫米
+                // 25.4 mm per inch
                 return graphics.DpiX / 25.4f;
             }
         }
