@@ -41,9 +41,7 @@ namespace md2visio.Api
             {
                 logger.Error($"Visio COM error: {ex.Message}");
                 return ConversionResult.Failed(
-                    "Visio COM error, please ensure Microsoft Visio is correctly installed.",
-                logger.Error($"Unsupported diagram type: {ex.Message}");
-                return ConversionResult.Failed($"Unsupported diagram type: {ex.Message}", ex);
+                    "Visio COM error, please ensure Microsoft Visio is correctly installed.", ex);
             }
             catch (Exception ex)
             {
