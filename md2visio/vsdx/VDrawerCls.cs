@@ -45,7 +45,7 @@ namespace md2visio.vsdx
         /// <summary>
         /// Weighted edge for layout algorithm
         /// </summary>
-        class WeightedEdge
+        internal class WeightedEdge
         {
             public string FromClass { get; set; } = "";
             public string ToClass { get; set; } = "";
@@ -220,10 +220,17 @@ namespace md2visio.vsdx
         /// <summary>
         /// Optimize layer ordering using barycenter method to minimize edge crossings
         /// </summary>
-        void OptimizeLayerOrdering(Dictionary<int, List<ClsClass>> layers, Dictionary<string, List<WeightedEdge>> graph)
+        internal void OptimizeLayerOrdering(Dictionary<int, List<ClsClass>> layers, Dictionary<string, List<WeightedEdge>> graph)
         {
             var sortedLayerKeys = layers.Keys.OrderBy(k => k).ToList();
             if (sortedLayerKeys.Count <= 1) return;
+
+            // Convert WeightedEdge graph to simple string graph once
+            var simpleGraph = new Dictionary<string, List<string>>();
+            foreach (var (parent, edges) in graph)
+            {
+                simpleGraph[parent] = edges.Select(e => e.ToClass).ToList();
+            }
 
             // Iterate 3 times for optimization
             for (int iter = 0; iter < 3; iter++)
@@ -236,7 +243,7 @@ namespace md2visio.vsdx
 
                     if (!layers.ContainsKey(nextLayerKey)) continue;
 
-                    OptimizeLayer(layers[nextLayerKey], layers[currentLayerKey], graph, true);
+                    OptimizeLayer(layers[nextLayerKey], layers[currentLayerKey], simpleGraph, true);
                 }
 
                 // Upward sweep - use same graph, direction handled by isDownward flag
@@ -247,7 +254,7 @@ namespace md2visio.vsdx
 
                     if (!layers.ContainsKey(prevLayerKey)) continue;
 
-                    OptimizeLayer(layers[prevLayerKey], layers[currentLayerKey], graph, false);
+                    OptimizeLayer(layers[prevLayerKey], layers[currentLayerKey], simpleGraph, false);
                 }
             }
         }
@@ -255,7 +262,7 @@ namespace md2visio.vsdx
         /// <summary>
         /// Optimize single layer using barycenter method
         /// </summary>
-        void OptimizeLayer(List<ClsClass> currentLayer, List<ClsClass> adjacentLayer,
+        internal void OptimizeLayer(List<ClsClass> currentLayer, List<ClsClass> adjacentLayer,
             Dictionary<string, List<string>> connectionGraph, bool isDownward)
         {
             // Build position map for adjacent layer
@@ -306,21 +313,6 @@ namespace md2visio.vsdx
             currentLayer.AddRange(barycenters.OrderBy(x => x.barycenter).Select(x => x.cls));
         }
 
-        /// <summary>
-        /// Wrapper for string-based graph
-        /// </summary>
-        void OptimizeLayer(List<ClsClass> currentLayer, List<ClsClass> adjacentLayer,
-            Dictionary<string, List<WeightedEdge>> graph, bool isDownward)
-        {
-            // Convert WeightedEdge graph to simple string graph
-            var simpleGraph = new Dictionary<string, List<string>>();
-            foreach (var (parent, edges) in graph)
-            {
-                simpleGraph[parent] = edges.Select(e => e.ToClass).ToList();
-            }
-
-            OptimizeLayer(currentLayer, adjacentLayer, simpleGraph, isDownward);
-        }
 
         /// <summary>
         /// Main layout method using Sugiyama algorithm
