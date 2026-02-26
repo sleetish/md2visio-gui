@@ -34,15 +34,16 @@ namespace md2visio.Api
             }
             catch (NotImplementedException ex)
             {
-                logger.Error($"Unsupported diagram type: {ex.Message}");
-                return ConversionResult.Failed($"Unsupported diagram type: {ex.Message}", ex);
+                logger.Error($"Unsupported chart type: {ex.Message}");
+                return ConversionResult.Failed($"Unsupported chart type: {ex.Message}", ex);
             }
             catch (System.Runtime.InteropServices.COMException ex)
             {
-                logger.Error($"Visio COM Error: {ex.Message}");
+                logger.Error($"Visio COM error: {ex.Message}");
                 return ConversionResult.Failed(
-                    "Visio COM Error, please ensure Microsoft Visio is correctly installed.",
-                    ex);
+                    "Visio COM error, please ensure Microsoft Visio is correctly installed.",
+                logger.Error($"Unsupported diagram type: {ex.Message}");
+                return ConversionResult.Failed($"Unsupported diagram type: {ex.Message}", ex);
             }
             catch (Exception ex)
             {

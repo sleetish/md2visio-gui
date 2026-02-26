@@ -32,20 +32,20 @@ namespace md2visio.GUI.Services
         {
             try
             {
-                ReportProgress(0, "开始转换...");
-                ReportLog($"输入文件: {inputFile}");
-                ReportLog($"输出目录: {outputDir}");
+                ReportProgress(0, "Starting conversion...");
+                ReportLog($"Input file: {inputFile}");
+                ReportLog($"Output directory: {outputDir}");
 
-                // 验证输入文件
+                // Validate input file
                 if (!File.Exists(inputFile))
-                    return ConversionResult.Error($"输入文件不存在: {inputFile}");
+                    return ConversionResult.Error($"Input file does not exist: {inputFile}");
 
                 if (!Path.GetExtension(inputFile).Equals(".md", StringComparison.OrdinalIgnoreCase))
-                    return ConversionResult.Error("输入文件必须是 .md 格式");
+                    return ConversionResult.Error("Input file must be in .md format");
 
-                // 创建输出目录
+                // Create output directory
                 Directory.CreateDirectory(outputDir);
-                ReportProgress(20, "准备转换环境...");
+                ReportProgress(20, "Preparing conversion environment...");
 
                 // 构建参数
                 var args = new List<string>
@@ -57,31 +57,31 @@ namespace md2visio.GUI.Services
                 if (showVisio) args.Add("/V");
                 if (silentOverwrite) args.Add("/Y");
 
-                ReportProgress(40, "执行转换...");
-                ReportLog($"转换参数: {string.Join(" ", args)}");
+                ReportProgress(40, "Executing conversion...");
+                ReportLog($"Conversion parameters: {string.Join(" ", args)}");
 
-                // 调用AppConfig进行转换
+                // Call AppConfig for conversion
                 var config = new AppConfig();
                 if (!config.LoadArguments(args.ToArray()))
                 {
-                    return ConversionResult.Error("参数解析失败");
+                    return ConversionResult.Error("Failed to parse parameters");
                 }
 
-                ReportProgress(60, "解析Mermaid内容...");
+                ReportProgress(60, "Parsing Mermaid content...");
 
-                // 执行转换
+                // Execute conversion
                 config.Main();
 
-                ReportProgress(80, "生成Visio文件...");
+                ReportProgress(80, "Generating Visio files...");
 
-                // 查找生成的文件
+                // Find generated files
                 var outputFiles = Directory.GetFiles(outputDir, "*.vsdx");
                 
-                ReportProgress(100, "转换完成!");
+                ReportProgress(100, "Conversion completed!");
 
                 if (outputFiles.Length > 0)
                 {
-                    ReportLog($"成功生成 {outputFiles.Length} 个文件:");
+                    ReportLog($"Successfully generated {outputFiles.Length} files:");
                     foreach (var file in outputFiles)
                     {
                         ReportLog($"  - {Path.GetFileName(file)}");
@@ -90,18 +90,18 @@ namespace md2visio.GUI.Services
                 }
                 else
                 {
-                    return ConversionResult.Error("转换完成但未找到输出文件");
+                    return ConversionResult.Error("Conversion completed but no output files were found");
                 }
             }
             catch (NotImplementedException ex)
             {
-                ReportLog($"功能未实现: {ex.Message}");
-                return ConversionResult.Error($"该图表类型暂未支持: {ex.Message}");
+                ReportLog($"Feature not implemented: {ex.Message}");
+                return ConversionResult.Error($"This diagram type is not yet supported: {ex.Message}");
             }
             catch (Exception ex)
             {
-                ReportLog($"转换出错: {ex.Message}");
-                return ConversionResult.Error($"转换失败: {ex.Message}");
+                ReportLog($"Error during conversion: {ex.Message}");
+                return ConversionResult.Error($"Conversion failed: {ex.Message}");
             }
         }
 
@@ -153,7 +153,7 @@ namespace md2visio.GUI.Services
             }
             catch (Exception ex)
             {
-                ReportLog($"检测文件类型时出错: {ex.Message}");
+                ReportLog($"Error detecting file type: {ex.Message}");
             }
             
             return types;
