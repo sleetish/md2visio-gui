@@ -581,7 +581,12 @@ namespace md2visio.GUI.Forms
         {
             if (Directory.Exists(_outputDirTextBox.Text))
             {
-                Process.Start("explorer.exe", _outputDirTextBox.Text);
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "explorer.exe",
+                    Arguments = $"\"{_outputDirTextBox.Text}\"",
+                    UseShellExecute = true
+                });
             }
         }
 
