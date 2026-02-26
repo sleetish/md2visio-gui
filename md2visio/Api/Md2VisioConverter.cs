@@ -11,9 +11,15 @@ namespace md2visio.Api
     /// </summary>
     public sealed class Md2VisioConverter : IMd2VisioConverter
     {
+        private readonly Func<bool, IVisioSession> _sessionFactory;
         private IVisioSession? _session;
         private bool _disposed;
         private readonly object _lock = new object();
+
+        public Md2VisioConverter(Func<bool, IVisioSession>? sessionFactory = null)
+        {
+            _sessionFactory = sessionFactory ?? ((showVisio) => new VisioSession(showVisio));
+        }
 
         /// <summary>
         /// Execute conversion
@@ -34,14 +40,14 @@ namespace md2visio.Api
             }
             catch (NotImplementedException ex)
             {
-                logger.Error($"Unsupported chart type: {ex.Message}");
-                return ConversionResult.Failed($"Unsupported chart type: {ex.Message}", ex);
+                logger.Error($"Unsupported diagram type: {ex.Message}");
+                return ConversionResult.Failed($"Unsupported diagram type: {ex.Message}", ex);
             }
             catch (System.Runtime.InteropServices.COMException ex)
             {
-                logger.Error($"Visio COM error: {ex.Message}");
+                logger.Error($"Visio COM Error: {ex.Message}");
                 return ConversionResult.Failed(
-                    "Visio COM error, please ensure Microsoft Visio is correctly installed.", ex);
+                    "Visio COM Error, please ensure Microsoft Visio is correctly installed.", ex);
             }
             catch (Exception ex)
             {
@@ -109,7 +115,7 @@ namespace md2visio.Api
             logger.Info("Initializing conversion context...");
 
             var context = new ConversionContext(request, logger);
-            _session = new VisioSession(request.ShowVisio);
+            _session = _sessionFactory(request.ShowVisio);
 
             // Step 3: Parse Mermaid content
             progress?.Report(new ConversionProgress(30, "Parsing Mermaid content...", ConversionPhase.Parsing));
