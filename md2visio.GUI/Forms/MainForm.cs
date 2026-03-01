@@ -581,11 +581,12 @@ namespace md2visio.GUI.Forms
         {
             if (Directory.Exists(_outputDirTextBox.Text))
             {
+                // Prevent argument injection by wrapping the path in quotes and explicitly calling explorer.exe
                 Process.Start(new ProcessStartInfo
                 {
-                    FileName = _outputDirTextBox.Text,
-                    UseShellExecute = true,
-                    Verb = "open"
+                    FileName = "explorer.exe",
+                    Arguments = $"\"{_outputDirTextBox.Text}\"",
+                    UseShellExecute = true
                 });
             }
         }
