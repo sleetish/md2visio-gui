@@ -1,0 +1,7 @@
+## 2024-11-06 - [Command Injection and Path Traversal Mitigations]
+**Vulnerability:** Found arbitrary argument injection vulnerabilities in `Process.Start` calls using unsanitized inputs as filenames/URLs (e.g., launching directory inputs without explicitly defining `explorer.exe`). Also found potential path traversal in custom filename concatenation in `ConversionService.cs`.
+**Learning:** `Process.Start(new ProcessStartInfo { FileName = input, UseShellExecute = true })` will execute any arbitrary application registered to the system shell if the input is malformed or maliciously crafted. This is particularly dangerous in Windows Forms apps processing user paths. Additionally, string concatenation like `Path.Combine(dir, userFileName + ".vsdx")` is vulnerable to `../../` sequences unless explicitly sanitized.
+**Prevention:**
+1. Always use `Path.GetFileName()` on user-provided filename inputs before combining them with directories to enforce a flat path structure and block traversal.
+2. For shell commands opening directories, explicitly set `FileName = "explorer.exe"` and pass the quoted directory as an `Argument` rather than passing the directory itself as the `FileName` with `UseShellExecute = true`.
+3. When opening web links, explicitly validate that the URL scheme is strictly HTTP or HTTPS via `Uri.TryCreate` to prevent custom protocol handler abuse (e.g., `file://`, `ms-msdt://`).
