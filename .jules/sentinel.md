@@ -1,0 +1,4 @@
+## 2024-05-24 - [HIGH] Fix command injection in Process.Start
+**Vulnerability:** Command and argument injection vulnerabilities when using `Process.Start` with unvalidated input (URL scheme) or when setting a user-controlled path directly to `FileName` with `UseShellExecute = true`.
+**Learning:** `Process.Start` can be abused if the `FileName` argument is supplied with user input, as it will be interpreted as an executable or a command. Passing a direct directory path to `FileName` with `UseShellExecute = true` can trigger unexpected handler commands. Also, when opening a URL, the protocol scheme must be validated to prevent non-HTTP handlers (like `file://` or custom handlers) from executing unauthorized commands.
+**Prevention:** Always validate URL schemes before passing to `Process.Start` (e.g., verifying `Uri.SchemeHttp` or `Uri.SchemeHttps`). When opening directories, use `explorer.exe` as the `FileName`, and provide the quoted user path as `Arguments`.
