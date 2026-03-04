@@ -17,9 +17,14 @@ namespace md2visio.struc.figure
             Load(new StringBuilder(text));
         }
 
-        public MmdJsonObj(StringBuilder textBuilder, int index)
+        private int _depth = 0;
+        private const int MAX_DEPTH = 50;
+
+        public MmdJsonObj(StringBuilder textBuilder, int index, int depth = 0)
         {
             this.index = index;
+            this._depth = depth;
+            if (_depth > MAX_DEPTH) throw new InvalidOperationException("Maximum JSON parsing depth exceeded");
             Load(textBuilder);
         }
 
@@ -155,7 +160,7 @@ namespace md2visio.struc.figure
                 {
                     if (TrimSpaceAndQuote(keyBuilder).Length > 0)
                     {
-                        MmdJsonObj obj = new MmdJsonObj(textBuilder, index);
+                        MmdJsonObj obj = new MmdJsonObj(textBuilder, index, _depth + 1);
                         AddJsonObj(keyBuilder, obj);
                         index = obj.Index;
                     }
@@ -168,7 +173,7 @@ namespace md2visio.struc.figure
                 }
                 else if (c == '[')
                 {
-                    MmdJsonArray arr = new MmdJsonArray(textBuilder, index);
+                    MmdJsonArray arr = new MmdJsonArray(textBuilder, index, _depth + 1);
                     AddJsonObj(keyBuilder, arr);
                     index = arr.Index;
                     continue;

@@ -1,0 +1,4 @@
+## 2026-03-04 - [HIGH] Fix JSON parsing Stack Overflow DoS vulnerability
+**Vulnerability:** The `MmdJsonObj` and `MmdJsonArray` classes used recursive loading methods without tracking or limiting the recursion depth. This created a Denial of Service (DoS) vulnerability via Stack Overflow when parsing deeply nested malicious JSON input.
+**Learning:** Custom recursive parsers within the application (not utilizing established frameworks like `System.Text.Json` or `Newtonsoft.Json`) missed standard protections like maximum depth limits, leaving the application exposed to stack exhaustion.
+**Prevention:** Always implement a hardcoded recursion limit (e.g., `MAX_DEPTH = 50`) in any custom recursive parsing logic to prevent stack overflows, or switch to established, secure parsing libraries that handle these edge cases inherently.
