@@ -7,6 +7,8 @@ namespace md2visio.struc.figure
     {
         Dictionary<string, object> data = new Dictionary<string, object>(); // string -> string/MmdJsonObj/MmdJsonArray
         int index = 0;
+        int depth = 0;
+        const int MAX_DEPTH = 50; // 🛡️ Sentinel: Enforce max recursion depth to prevent DoS via Stack Overflow
 
         public int Index { get { return index; } }
         public Dictionary<string, object> Data { get { return data; } }
@@ -17,9 +19,10 @@ namespace md2visio.struc.figure
             Load(new StringBuilder(text));
         }
 
-        public MmdJsonObj(StringBuilder textBuilder, int index)
+        public MmdJsonObj(StringBuilder textBuilder, int index, int depth = 0)
         {
             this.index = index;
+            this.depth = depth;
             Load(textBuilder);
         }
 
@@ -120,6 +123,7 @@ namespace md2visio.struc.figure
 
         MmdJsonObj Load(StringBuilder textBuilder)
         {
+            if (depth > MAX_DEPTH) throw new InvalidOperationException("Maximum JSON depth exceeded");
             StringBuilder keyBuilder = new StringBuilder();
             StringBuilder valueBuilder = new StringBuilder();
             bool withInQuote = false;
@@ -155,7 +159,7 @@ namespace md2visio.struc.figure
                 {
                     if (TrimSpaceAndQuote(keyBuilder).Length > 0)
                     {
-                        MmdJsonObj obj = new MmdJsonObj(textBuilder, index);
+                        MmdJsonObj obj = new MmdJsonObj(textBuilder, index, depth + 1);
                         AddJsonObj(keyBuilder, obj);
                         index = obj.Index;
                     }
@@ -168,7 +172,7 @@ namespace md2visio.struc.figure
                 }
                 else if (c == '[')
                 {
-                    MmdJsonArray arr = new MmdJsonArray(textBuilder, index);
+                    MmdJsonArray arr = new MmdJsonArray(textBuilder, index, depth + 1);
                     AddJsonObj(keyBuilder, arr);
                     index = arr.Index;
                     continue;
