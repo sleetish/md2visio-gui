@@ -1,0 +1,4 @@
+## 2025-06-25 - 🛡️ Sentinel: [CRITICAL] Fix Path Traversal in File Output
+**Vulnerability:** The application was using user-provided file names in `md2visio.GUI/Services/ConversionService.cs` (`BuildOutputPath`) without sanitization, combining the filename with the output directory path directly. This could allow an attacker to bypass directory restrictions using `..\` or similar traversal sequences and write files to arbitrary locations on the system.
+**Learning:** Even internal or local desktop applications can be vulnerable to path traversal attacks if input is blindly accepted. It's critical to consistently sanitize any path components supplied by users before using them in file I/O operations.
+**Prevention:** Use `Path.GetFileName()` to extract only the filename from user input, stripping away any path traversal elements. Always provide a safe fallback (e.g., `"output"`) in case the user input becomes an empty string after sanitization.
