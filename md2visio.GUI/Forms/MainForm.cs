@@ -434,7 +434,16 @@ namespace md2visio.GUI.Forms
             };
             authorLabel.Links.Add(0, authorLabel.Text.Length, "https://github.com/konbakuyomu/md2visio-gui/");
             authorLabel.LinkClicked += (s, e) => {
-                Process.Start(new ProcessStartInfo(e.Link.LinkData.ToString()) { UseShellExecute = true });
+                string? url = e.Link?.LinkData?.ToString();
+                if (url != null && Uri.TryCreate(url, UriKind.Absolute, out Uri? result) &&
+                    (result.Scheme == Uri.UriSchemeHttp || result.Scheme == Uri.UriSchemeHttps))
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = url,
+                        UseShellExecute = true
+                    });
+                }
             };
 
             container.Controls.Add(authorLabel, 5, 0);
@@ -581,11 +590,12 @@ namespace md2visio.GUI.Forms
         {
             if (Directory.Exists(_outputDirTextBox.Text))
             {
+                // 🛡️ Sentinel: Mitigate command injection by explicitly using explorer.exe and quoting arguments
                 Process.Start(new ProcessStartInfo
                 {
-                    FileName = _outputDirTextBox.Text,
-                    UseShellExecute = true,
-                    Verb = "open"
+                    FileName = "explorer.exe",
+                    Arguments = $"\"{_outputDirTextBox.Text}\"",
+                    UseShellExecute = true
                 });
             }
         }

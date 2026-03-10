@@ -1,0 +1,4 @@
+## 2025-05-23 - [Sentinel] Fix Command Injection and Shell Execution in MainForm
+**Vulnerability:** The application was vulnerable to Argument/Command Injection due to using directory path directly in `FileName` for `Process.Start` with `Verb="open"`, and to Shell Execution because clicked URLs were passed to `Process.Start` without validating the scheme, allowing execution of arbitrary local files (e.g., `file://`).
+**Learning:** Even internal UI features like "Open Output Directory" and "Author Link" need proper sanitization. ProcessStartInfo configurations must explicitly enforce safe executables (like `explorer.exe`) and validate inputs (like URL schemes) when `UseShellExecute = true` is required.
+**Prevention:** Always use `explorer.exe` with quoted arguments for opening directories. Always validate URL schemes using `Uri.TryCreate` (checking for HTTP/HTTPS) before passing user-controlled or external strings to `Process.Start` with `UseShellExecute`.
