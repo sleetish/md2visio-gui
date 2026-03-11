@@ -5,6 +5,7 @@ namespace md2visio.struc.figure
 {
     internal class MmdJsonObj : ValueAccessor
     {
+        public const int MAX_DEPTH = 50;
         Dictionary<string, object> data = new Dictionary<string, object>(); // string -> string/MmdJsonObj/MmdJsonArray
         int index = 0;
 
@@ -17,10 +18,10 @@ namespace md2visio.struc.figure
             Load(new StringBuilder(text));
         }
 
-        public MmdJsonObj(StringBuilder textBuilder, int index)
+        public MmdJsonObj(StringBuilder textBuilder, int index, int depth = 0)
         {
             this.index = index;
-            Load(textBuilder);
+            Load(textBuilder, depth);
         }
 
         public MmdJsonObj Load(string text)
@@ -97,11 +98,12 @@ namespace md2visio.struc.figure
 
         public MmdJsonObj UpdateWith(MmdJsonObj json)
         {
-            return UpdateWith(json, new StringBuilder());
+            return UpdateWith(json, new StringBuilder(), 0);
         }
 
-        MmdJsonObj UpdateWith(MmdJsonObj json, StringBuilder path)
+        MmdJsonObj UpdateWith(MmdJsonObj json, StringBuilder path, int depth)
         {
+            if (depth > MAX_DEPTH) throw new ArgumentException("Maximum JSON depth exceeded");
             if (json == null) return this;
 
             foreach (string key in json.Data.Keys)
@@ -109,7 +111,7 @@ namespace md2visio.struc.figure
                 AppendKey(path, key);
 
                 object? val = json[key];
-                if (val is MmdJsonObj) UpdateWith((MmdJsonObj)val, new StringBuilder(path.ToString()));
+                if (val is MmdJsonObj) UpdateWith((MmdJsonObj)val, new StringBuilder(path.ToString()), depth + 1);
                 else SetValue(path.ToString(), val ?? string.Empty);
 
                 UnappendKey(path);
@@ -118,8 +120,9 @@ namespace md2visio.struc.figure
             return this;
         }
 
-        MmdJsonObj Load(StringBuilder textBuilder)
+        MmdJsonObj Load(StringBuilder textBuilder, int depth = 0)
         {
+            if (depth > MAX_DEPTH) throw new ArgumentException("Maximum JSON depth exceeded");
             StringBuilder keyBuilder = new StringBuilder();
             StringBuilder valueBuilder = new StringBuilder();
             bool withInQuote = false;
@@ -155,7 +158,7 @@ namespace md2visio.struc.figure
                 {
                     if (TrimSpaceAndQuote(keyBuilder).Length > 0)
                     {
-                        MmdJsonObj obj = new MmdJsonObj(textBuilder, index);
+                        MmdJsonObj obj = new MmdJsonObj(textBuilder, index, depth + 1);
                         AddJsonObj(keyBuilder, obj);
                         index = obj.Index;
                     }
@@ -168,7 +171,7 @@ namespace md2visio.struc.figure
                 }
                 else if (c == '[')
                 {
-                    MmdJsonArray arr = new MmdJsonArray(textBuilder, index);
+                    MmdJsonArray arr = new MmdJsonArray(textBuilder, index, depth + 1);
                     AddJsonObj(keyBuilder, arr);
                     index = arr.Index;
                     continue;
