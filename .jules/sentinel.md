@@ -1,0 +1,4 @@
+## 2025-12-24 - [CRITICAL] Fix Path Traversal in File Output
+**Vulnerability:** The application allowed path traversal in the output filename, allowing attackers or users to save files outside the designated output directory via GUI input `fileName`.
+**Learning:** Never trust user input, especially for file operations. The `Path.Combine` function does not sanitize input paths and will resolve absolute paths or relative traversal (`../`), bypassing the intended directory constraints.
+**Prevention:** Always sanitize user-provided filename components using `System.IO.Path.GetFileName()` to prevent path traversal vulnerabilities. Always handle the edge case where the sanitized result is empty (e.g., if the input was solely traversal characters) by providing a safe default string (e.g., 'output').
