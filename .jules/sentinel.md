@@ -1,0 +1,4 @@
+## 2024-05-15 - [High] Fix Path Traversal in File Name Input
+**Vulnerability:** The application took a user-provided file name and passed it directly to `Path.Combine()` without sanitization. This allowed directory traversal characters like `../` to break out of the intended output directory, potentially leading to arbitrary file writes.
+**Learning:** `Path.GetFileName()` alone might not sufficiently sanitize path traversal sequences containing forward slashes on Windows or mixed slashes. Input strings must have slashes normalized to the platform-specific `Path.DirectorySeparatorChar` before being processed by `Path.GetFileName()`.
+**Prevention:** Always sanitize user-provided filename components. Normalize cross-platform slashes and use `Path.GetFileName()`. Ensure a safe default is assigned (e.g., "output") if the sanitized filename evaluates to empty.
