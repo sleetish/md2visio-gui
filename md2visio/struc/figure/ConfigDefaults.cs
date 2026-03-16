@@ -66,7 +66,9 @@ namespace md2visio.struc.figure
         MmdFrontMatter LoadThemeVars(string theme2load, bool darkMode = false)
         {
             DarkMode = darkMode;
-            string sanitizedTheme = Path.GetFileName(theme2load).ToLower();
+            // Sanitize cross-platform slashes to prevent path traversal
+            string normalizedTheme = theme2load.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
+            string sanitizedTheme = Path.GetFileName(normalizedTheme).ToLower();
             if (string.IsNullOrEmpty(sanitizedTheme)) sanitizedTheme = "default";
             Theme = string.Format("{0}{1}", sanitizedTheme, sanitizedTheme == "base" && darkMode ? "-darkMode" : "");
 

@@ -599,7 +599,9 @@ namespace md2visio.GUI.Forms
         {
             if (!string.IsNullOrEmpty(_selectedFilePath))
             {
-                var fileName = Path.GetFileNameWithoutExtension(_selectedFilePath);
+                string normalizedPath = _selectedFilePath.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
+                var fileName = Path.GetFileNameWithoutExtension(normalizedPath);
+                if (string.IsNullOrEmpty(fileName)) fileName = "output";
                 _fileNameTextBox.Text = fileName;
             }
         }
