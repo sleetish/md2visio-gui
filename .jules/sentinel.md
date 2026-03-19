@@ -1,0 +1,4 @@
+## 2024-05-24 - [CRITICAL] Fix path traversal via mixed slashes
+**Vulnerability:** Path traversal possible by passing mixed or cross-platform slashes, potentially defeating simple filename extraction.
+**Learning:** `Path.GetFileName` and `Path.GetFileNameWithoutExtension` alone may not be sufficient to correctly extract only the filename when dealing with mixed path separators.
+**Prevention:** Explicitly normalize both forward (`/`) and backward (`\`) slashes to `Path.DirectorySeparatorChar` before calling filename extraction functions. Additionally, provide a safe fallback string when the sanitized filename is empty to prevent using empty string as a filename.
