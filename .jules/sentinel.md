@@ -1,0 +1,4 @@
+## 2024-05-18 - Prevent DoS via Stack Overflow in Custom JSON Parsers
+**Vulnerability:** The application featured custom JSON parsers (`MmdJsonObj` and `MmdJsonArray`) that parsed heavily nested JSON strings using recursion without enforcing any depth limits. This allowed an attacker to provide maliciously crafted, deeply nested JSON, causing the application to crash via a `StackOverflowException` (CWE-674), leading to a Denial of Service.
+**Learning:** Custom recursive descent parsers must always track state/depth to proactively guard against unbounded stack consumption. Relying on the CLR to handle stack overflows is dangerous as they cannot be caught and will deterministically crash the process.
+**Prevention:** Always include a mechanism to limit recursion depth (e.g., `MAX_DEPTH`) and increment it per recursive call, intentionally throwing a catchable exception (like `InvalidOperationException`) when the threshold is exceeded.
