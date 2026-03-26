@@ -1,0 +1,4 @@
+## 2024-05-24 - [Stack Overflow in Custom JSON Parsers]
+**Vulnerability:** The `MmdJsonObj` and `MmdJsonArray` custom JSON parsers recursively called themselves for nested objects and arrays without any depth limit. This allowed an attacker to craft deeply nested JSON strings that would cause a `StackOverflowException`, crashing the application and leading to a Denial of Service (DoS).
+**Learning:** Custom recursive parsers are prone to stack exhaustion attacks if they don't explicitly track and limit their recursion depth. .NET's stack space is limited, so deep recursion must be bounded.
+**Prevention:** Always enforce a hardcoded maximum recursion depth limit (e.g., `MAX_DEPTH = 50`) in custom recursive parsers and throw a safe exception (like `InvalidOperationException`) when the limit is exceeded to prevent process termination.
