@@ -1,0 +1,4 @@
+## 2026-03-30 - [High] Fix path traversal in GUI Output Directory
+**Vulnerability:** The application was directly combining user-provided filename strings with a target output directory using `Path.Combine` without proper sanitization. In `.NET`, `Path.Combine` allows relative path components like `../` to navigate up the directory tree, causing path traversal and arbitrary file write vulnerabilities outside the intended target directory.
+**Learning:** `Path.Combine` in `.NET` is inherently unsafe when used with raw user input.
+**Prevention:** Always sanitize user input intended to be used in paths. Replace path separators with cross-platform native separators, then use `Path.GetFileName` to enforce that the string is strictly a file name and contains no directory components. Provide safe fallbacks if the sanitized input results in an empty string.
