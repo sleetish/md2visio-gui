@@ -1,0 +1,4 @@
+## 2025-02-18 - Path Traversal in Path.Combine
+**Vulnerability:** `System.IO.Path.Combine` doesn't automatically sanitize arguments. If user input contains path traversal characters (e.g. `../` or absolute paths like `C:\`), it can override the base path, allowing files to be written outside the intended directory.
+**Learning:** Never pass unsanitized user input (like a filename) directly to `Path.Combine`. It's essential to normalize cross-platform slashes and extract just the filename component.
+**Prevention:** Always sanitize filenames using `input.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar)` followed by `Path.GetFileName(input)`. Ensure a safe default is provided in case the sanitized output is empty.
