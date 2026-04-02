@@ -1,0 +1,4 @@
+## 2024-05-24 - [CRITICAL] Fix Path Traversal in ConversionService.cs
+**Vulnerability:** The user-provided `fileName` parameter was passed directly into `System.IO.Path.Combine` without sanitization. If an absolute path or path traversal sequences (like `..\..\..\`) are provided, it allows an attacker to overwrite arbitrary files on the system outside the intended output directory, leading to a path traversal vulnerability.
+**Learning:** In .NET, `System.IO.Path.Combine` does not automatically sanitize its arguments. If the second argument is an absolute path or contains path traversal sequences, it can override the base path.
+**Prevention:** Always rigorously sanitize untrusted input before appending it via `Path.Combine`. Normalize cross-platform slashes, use `Path.GetFileName()` to extract only the file name component, and handle empty results by providing a safe default string (e.g., 'output' or 'default').
