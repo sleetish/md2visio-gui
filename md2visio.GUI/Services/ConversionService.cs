@@ -183,6 +183,16 @@ namespace md2visio.GUI.Services
         {
             if (!string.IsNullOrEmpty(fileName))
             {
+                // Normalize slashes and extract just the filename to prevent path traversal
+                fileName = fileName.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
+                fileName = Path.GetFileName(fileName);
+
+                // Provide safe default if sanitized name is empty
+                if (string.IsNullOrEmpty(fileName))
+                {
+                    fileName = "output";
+                }
+
                 if (!fileName.EndsWith(".vsdx", StringComparison.OrdinalIgnoreCase))
                     fileName += ".vsdx";
                 return Path.Combine(outputDir, fileName);
