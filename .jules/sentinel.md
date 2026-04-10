@@ -1,0 +1,7 @@
+## 2024-04-09 - Path Traversal & Shell Execution Vulnerabilities
+**Vulnerability:** The application was vulnerable to path traversal because `Path.GetFileNameWithoutExtension` and `Path.GetFileName` were used on user input paths without prior sanitization of cross-platform slashes. This could allow users to break out of intended output directories. Additionally, arbitrary command execution was possible via `Process.Start` since it used `UseShellExecute = true` indiscriminately for user-provided directory paths and links.
+**Learning:** `Path.GetFileName` and `Path.Combine` in .NET do not automatically sanitize cross-platform path separators (e.g., mixed forward and backward slashes), nor do they prevent absolute path overrides. Always normalize path separators (`.Replace('/', Path.DirectorySeparatorChar)`) *before* relying on `Path.GetFileName`. Furthermore, when avoiding `UseShellExecute = true` for opening local paths, escaping paths correctly for `explorer.exe` requires explicitly stripping trailing backslashes from the path before quoting to prevent escaping the terminal quote.
+**Prevention:**
+1. Always sanitize path separators manually and use `Path.GetFileName` or `Path.GetFileNameWithoutExtension` with safe fallbacks (e.g., "output").
+2. Validate web URIs using `Uri.TryCreate` ensuring schemes are only `http` or `https` before opening them.
+3. For opening local directories, use `explorer.exe` with `UseShellExecute = false`, `Path.GetFullPath()`, and trim any trailing backslashes before quoting arguments.
