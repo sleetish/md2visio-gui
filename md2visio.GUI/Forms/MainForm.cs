@@ -581,11 +581,13 @@ namespace md2visio.GUI.Forms
         {
             if (Directory.Exists(_outputDirTextBox.Text))
             {
+                // 🛡️ Sentinel: Sanitize user input and disable UseShellExecute to prevent arbitrary command execution
+                string safePath = Path.GetFullPath(_outputDirTextBox.Text).TrimEnd('\\');
                 Process.Start(new ProcessStartInfo
                 {
-                    FileName = _outputDirTextBox.Text,
-                    UseShellExecute = true,
-                    Verb = "open"
+                    FileName = "explorer.exe",
+                    Arguments = $"\"{safePath}\"",
+                    UseShellExecute = false
                 });
             }
         }
