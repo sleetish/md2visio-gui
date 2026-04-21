@@ -1,0 +1,4 @@
+## 2025-02-14 - Fix Path Traversal in Config Defaults Theme Loading
+**Vulnerability:** The `ConfigDefaults.cs` class's `LoadThemeVars` method attempts to sanitize the `theme2load` parameter using `Path.GetFileName`. However, if the user input contains forward slashes (`/`) on Windows, or backslashes (`\`) on Linux, `Path.GetFileName` may fail to correctly identify the file name and return the unsanitized path, enabling path traversal attacks.
+**Learning:** `Path.GetFileName` alone is insufficient for sanitizing paths when the host environment and the source string have differing path separators.
+**Prevention:** Always normalize the path separators in the input string using cross-platform slashes `.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar)` before applying `Path.GetFileName()`. Also, remember to handle edge cases like when the input becomes empty.
