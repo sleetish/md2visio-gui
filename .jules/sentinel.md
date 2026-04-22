@@ -1,0 +1,4 @@
+## 2024-05-15 - [High] Secure Process.Start calls
+**Vulnerability:** Command execution via Process.Start with UseShellExecute = true. When an executable path or directory path is directly passed to Process.Start with UseShellExecute = true, untrusted input might lead to executing malicious commands via argument injection or executing the wrong executable due to ambiguity.
+**Learning:** Using Process.Start with UseShellExecute = true is dangerous when used with uncontrolled input, like user-provided URLs or folder paths.
+**Prevention:** For opening URLs, validate that the scheme is http or https before opening. For opening directories, use "explorer.exe" explicitly, disable UseShellExecute, and enclose the arguments in quotes, taking care to trim trailing backslashes which can escape the quotes.
