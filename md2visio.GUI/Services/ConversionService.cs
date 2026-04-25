@@ -216,6 +216,25 @@ namespace md2visio.GUI.Services
 
             try
             {
+                // 🛡️ Sentinel: Validate input to prevent arbitrary file read and path traversal
+                if (string.IsNullOrWhiteSpace(filePath))
+                {
+                    ReportLog("Error: File path is empty.");
+                    return new List<string>();
+                }
+
+                if (!Path.GetExtension(filePath).Equals(".md", StringComparison.OrdinalIgnoreCase))
+                {
+                    ReportLog($"Error: Unsupported file type. Expected .md, got: {Path.GetExtension(filePath)}");
+                    return new List<string>();
+                }
+
+                if (!File.Exists(filePath))
+                {
+                    ReportLog($"Error: File does not exist: {filePath}");
+                    return new List<string>();
+                }
+
                 var lines = File.ReadLines(filePath);
 
                 bool inMermaidBlock = false;
