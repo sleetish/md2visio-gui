@@ -1,0 +1,4 @@
+## 2024-05-18 - [CRITICAL] Fix arbitrary file read in type detection
+**Vulnerability:** The `DetectMermaidTypes` method in `md2visio.GUI/Services/ConversionService.cs` previously called `File.ReadLines(filePath)` on an arbitrary file path provided to it without validating if it was empty, what its extension was, or if it even existed. This allowed arbitrary file read via a path traversal vulnerability.
+**Learning:** External API dependencies and components that receive user input must validate string input against expectations. In this case, file readers were opening arbitrary strings without making sure it was a valid `.md` file first.
+**Prevention:** Always validate file paths provided by users: check if they are empty, if they exist, and if they end with the expected extensions before performing sensitive operations like `File.ReadLines` on them.
