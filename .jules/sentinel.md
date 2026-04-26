@@ -1,0 +1,4 @@
+## 2024-05-24 - Secure Process.Start usage
+**Vulnerability:** Insecure usage of `Process.Start` with `UseShellExecute = true` when processing user-provided paths or URLs could result in command execution.
+**Learning:** For local paths, executing explorer.exe explicitly with `UseShellExecute = false` and properly quoting the path avoids the shell parsing logic that could be abused. For URLs, validating the scheme avoids the execution of dangerous schemes like `file://` or `javascript:`.
+**Prevention:** Always validate URL schemes via `Uri.TryCreate` (allowing only http/https). For opening local directories, verify existence via `Directory.Exists`, normalize the path with `Path.GetFullPath`, and use `explorer.exe` with `UseShellExecute = false`. Trim trailing backslashes from the path before enclosing it in double quotes.
