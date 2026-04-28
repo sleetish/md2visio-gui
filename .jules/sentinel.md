@@ -1,0 +1,4 @@
+## 2024-04-28 - [HIGH] Fix command execution and path traversal risks in Process.Start
+**Vulnerability:** The application executed URLs and file paths directly using `Process.Start` with `UseShellExecute = true` without validating the inputs (such as validating URL schemes or escaping paths), which could lead to command execution or path traversal.
+**Learning:** Using `Process.Start` with `UseShellExecute = true` on untrusted or unvalidated strings allows the underlying OS shell to execute them, which poses a significant risk if the input contains shell commands or malicious paths.
+**Prevention:** Always validate URL schemes (e.g., using `Uri.TryCreate` to ensure only `http`/`https` are used) and use `UseShellExecute = false` when running executables like `explorer.exe`, explicitly wrapping file paths in quotes and trimming trailing backslashes to avoid quote escape issues.
