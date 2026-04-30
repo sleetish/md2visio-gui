@@ -1,0 +1,4 @@
+## 2024-03-21 - [High] Fix Arbitrary Shell Execution via Process.Start
+**Vulnerability:** The application was using `Process.Start` with `UseShellExecute = true` to handle both external URLs and local directories based on user input or UI state without adequate validation.
+**Learning:** Calling `Process.Start` with arbitrary input when `UseShellExecute = true` allows executing arbitrary shell commands, posing a risk of command injection or malicious program execution.
+**Prevention:** For URLs, always validate the scheme using `Uri.TryCreate` (allowlisting `http` and `https`) before calling `Process.Start`. For local directories, verify existence via `Directory.Exists`, normalize the path with `Path.GetFullPath`, and use an explicit application like `explorer.exe` with `UseShellExecute = false`. Additionally, ensure arguments are properly quoted and trailing backslashes are trimmed to avoid escaping the closing quote.
