@@ -1,0 +1,5 @@
+
+## 2025-06-25 - Path Traversal via Path.Combine
+**Vulnerability:** Path traversal in `ConversionService.BuildOutputPath` where `Path.Combine(outputDir, fileName)` was used with untrusted `fileName` input from the GUI without sanitization. Because `Path.Combine` will ignore the base path if the second argument is an absolute path or contains traversal sequences, this allowed outputting files anywhere on the system.
+**Learning:** `System.IO.Path.Combine` does not automatically sanitize its arguments. If the second argument is an absolute path or contains path traversal sequences, it can override the base path.
+**Prevention:** Always rigorously sanitize untrusted input before appending it via `Path.Combine`. Normalize cross-platform slashes (`.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar)`) before applying `System.IO.Path.GetFileName()`, as this method alone may be insufficient for mixed slashes. Provide a safe default string if the sanitized result is empty.
