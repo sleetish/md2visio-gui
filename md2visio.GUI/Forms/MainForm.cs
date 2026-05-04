@@ -434,7 +434,12 @@ namespace md2visio.GUI.Forms
             };
             authorLabel.Links.Add(0, authorLabel.Text.Length, "https://github.com/konbakuyomu/md2visio-gui/");
             authorLabel.LinkClicked += (s, e) => {
-                Process.Start(new ProcessStartInfo(e.Link.LinkData.ToString()) { UseShellExecute = true });
+                string? url = e.Link?.LinkData?.ToString();
+                if (!string.IsNullOrEmpty(url) && Uri.TryCreate(url, UriKind.Absolute, out var uriResult) &&
+                    (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
+                {
+                    Process.Start(new ProcessStartInfo(uriResult.ToString()) { UseShellExecute = true });
+                }
             };
 
             container.Controls.Add(authorLabel, 5, 0);
@@ -579,13 +584,15 @@ namespace md2visio.GUI.Forms
 
         private void OnOpenOutputClick(object? sender, EventArgs e)
         {
-            if (Directory.Exists(_outputDirTextBox.Text))
+            string path = _outputDirTextBox.Text;
+            if (Directory.Exists(path))
             {
+                string fullPath = Path.GetFullPath(path).TrimEnd('\\');
                 Process.Start(new ProcessStartInfo
                 {
-                    FileName = _outputDirTextBox.Text,
-                    UseShellExecute = true,
-                    Verb = "open"
+                    FileName = "explorer.exe",
+                    Arguments = $"\"{fullPath}\"",
+                    UseShellExecute = false
                 });
             }
         }
