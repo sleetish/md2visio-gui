@@ -1,0 +1,4 @@
+## 2024-05-24 - Secure Process.Start usage
+**Vulnerability:** Insecure usage of `Process.Start` with user inputs or paths could lead to command injection, arbitrary file execution, or unwanted URL schemes being launched.
+**Learning:** Specifically when using `Process.Start` with URLs or directory paths, missing validation or incorrect configuration opens up vulnerabilities. For URLs, verifying that the scheme is `http` or `https` limits the risk. For paths, running `explorer.exe` with `UseShellExecute = false` and properly quoting arguments mitigates command injection via filenames. Trailing slashes should be removed from directory paths to ensure trailing slash doesn't escape quotes.
+**Prevention:** Always use `Uri.TryCreate` to enforce URL schemes. For opening local directories, verify existence via `Directory.Exists`, normalize the path with `Path.GetFullPath`, trim trailing slashes, and use `explorer.exe` with `UseShellExecute = false`.
