@@ -1,0 +1,5 @@
+
+## 2025-02-17 - [Path Traversal via Path.Combine]
+**Vulnerability:** Using `Path.Combine(outputDir, fileName)` where `fileName` is user-controlled can lead to path traversal vulnerabilities. If `fileName` contains relative directory traversal characters (e.g., `..\..\secret.txt`) or is an absolute path (e.g., `/etc/passwd` or `C:\secret.txt`), `Path.Combine` will return the malicious path or override the base path completely.
+**Learning:** `Path.Combine` does not automatically sanitize its arguments. The second argument can override the base path if it is absolute or contains traversal sequences.
+**Prevention:** Always rigorously sanitize untrusted input before appending it via `Path.Combine`. Use `Path.GetFileName` after replacing potential cross-platform path separators (e.g., `fileName.Replace('/', Path.DirectorySeparatorChar).Replace('\', Path.DirectorySeparatorChar)`) to ensure only the final file name segment is used. Always handle the edge case where the sanitized result is empty by providing a safe default string (e.g., 'output' or 'default').

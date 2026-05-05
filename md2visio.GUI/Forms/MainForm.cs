@@ -579,13 +579,16 @@ namespace md2visio.GUI.Forms
 
         private void OnOpenOutputClick(object? sender, EventArgs e)
         {
-            if (Directory.Exists(_outputDirTextBox.Text))
+            string path = _outputDirTextBox.Text;
+            if (Directory.Exists(path))
             {
+                // 🛡️ Sentinel: Prevent arbitrary shell execution by validating and normalizing path
+                string fullPath = Path.GetFullPath(path).TrimEnd('\\');
                 Process.Start(new ProcessStartInfo
                 {
-                    FileName = _outputDirTextBox.Text,
-                    UseShellExecute = true,
-                    Verb = "open"
+                    FileName = "explorer.exe",
+                    Arguments = $"\"{fullPath}\"",
+                    UseShellExecute = false
                 });
             }
         }
