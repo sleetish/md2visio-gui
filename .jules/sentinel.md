@@ -1,0 +1,5 @@
+
+## 2024-05-18 - [Path Traversal] Path.Combine does not sanitize inputs
+**Vulnerability:** Path traversal vulnerability due to using unsanitized user input in `Path.Combine`. `Path.Combine` allows absolute paths or directory traversal sequences (like `../`) in its second argument to override the base directory, allowing files to be written outside the intended output directory.
+**Learning:** `System.IO.Path.Combine` does not automatically sanitize its arguments. If the second argument is an absolute path or contains path traversal sequences, it can override the base path.
+**Prevention:** Always rigorously sanitize untrusted input before appending it via `Path.Combine`. Normalize cross-platform slashes (e.g., `.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar)`) before applying `System.IO.Path.GetFileName()`, as this method alone may be insufficient for mixed slashes. Always handle the edge case where the sanitized result is empty by providing a safe default string (e.g., 'output' or 'default').
