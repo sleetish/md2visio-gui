@@ -274,7 +274,9 @@ namespace md2visio.struc.figure
             if (outputFile.ToLower().EndsWith(".vsdx"))
             {
                 isFileMode = true;
-                name = Path.GetFileNameWithoutExtension(outputFile);
+                string sanitizedOutput = outputFile.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
+                name = Path.GetFileNameWithoutExtension(sanitizedOutput);
+                if (string.IsNullOrEmpty(name)) name = "output";
                 dir = Path.GetDirectoryName(outputFile);
 
                 if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
@@ -285,7 +287,9 @@ namespace md2visio.struc.figure
             else if (Directory.Exists(outputFile))
             {
                 isFileMode = false;
-                name = Path.GetFileNameWithoutExtension(iter.Context.InputFile);
+                string sanitizedInput = iter.Context.InputFile?.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar) ?? string.Empty;
+                name = Path.GetFileNameWithoutExtension(sanitizedInput);
+                if (string.IsNullOrEmpty(name)) name = "output";
                 dir = Path.GetFullPath(outputFile).TrimEnd(new char[] { '/', '\\' });
             }
             else
