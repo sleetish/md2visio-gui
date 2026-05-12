@@ -1,0 +1,4 @@
+## 2024-05-24 - [Path Traversal in Output Path Construction]
+**Vulnerability:** The application constructs the output file path in `ConversionService.BuildOutputPath` by directly appending user-controlled `fileName` to the base `outputDir` via `Path.Combine`. This allowed attackers to use path traversal sequences (like `../../../`) in the filename to write output files outside the intended directory.
+**Learning:** `Path.Combine` doesn't sanitize input files. If the right-hand path starts with a root or contains `..` path traversals, it overrides the left path components.
+**Prevention:** Always sanitize untrusted input going into paths. Normalize directory separators to the current platform, then explicitly extract just the file name using `Path.GetFileName`. Fall back to a default value if the extraction results in an empty string.
