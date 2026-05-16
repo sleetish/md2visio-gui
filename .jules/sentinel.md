@@ -1,0 +1,4 @@
+## 2024-05-16 - Prevent Path Traversal in ConversionService
+**Vulnerability:** Path Traversal vulnerability where unsanitized user input (`fileName`) was directly appended using `Path.Combine`. This could allow users to provide paths with directory traversal characters (e.g., `../../../important.txt`) and potentially overwrite arbitrary files.
+**Learning:** Always explicitly sanitize user-provided filename components before using them in file path constructions like `Path.Combine`.
+**Prevention:** Normalize cross-platform slashes and use `System.IO.Path.GetFileName()` to extract only the filename component. Handle the edge case where the sanitized result is empty by providing a safe default string (e.g., "output" or "default").
