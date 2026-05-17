@@ -1,0 +1,4 @@
+## 2024-05-17 - Path Traversal using Path.Combine in .NET
+**Vulnerability:** In .NET, `System.IO.Path.Combine(path1, path2)` can overwrite `path1` if `path2` is an absolute path or contains path traversal payloads. In `ConversionService.cs`, the user-provided filename was passed directly to `Path.Combine`, allowing a malicious user to bypass the intended output directory by supplying an absolute path like `/etc/passwd` or `C:\Windows\System32\cmd.exe`.
+**Learning:** `Path.Combine` doesn't sanitize or force relative behavior for its subsequent arguments. If a subsequent argument evaluates to an absolute root, it disregards previous parts of the path entirely.
+**Prevention:** Always normalize and sanitize user-provided file names. Before passing into `Path.Combine`, strip out paths using `.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar)` followed by `Path.GetFileName()`, and then add checks to ensure a valid filename remains.
