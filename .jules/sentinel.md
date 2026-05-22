@@ -1,0 +1,4 @@
+## 2024-05-24 - [Path Traversal in Path.Combine]
+**Vulnerability:** The `BuildOutputPath` method in `md2visio.GUI/Services/ConversionService.cs` directly appended user-provided filename input to an output directory path using `Path.Combine`. This could lead to a path traversal vulnerability if the filename input contained absolute paths or directory traversal sequences (e.g., `..`).
+**Learning:** In .NET, `System.IO.Path.Combine` does not automatically sanitize its arguments. If the second argument is an absolute path or contains path traversal sequences, it can override the base path or navigate outside of it.
+**Prevention:** Always rigorously sanitize untrusted input before appending it via `Path.Combine`. Normalize cross-platform slashes and use methods like `Path.GetFileName()` to extract only the final component, while providing a safe default string (e.g., "output") if the sanitized result is empty.
