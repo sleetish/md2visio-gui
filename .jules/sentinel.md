@@ -1,0 +1,4 @@
+## 2024-05-24 - [CRITICAL] Path Traversal in ConversionService
+**Vulnerability:** Path traversal vulnerability in `md2visio.GUI/Services/ConversionService.cs` due to unsafe use of `Path.Combine` with an unsanitized `fileName` parameter. An attacker could potentially write files outside the intended output directory by using directory traversal sequences (e.g., `../../`) or absolute paths in the `fileName`.
+**Learning:** `Path.Combine` in .NET does not inherently sanitize paths. If the second argument is an absolute path or contains directory traversal sequences, it will override the base path or navigate outside of it.
+**Prevention:** Always sanitize user-provided filename components before using them in `Path.Combine`. Replace all slash variants (`/` and `\`) with `Path.DirectorySeparatorChar`, extract just the filename using `Path.GetFileName()`, and provide a safe fallback (e.g., `"output"`) if the resulting string is empty or whitespace.
