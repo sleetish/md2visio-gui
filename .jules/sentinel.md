@@ -1,0 +1,4 @@
+## 2024-05-25 - Path Traversal Vulnerability in BuildOutputPath
+**Vulnerability:** The `BuildOutputPath` method in `md2visio.GUI/Services/ConversionService.cs` combines an unsanitized user-provided `fileName` with an output directory using `Path.Combine`. If the `fileName` contains path traversal sequences like `../` or starts with a slash, it could override the base path and write the output file to arbitrary locations on the file system.
+**Learning:** In .NET, `System.IO.Path.Combine` does not automatically sanitize its arguments. If the second argument is an absolute path or contains path traversal sequences, it can override the base path.
+**Prevention:** Always rigorously sanitize untrusted input before appending it via `Path.Combine`. Normalize cross-platform slashes, use `Path.GetFileName()` to extract only the file name part, and handle edge cases where the sanitized result might be empty by providing a safe default string.
