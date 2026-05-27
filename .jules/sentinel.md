@@ -1,0 +1,4 @@
+## 2026-01-06 - Path Traversal in File Output Service
+**Vulnerability:** A path traversal vulnerability existed in `ConversionService.BuildOutputPath` where user-provided filenames were appended directly to an output directory using `Path.Combine` without sanitization. An attacker could potentially supply a filename with directory traversal characters (e.g., `../../output`) to write output files outside the intended directory.
+**Learning:** `Path.Combine` in .NET does not automatically sanitize inputs and can be overridden by path traversal sequences or absolute paths. User-controlled filenames must always be rigorously validated and sanitized.
+**Prevention:** Always sanitize user-provided filename components before using them in `Path.Combine`. Use cross-platform slash replacement and `Path.GetFileName()` to extract only the filename component, and implement safe fallback defaults for edge cases where the resulting string is empty.
