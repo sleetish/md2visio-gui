@@ -1,0 +1,4 @@
+## 2024-05-20 - Path Traversal in Path.Combine
+**Vulnerability:** Path traversal vulnerability due to unsanitized user-provided filename components being directly passed into `System.IO.Path.Combine`. If the `fileName` parameter contained absolute paths or directory traversal characters (e.g., `../../`), it could override the `outputDir` and write to arbitrary locations on the file system.
+**Learning:** `System.IO.Path.Combine` in .NET does not automatically sanitize its arguments. If the second argument is an absolute path or contains traversal sequences, it effectively overrides the base path, leading to security risks when used with untrusted input.
+**Prevention:** Always rigorously sanitize untrusted input before appending it via `Path.Combine`. Normalize cross-platform slashes, apply `System.IO.Path.GetFileName()` to strip path components, and ensure a safe default string is used if the result is empty.
