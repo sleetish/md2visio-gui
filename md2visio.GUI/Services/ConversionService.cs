@@ -181,11 +181,20 @@ namespace md2visio.GUI.Services
         /// </summary>
         private string BuildOutputPath(string outputDir, string? fileName)
         {
-            if (!string.IsNullOrEmpty(fileName))
+            if (!string.IsNullOrWhiteSpace(fileName))
             {
-                if (!fileName.EndsWith(".vsdx", StringComparison.OrdinalIgnoreCase))
-                    fileName += ".vsdx";
-                return Path.Combine(outputDir, fileName);
+                // 🛡️ Sentinel: Sanitize fileName to prevent path traversal
+                string safeFileName = fileName.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
+                safeFileName = Path.GetFileName(safeFileName);
+
+                if (string.IsNullOrWhiteSpace(safeFileName))
+                {
+                    safeFileName = "output";
+                }
+
+                if (!safeFileName.EndsWith(".vsdx", StringComparison.OrdinalIgnoreCase))
+                    safeFileName += ".vsdx";
+                return Path.Combine(outputDir, safeFileName);
             }
             return outputDir;
         }
