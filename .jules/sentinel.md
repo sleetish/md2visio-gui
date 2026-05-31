@@ -1,0 +1,4 @@
+## 2024-05-31 - Path Traversal in System.IO.Path.Combine
+**Vulnerability:** Path traversal vulnerability in `md2visio.GUI/Services/ConversionService.cs` where user-provided `fileName` was directly concatenated using `System.IO.Path.Combine(outputDir, fileName)`. If `fileName` contains an absolute path or path traversal sequences (`../`), it can override the `outputDir` and write files to arbitrary locations.
+**Learning:** `System.IO.Path.Combine` does not automatically sanitize its arguments and is susceptible to overriding the base directory if the second argument looks like an absolute path or contains traversal sequences.
+**Prevention:** Always rigorously sanitize untrusted file names before appending them via `Path.Combine`. Normalize cross-platform slashes, extract just the file name using `System.IO.Path.GetFileName()`, and handle empty string edge cases to ensure the result is strictly a single file name.
