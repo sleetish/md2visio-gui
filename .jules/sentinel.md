@@ -1,0 +1,4 @@
+## 2024-05-18 - Prevent Path Traversal in Filename Saving
+**Vulnerability:** The application allowed a user to specify `_fileNameTextBox.Text` from GUI which was appended directly via `Path.Combine` in `ConversionService.cs`. This was susceptible to path traversal, enabling users to overwrite `.vsdx` files in arbitrary directories via filenames like `../../../malicious.vsdx`.
+**Learning:** `Path.Combine` doesn't automatically sanitize its inputs, enabling absolute path overrides and directory traversal characters like `../` to break out of the intended directory.
+**Prevention:** Always rigorously sanitize untrusted filenames before using `Path.Combine`. Strip directory characters using a robust combination of `.Replace()` and `Path.GetFileName()` or explicitly validate the resulting full path remains inside the target directory. Ensure `Path.GetFileName()` on cross-platform strings replaces backslashes as well.
