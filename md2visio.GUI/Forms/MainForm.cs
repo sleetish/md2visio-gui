@@ -434,7 +434,17 @@ namespace md2visio.GUI.Forms
             };
             authorLabel.Links.Add(0, authorLabel.Text.Length, "https://github.com/konbakuyomu/md2visio-gui/");
             authorLabel.LinkClicked += (s, e) => {
-                Process.Start(new ProcessStartInfo(e.Link.LinkData.ToString()) { UseShellExecute = true });
+                // 🛡️ Sentinel: Validate URL before opening to prevent arbitrary command execution
+                string? linkStr = e.Link?.LinkData?.ToString();
+                if (!string.IsNullOrEmpty(linkStr) && Uri.TryCreate(linkStr, UriKind.Absolute, out Uri? uriResult)
+                    && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
+                {
+                    Process.Start(new ProcessStartInfo(linkStr) { UseShellExecute = true });
+                }
+                else
+                {
+                    MessageBox.Show("Invalid or insecure URL.", "Security Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
             };
 
             container.Controls.Add(authorLabel, 5, 0);
@@ -579,14 +589,20 @@ namespace md2visio.GUI.Forms
 
         private void OnOpenOutputClick(object? sender, EventArgs e)
         {
-            if (Directory.Exists(_outputDirTextBox.Text))
+            // 🛡️ Sentinel: Ensure directory exists to prevent arbitrary file execution via UseShellExecute
+            string outputDir = _outputDirTextBox.Text;
+            if (!string.IsNullOrWhiteSpace(outputDir) && Directory.Exists(outputDir))
             {
                 Process.Start(new ProcessStartInfo
                 {
-                    FileName = _outputDirTextBox.Text,
+                    FileName = outputDir,
                     UseShellExecute = true,
                     Verb = "open"
                 });
+            }
+            else
+            {
+                MessageBox.Show("Output directory does not exist or is invalid.", "Security Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
