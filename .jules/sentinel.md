@@ -1,0 +1,4 @@
+## 2024-06-06 - Path Traversal Vulnerability in `Path.Combine`
+**Vulnerability:** The application was using `Path.Combine(outputDir, fileName)` where `fileName` could contain arbitrary paths from user input. In .NET, `Path.Combine` overrides the base path if the second argument contains an absolute path or path traversal sequences (`../`), leading to a path traversal vulnerability.
+**Learning:** `Path.GetFileName` alone is not sufficient to prevent path traversal when the input contains mixed slashes across platforms. `Path.Combine` does not sanitize its inputs.
+**Prevention:** Always normalize slashes (`.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar)`) before applying `Path.GetFileName()`, and ensure the resulting string is not empty before using it in `Path.Combine()`.
