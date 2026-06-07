@@ -18,10 +18,10 @@ namespace md2visio.struc.figure
             Load(json);
         }
 
-        public MmdJsonArray(StringBuilder textBuilder, int index)
+        public MmdJsonArray(StringBuilder textBuilder, int index, int depth = 0)
         {
             this.index = index;
-            Load(textBuilder);
+            Load(textBuilder, depth);
         }
 
         public override T? GetValue<T>(string keyPath) where T : class
@@ -72,8 +72,9 @@ namespace md2visio.struc.figure
             return Load(new StringBuilder(json));
         }
 
-        MmdJsonArray Load(StringBuilder textBuilder)
+        MmdJsonArray Load(StringBuilder textBuilder, int depth = 0)
         {
+            if (depth > 50) throw new InvalidOperationException("JSON depth exceeds maximum limit of 50");
             StringBuilder item = new();
             bool withInQuote = false;
             bool withInSQuote = false;
@@ -98,7 +99,7 @@ namespace md2visio.struc.figure
                 {
                     Assert($"syntax error near '{item}'", TrimSpaceAndQuote(item).Length == 0);
 
-                    MmdJsonObj obj = new(textBuilder, index);
+                    MmdJsonObj obj = new(textBuilder, index, depth + 1);
                     AddJsonObj(obj);
                     index = obj.Index;
                     continue;
@@ -109,7 +110,7 @@ namespace md2visio.struc.figure
 
                     if (list.Count == 0) { continue; }
 
-                    MmdJsonArray arr = new(textBuilder, index + 1);
+                    MmdJsonArray arr = new(textBuilder, index + 1, depth + 1);
                     AddJsonObj(arr);
                     index = arr.Index;
                     continue;
