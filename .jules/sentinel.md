@@ -1,0 +1,4 @@
+## 2025-02-12 - Prevent DoS via Stack Overflow in JSON Parsing
+**Vulnerability:** MmdJsonObj and MmdJsonArray recursively construct objects based on deeply nested JSON inputs without depth checks. An attacker could craft a deeply nested JSON payload (e.g., `{"a":{"a":{"a":...}}}`) to trigger infinite recursion, leading to an uncatchable StackOverflowException that immediately crashes the application process (Denial of Service).
+**Learning:** Recursive parsing of untrusted text input without bounded limits is inherently dangerous. StackOverflowException in modern .NET is fatal and cannot be mitigated using `try-catch`.
+**Prevention:** Implement strict recursion depth limits (e.g., `if (depth > 50) throw new InvalidOperationException(...)`) in recursive parsers to throw safely catchable exceptions rather than allowing the stack to overflow.
