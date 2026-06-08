@@ -1,0 +1,5 @@
+
+## 2025-05-18 - [CRITICAL] Path Traversal in ConversionService
+**Vulnerability:** The `ConversionService.BuildOutputPath` method blindly appends a user-provided `fileName` parameter using `Path.Combine(outputDir, fileName)`. In .NET, if the second argument to `Path.Combine` is an absolute path or contains directory traversal sequences (e.g. `..\..\`), it can completely override the base path or navigate outside the intended directory. This could allow arbitrary file write vulnerabilities when generating output files.
+**Learning:** `System.IO.Path.Combine` does not automatically sanitize its arguments. Trusting user-controlled filename input to construct paths without validation is dangerous.
+**Prevention:** Always rigorously sanitize untrusted input before appending it via `Path.Combine`. Use `Path.GetFileName()` to extract only the filename component, replacing directory separators first (to handle mixed cross-platform slashes like `\` or `/`), and provide a safe fallback string if the sanitized result is empty.
