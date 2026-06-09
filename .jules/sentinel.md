@@ -1,0 +1,5 @@
+
+## 2024-05-24 - [CRITICAL] Prevent Arbitrary File Write via Path Traversal
+**Vulnerability:** In local desktop applications, user-provided filenames used in file operations (like `Path.Combine(outputDir, fileName)`) without sanitization can lead to arbitrary file writes. A user or malicious shortcut could provide `..\..\Windows\System32\evil.vsdx` as the filename, completely bypassing the intended output directory constraints.
+**Learning:** `System.IO.Path.Combine` doesn't protect against path traversal strings (e.g. `../` or `..\`) nor does it protect against absolute paths. If the second argument is an absolute path or contains traversal sequences, it overrides or traverses outside the base path.
+**Prevention:** Always rigorously sanitize untrusted input before appending it via `Path.Combine`. Normalize cross-platform slashes (`Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar)`) and apply `System.IO.Path.GetFileName()` to ensure only the file name part is used. Also, handle the edge case where the sanitized result is empty by providing a safe default string (e.g., 'output').
