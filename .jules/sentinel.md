@@ -1,0 +1,5 @@
+
+## 2024-05-24 - Path Traversal in ConversionService
+**Vulnerability:** The `BuildOutputPath` method in `md2visio.GUI/Services/ConversionService.cs` constructed output file paths using `Path.Combine(outputDir, fileName)` where `fileName` was user-controlled without adequate sanitization. This allowed an attacker to use absolute paths or path traversal sequences (like `../`) to write files outside of the intended output directory, leading to a path traversal / arbitrary file write vulnerability.
+**Learning:** `Path.Combine` does not automatically mitigate path traversal. If the second argument is an absolute path, it ignores the first argument. If it contains `../`, it goes up directory levels. This occurs silently without throwing exceptions, making it dangerous for untrusted input.
+**Prevention:** Always normalize slashes and explicitly extract just the filename using `Path.GetFileName()` on any user-provided path component before joining it with a base directory using `Path.Combine()`. Provide a safe default fallback string if the resulting filename is empty to prevent null/empty errors.
