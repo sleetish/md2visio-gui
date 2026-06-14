@@ -1,0 +1,4 @@
+## 2024-05-24 - Path Traversal in ConversionService
+**Vulnerability:** The `ConversionService.cs` allowed an arbitrary file name to be passed to `Path.Combine` when building the output path. A user could supply a path containing sequence combinations like `../` to write the output file to arbitrary locations on the file system instead of the intended output directory.
+**Learning:** `System.IO.Path.Combine` does not automatically sanitize arguments. If the second argument contains path traversal sequences, it can override the base path.
+**Prevention:** Always sanitize untrusted input before appending it via `Path.Combine`. Normalize cross-platform slashes and extract just the file name using `Path.GetFileName()`.
