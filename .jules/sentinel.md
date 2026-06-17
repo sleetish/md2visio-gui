@@ -1,0 +1,4 @@
+## 2024-06-11 - Path Traversal in Path.Combine
+**Vulnerability:** Path traversal in file path construction.
+**Learning:** `System.IO.Path.Combine` doesn't sanitize input and could allow arbitrary file paths if combined with malicious input, leading to path traversal attacks (e.g., overriding the directory entirely).
+**Prevention:** Always sanitize user-provided filename components to prevent path traversal vulnerabilities. Normalize cross-platform slashes (e.g., `.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar)`) before applying `System.IO.Path.GetFileName()` or `System.IO.Path.GetFileNameWithoutExtension()`, as these methods alone may be insufficient for mixed slashes. Always handle the edge case where the sanitized result is empty by providing a safe default string (e.g., 'output' or 'default').
