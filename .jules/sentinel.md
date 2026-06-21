@@ -1,0 +1,4 @@
+## 2025-02-28 - Stack Overflow DoS in Mermaid JSON Parsing
+**Vulnerability:** A Denial of Service (DoS) vulnerability existed in `md2visio/struc/figure/MmdJsonObj.cs` and `md2visio/struc/figure/MmdJsonArray.cs`. The custom JSON parser instantiated deeply nested objects and arrays recursively without enforcing any depth limits. A malicious input string with a large number of nested JSON objects/arrays (e.g., `{{{{...}}}}` or `[[[[...]]]]`) could cause a stack overflow exception and crash the application.
+**Learning:** Custom recursive parsers are prone to stack exhaustion when handling untrusted user input without explicit depth tracking.
+**Prevention:** Implement a maximum depth counter (e.g., `MAX_DEPTH = 50`) in all recursive data structure parsers to throw a catchable `InvalidOperationException` instead of causing a hard process crash.
