@@ -1,0 +1,4 @@
+## 2024-05-24 - Fix Path Traversal in ConversionService
+**Vulnerability:** The `BuildOutputPath` method in `md2visio.GUI/Services/ConversionService.cs` directly uses `Path.Combine` with a user-provided `fileName` without sanitization. This allowed path traversal vulnerabilities where a malicious filename could cause the file to be written outside the intended output directory.
+**Learning:** `System.IO.Path.Combine` does not automatically sanitize its arguments. If the second argument is an absolute path or contains path traversal sequences, it can override the base path or traverse out of the intended directory.
+**Prevention:** Always rigorously sanitize untrusted input before appending it via `Path.Combine`. Normalize cross-platform slashes and use `System.IO.Path.GetFileName()` to extract only the file name component, ensuring an empty or invalid result falls back to a safe default.
