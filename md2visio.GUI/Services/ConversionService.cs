@@ -183,6 +183,13 @@ namespace md2visio.GUI.Services
         {
             if (!string.IsNullOrEmpty(fileName))
             {
+                // 🔒 Security: Sanitize filename to prevent Path Traversal vulnerabilities
+                fileName = fileName.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
+                fileName = Path.GetFileName(fileName);
+
+                if (string.IsNullOrWhiteSpace(fileName))
+                    fileName = "output.vsdx";
+
                 if (!fileName.EndsWith(".vsdx", StringComparison.OrdinalIgnoreCase))
                     fileName += ".vsdx";
                 return Path.Combine(outputDir, fileName);
