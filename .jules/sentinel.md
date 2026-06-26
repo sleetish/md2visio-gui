@@ -1,0 +1,4 @@
+## 2024-05-18 - Path Traversal via System.IO.Path.Combine
+**Vulnerability:** The application was appending user-supplied input directly to directory paths using `System.IO.Path.Combine` without proper cross-platform slash normalization. If an attacker provided `fileName` or `theme2load` inputs containing sequences like `..\`, they could potentially escape the intended output directory.
+**Learning:** `Path.GetFileName` is highly dependent on the host operating system's directory separator character. If an application mixes cross-platform inputs (e.g., passing a `\` to a Linux app), `Path.GetFileName` might fail to strip malicious traversal sequences.
+**Prevention:** Always normalize all cross-platform slash formats (`/` and `\`) to the native `Path.DirectorySeparatorChar` before calling path extraction functions like `Path.GetFileName`. When the sanitization leaves an empty string, always provide a secure default fallback to prevent empty filename injections.
