@@ -1,0 +1,4 @@
+## 2024-06-27 - [Fix JSON Parser Stack Overflow (DoS)]
+**Vulnerability:** A Denial of Service (DoS) vulnerability via Stack Overflow existed in the custom `MmdJsonObj` and `MmdJsonArray` recursive parsers. Processing deeply nested JSON structures (e.g., `{"a": {"a": {"a": ... } } }`) caused unbounded recursion leading to a `StackOverflowException`, crashing the entire application process.
+**Learning:** Custom recursive descent parsers must actively defend against stack exhaustion when processing untrusted input. Unlike some exceptions, a `StackOverflowException` in modern .NET is uncatchable and results in immediate process termination.
+**Prevention:** Always enforce a hardcoded maximum recursion depth limit (e.g., `MAX_DEPTH = 50`) in custom parsers and throw a standard, catchable exception (like `InvalidOperationException`) when the limit is exceeded.
