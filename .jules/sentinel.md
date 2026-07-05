@@ -1,0 +1,4 @@
+## 2024-05-25 - [CRITICAL] Fix path traversal in BuildOutputPath
+**Vulnerability:** Path traversal vulnerability due to unsanitized `fileName` parameter passed to `Path.Combine` in `md2visio.GUI/Services/ConversionService.cs`.
+**Learning:** In .NET, `System.IO.Path.Combine` does not sanitize arguments. If the second argument contains path traversal sequences or is an absolute path, it overrides the base path entirely.
+**Prevention:** Always sanitize user-provided filename components to prevent path traversal vulnerabilities. Normalize cross-platform slashes (e.g., `.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar)`) before applying `System.IO.Path.GetFileName()`. Always handle the edge case where the sanitized result is empty by providing a safe default string (e.g., 'output' or 'default').
