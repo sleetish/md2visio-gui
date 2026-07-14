@@ -1,0 +1,4 @@
+## 2024-07-14 - Fix Path Traversal in File Output
+**Vulnerability:** The `BuildOutputPath` method in `md2visio.GUI/Services/ConversionService.cs` allowed path traversal because it passed an unsanitized `fileName` directly to `Path.Combine(outputDir, fileName)`. In .NET, if the second argument contains an absolute path or traversal sequences, it overrides the base path.
+**Learning:** Path traversal vulnerabilities can easily occur in desktop GUIs when saving user-named files if `Path.GetFileName` is not used. Additionally, `Path.GetFileName` does not correctly handle backslashes on all platforms, requiring manual cross-platform slash replacement first.
+**Prevention:** Always sanitize filenames using `.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar)` followed by `Path.GetFileName()` before combining paths, and provide a safe fallback if the result is empty.
