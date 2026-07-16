@@ -1,0 +1,4 @@
+## 2024-05-18 - [CRITICAL] Fix Path Traversal in File Output
+**Vulnerability:** The application used `Path.Combine(outputDir, fileName)` where `fileName` was not sanitized. In .NET, if the second argument to `Path.Combine` is an absolute path or contains directory traversal sequences (`../`), it can override the base path, allowing files to be written to arbitrary locations on the filesystem.
+**Learning:** Always sanitize filename components before using them in file path construction. Using `Path.GetFileName` is not sufficient on its own if cross-platform slashes are present; normalize slashes first. Also, handle the edge case where sanitization results in an empty string to ensure a safe fallback.
+**Prevention:** Normalize slashes (`.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar)`), use `Path.GetFileName()`, and provide a default fallback name if the result is empty before calling `Path.Combine()`.
