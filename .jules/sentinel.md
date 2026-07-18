@@ -1,0 +1,4 @@
+## 2026-01-08 - Secure URL handling with Process.Start
+**Vulnerability:** Passing unvalidated inputs directly into `Process.Start` can lead to arbitrary code execution if a non-HTTP scheme like `file://` or shell commands are provided. A URL link label handler previously accepted string input and launched it via `Process.Start` without enforcing proper URL schemes.
+**Learning:** `Process.Start` with `UseShellExecute=true` will execute local executables or batch files if the provided scheme/path matches. Input passed to it from any user-modifiable component or untrusted source must be validated against a whitelist of safe schemes (like `http://` and `https://`) and parsed securely before launch.
+**Prevention:** Always validate URL strings with `Uri.TryCreate` and verify the scheme (`http` or `https`) prior to passing it to `Process.Start`.
