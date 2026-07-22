@@ -183,9 +183,19 @@ namespace md2visio.GUI.Services
         {
             if (!string.IsNullOrEmpty(fileName))
             {
-                if (!fileName.EndsWith(".vsdx", StringComparison.OrdinalIgnoreCase))
-                    fileName += ".vsdx";
-                return Path.Combine(outputDir, fileName);
+                // 🔒 Security: Sanitize filename to prevent path traversal
+                string sanitized = fileName.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
+                sanitized = Path.GetFileName(sanitized);
+
+                if (string.IsNullOrWhiteSpace(sanitized) || sanitized == ".vsdx")
+                {
+                    sanitized = "output.vsdx";
+                }
+                else if (!sanitized.EndsWith(".vsdx", StringComparison.OrdinalIgnoreCase))
+                {
+                    sanitized += ".vsdx";
+                }
+                return Path.Combine(outputDir, sanitized);
             }
             return outputDir;
         }
