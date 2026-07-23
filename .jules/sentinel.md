@@ -1,0 +1,4 @@
+## 2024-07-23 - Path Traversal in ConversionService BuildOutputPath
+**Vulnerability:** The `BuildOutputPath` method in `md2visio.GUI/Services/ConversionService.cs` directly passed user-provided file names into `Path.Combine`.
+**Learning:** `Path.Combine` in .NET overrides the base path entirely if the second argument is an absolute path. Moreover, it allows path traversal sequences (like `../`) to jump outside the intended destination folder. The vulnerability pattern was specific to this application's combination of unsanitized input and `Path.Combine`.
+**Prevention:** Always sanitize filename variables before appending them to base directory paths via `Path.Combine`. Use `Path.GetFileName` after normalizing directory separator chars, and fallback to a safe default if the result is empty.
